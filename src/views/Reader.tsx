@@ -473,6 +473,17 @@ export const ReaderView = () => {
           </div>
         )}
       </AnimatePresence>
+
+      {shareAyah && data && (
+        <ShareModal
+          isOpen={Boolean(shareAyah)}
+          onClose={() => setShareAyah(null)}
+          arabicText={shareAyah.arabic}
+          bengaliText={shareAyah.bengali}
+          surahName={`সূরা ${data.name} (${data.englishName})`}
+          ayahNumber={shareAyah.number}
+        />
+      )}
     </div>
   );
 }

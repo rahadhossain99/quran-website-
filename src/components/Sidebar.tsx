@@ -1,5 +1,5 @@
 import { useAppStore } from '../Store';
-import { Home, Bookmark, Settings, CircleDashed, Sparkles, Clock, Palette, BookOpen, Volume2, MapPin, CalendarCheck } from 'lucide-react';
+import { Home, Bookmark, Settings, CircleDashed, Sparkles, Clock, Palette, BookOpen, Volume2, MapPin, CalendarCheck, Headphones, Sparkle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 
@@ -9,7 +9,8 @@ type AppTheme = 'light' | 'dark' | 'emerald' | 'luxury' | 'ocean' | 'rose' | 'su
 export const Sidebar = ({ className }: { className?: string }) => {
   const { 
     activeTab, setActiveTab, currentViewSurah, setCurrentViewSurah,
-    theme, setTheme, location, nextPrayer, isPlaying, playingSurah
+    theme, setTheme, location, nextPrayer, isPlaying, playingSurah,
+    setIsCleanMode
   } = useAppStore();
 
   const [time, setTime] = useState('');
@@ -154,6 +155,28 @@ export const Sidebar = ({ className }: { className?: string }) => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Clean Mode Dedicated Sanctuary Banner Button */}
+        <button
+          onClick={() => setIsCleanMode(true)}
+          className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-emerald-900/90 via-teal-900/90 to-zinc-900 border border-emerald-500/40 text-white flex items-center justify-between group hover:scale-[1.02] active:scale-95 transition-all shadow-md"
+        >
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-zinc-950 flex items-center justify-center font-bold shadow-sm group-hover:rotate-12 transition-transform">
+              <Headphones className="w-5 h-5 fill-current" />
+            </div>
+            <div className="text-left font-bengali">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-black text-white">ক্লিন মোড</span>
+                <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 border border-emerald-500/30">
+                  ফোকাস
+                </span>
+              </div>
+              <p className="text-[10px] text-emerald-200/80 font-medium">বিজ্ঞাপনমুক্ত প্রশান্তির পরিবেশ</p>
+            </div>
+          </div>
+          <Sparkle className="w-4 h-4 text-emerald-400 animate-spin" style={{ animationDuration: '8s' }} />
+        </button>
 
         {/* Navigation Tabs */}
         <div className="flex flex-col space-y-1 w-full">

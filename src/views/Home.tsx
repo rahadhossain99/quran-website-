@@ -8,7 +8,7 @@ import {
   Search, Sparkles, BookOpen, MapPin, Clock, Volume2, VolumeX, 
   TrendingUp, RefreshCw, Heart, Calendar, Bell, BellOff, 
   ArrowRight, Compass, Bookmark, Settings, CheckCircle2, ChevronRight,
-  Sun, Moon, Shield, Sparkle
+  Sun, Moon, Shield, Sparkle, Headphones, CloudRain, Wind, Disc, Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PrayerTimesModal } from '../components/PrayerTimesModal';
@@ -133,12 +133,22 @@ export const HomeView = () => {
   // Feature Navigation Cards configuration
   const featureCards = [
     {
+      id: 'clean-mode',
+      title: 'ক্লিন মোড ও প্রশান্তির আমেজ',
+      subtitle: 'বিজ্ঞাপনমুক্ত ফুলস্ক্রীন তিলাওয়াত, ব্যাকগ্রাউন্ড অডিও ও ফোকাস ধ্যান',
+      icon: Headphones,
+      color: 'from-emerald-600/10 via-teal-600/15 to-emerald-900/10 border-emerald-500/40 text-emerald-800 dark:text-emerald-300 hover:border-emerald-500',
+      iconBg: 'bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-md shadow-emerald-500/20',
+      action: () => setIsCleanMode(true),
+      badge: 'শান্তি ও ফোকাস'
+    },
+    {
       id: 'salah-tracker',
       title: 'সালাত ট্র্যাকার ও সময়সূচি',
       subtitle: 'দৈনিক ৫ ওয়াক্ত নামাজ ট্র্যাকিং, জামায়াত ও সঠিক সময়সূচি',
       icon: Clock,
-      color: 'from-emerald-50 to-teal-50 border-emerald-200/60 text-emerald-700 hover:border-emerald-400',
-      iconBg: 'bg-emerald-500 text-white',
+      color: 'from-teal-50/80 to-emerald-50/80 border-teal-200/80 text-teal-800 hover:border-teal-400',
+      iconBg: 'bg-gradient-to-tr from-teal-500 to-emerald-500 text-white shadow-md shadow-teal-500/20',
       tab: 'salah-tracker' as const,
       badge: nextPrayer ? `পরবর্তী: ${nextPrayer.name}` : 'সময়সূচি'
     },
@@ -147,8 +157,8 @@ export const HomeView = () => {
       title: 'ডিজিটাল তাসবিহ',
       subtitle: 'লাইভ ডিজিটাল গণনাকারী, কাস্টম জিকির ও শব্দসহ গণনা',
       icon: RefreshCw,
-      color: 'from-sky-50 to-blue-50 border-sky-200/60 text-sky-700 hover:border-sky-400',
-      iconBg: 'bg-sky-500 text-white',
+      color: 'from-sky-50/80 to-blue-50/80 border-sky-200/80 text-sky-800 hover:border-sky-400',
+      iconBg: 'bg-gradient-to-tr from-sky-500 to-blue-500 text-white shadow-md shadow-sky-500/20',
       tab: 'tasbih' as const,
       badge: 'ডিজিটাল জিকির'
     },
@@ -157,8 +167,8 @@ export const HomeView = () => {
       title: 'নিত্যদিনের দো\'আ',
       subtitle: 'কুরআন ও হাদিসের বিশুদ্ধ দো\'আ ও মোনাজাতের সংগ্রহ',
       icon: Sparkles,
-      color: 'from-amber-50 to-orange-50 border-amber-200/60 text-amber-700 hover:border-amber-400',
-      iconBg: 'bg-amber-500 text-white',
+      color: 'from-amber-50/80 to-orange-50/80 border-amber-200/80 text-amber-800 hover:border-amber-400',
+      iconBg: 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/20',
       tab: 'duas' as const,
       badge: 'প্রয়োজনীয় দো\'আ'
     },
@@ -167,8 +177,8 @@ export const HomeView = () => {
       title: 'সালাত শিক্ষা ও গাইড',
       subtitle: 'ধাপে ধাপে ছবি ও চিত্রসহ সঠিক উপায়ে নামাজ শিক্ষার গাইড',
       icon: BookOpen,
-      color: 'from-indigo-50 to-purple-50 border-indigo-200/60 text-indigo-700 hover:border-indigo-400',
-      iconBg: 'bg-indigo-500 text-white',
+      color: 'from-indigo-50/80 to-purple-50/80 border-indigo-200/80 text-indigo-800 hover:border-indigo-400',
+      iconBg: 'bg-gradient-to-tr from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-500/20',
       tab: 'salah-guide' as const,
       badge: 'নামাজ গাইড'
     },
@@ -177,8 +187,8 @@ export const HomeView = () => {
       title: 'বুকমার্ক ও প্রিয় সূরা',
       subtitle: 'আপনার সংরক্ষিত গুরুত্বপূর্ণ আয়াত ও প্রিয় সূরাসমূহ',
       icon: Bookmark,
-      color: 'from-rose-50 to-pink-50 border-rose-200/60 text-rose-700 hover:border-rose-400',
-      iconBg: 'bg-rose-500 text-white',
+      color: 'from-rose-50/80 to-pink-50/80 border-rose-200/80 text-rose-800 hover:border-rose-400',
+      iconBg: 'bg-gradient-to-tr from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/20',
       tab: 'bookmarks' as const,
       badge: `${toBengaliNumber(favorites.length)}টি প্রিয়`
     },
@@ -187,8 +197,8 @@ export const HomeView = () => {
       title: 'অ্যাপ সেটিংস ও থিম',
       subtitle: 'কারী নির্বাচন, অডিও কন্ট্রোল, ফন্ট সাইজ ও থিম কালার',
       icon: Settings,
-      color: 'from-slate-50 to-gray-50 border-slate-200/60 text-slate-700 hover:border-slate-400',
-      iconBg: 'bg-slate-600 text-white',
+      color: 'from-slate-100/80 to-zinc-100/80 border-slate-200/80 text-slate-800 hover:border-slate-400',
+      iconBg: 'bg-gradient-to-tr from-slate-600 to-zinc-700 text-white shadow-md shadow-slate-500/20',
       tab: 'settings' as const,
       badge: 'কনফিগারেশন'
     }
@@ -331,49 +341,128 @@ export const HomeView = () => {
         </motion.div>
       )}
 
-      {/* 3. Feature Quick Navigation Hub (অন্যান্য সেকশনের নেভিগেশন কার্ড) */}
-      <div className="space-y-4">
+      {/* 3. Featured Clean Mode & Sanctuary Mood Card Banner */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-zinc-900 to-teal-950 p-6 md:p-7 border border-emerald-500/30 text-white shadow-xl group"
+      >
+        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/20 transition-all" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2.5 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold font-sans">
+              <Headphones className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
+              <span>পবিত্র পরিবেশ ও ফোকাস মোড</span>
+              <span className="opacity-40">•</span>
+              <span className="text-amber-300 font-extrabold">Pure Sanctuary</span>
+            </div>
+
+            <h3 className="text-xl md:text-2xl font-black text-white leading-snug">
+              ক্লিন তিলাওয়াত ও প্রশান্তিময় পরিবেশ
+            </h3>
+            <p className="text-xs md:text-sm text-emerald-100/80 font-medium leading-relaxed">
+              বিজ্ঞাপন ও মনোযোগ বিভ্রান্তিমুক্ত তিলাওয়াত। আপনার পছন্দমতো ব্যাকগ্রাউন্ড প্রশান্তিময় শব্দ ও থিম বেছে নিন:
+            </p>
+
+            {/* Quick Mood Selector Pills */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              {[
+                '🌿 শান্ত পরিবেশ',
+                '🌧️ বৃষ্টির শব্দ',
+                '🕌 রয়্যাল গোল্ডেন',
+                '🌌 নাইট ভেলভেট',
+                '🌊 অসীম সাগর'
+              ].map((moodLabel, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setIsCleanMode(true)}
+                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 border border-white/15 hover:border-emerald-400 text-xs font-bold text-white transition-all active:scale-95 flex items-center gap-1.5"
+                >
+                  <span>{moodLabel}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={() => setIsCleanMode(true)}
+            className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 text-zinc-950 font-black text-sm hover:scale-[1.03] active:scale-95 transition-all shadow-lg shadow-emerald-500/25 shrink-0"
+          >
+            <Headphones className="w-5 h-5 fill-current" />
+            <span>ক্লিন মোডে প্রবেশ করুন</span>
+            <ArrowRight className="w-4 h-4 ml-1" />
+          </button>
+        </div>
+      </motion.div>
+
+      {/* 4. Feature Quick Navigation Hub (ইসলামিক সেকশন ও সার্ভিসেস গ্রিড) */}
+      <div className="space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg md:text-xl font-black text-[var(--text-main)] flex items-center gap-2">
-              <Compass className="w-5 h-5 text-[var(--primary)]" />
-              <span>ইসলামিক সেকশন ও সার্ভিসেস</span>
-            </h2>
-            <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">
-              প্রয়োজনীয় ফিচারে সরাসরি প্রবেশ করতে নিচের কার্ডে ট্যাপ করুন
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center">
+                <Compass className="w-4 h-4 animate-spin-slow" />
+              </div>
+              <h2 className="text-xl font-black text-[var(--text-main)] font-bengali">
+                ইসলামিক সেকশন ও সার্ভিসেস
+              </h2>
+            </div>
+            <p className="text-xs text-[var(--text-muted)] font-medium mt-1">
+              প্রয়োজনীয় ফিচারে সরাসরি প্রবেশ করতে নিচের সুন্দর কার্ডগুলোতে ট্যাপ করুন
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 md:gap-4">
+        {/* Symmetrical & Compact Box Grid Layout */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-4">
           {featureCards.map((card, idx) => {
             const IconComponent = card.icon;
+            const isCleanMode = card.id === 'clean-mode';
+
             return (
               <motion.div
                 key={card.id}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                whileHover={{ y: -3, scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setActiveTab(card.tab)}
-                className={`cursor-pointer p-4 rounded-2xl bg-gradient-to-br ${card.color} border transition-all duration-200 flex flex-col justify-between group shadow-2xs hover:shadow-md relative overflow-hidden`}
+                whileHover={{ y: -5, scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => card.action ? card.action() : card.tab && setActiveTab(card.tab)}
+                className={`cursor-pointer p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br ${card.color} border transition-all duration-300 flex flex-col justify-between group shadow-sm hover:shadow-xl relative overflow-hidden backdrop-blur-md min-h-[150px] sm:min-h-[170px] ${
+                  isCleanMode ? 'col-span-2 sm:col-span-2 md:col-span-1 border-emerald-500/60 shadow-emerald-500/15' : ''
+                }`}
               >
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center shadow-2xs group-hover:scale-110 transition-transform`}>
-                    <IconComponent className="w-5 h-5" />
+                {/* Islamic Star Lattice Watermark Background Texture */}
+                <div className="absolute -bottom-8 -right-8 w-28 h-28 text-emerald-950/10 dark:text-white/10 pointer-events-none group-hover:scale-125 group-hover:rotate-45 transition-transform duration-700 ease-out flex items-center justify-center">
+                  <svg viewBox="0 0 100 100" fill="currentColor" className="w-full h-full opacity-40">
+                    <polygon points="50,0 65,35 100,50 65,65 50,100 35,65 0,50 35,35" />
+                    <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" strokeWidth="3" />
+                  </svg>
+                </div>
+
+                {/* Subtle Glass Glow Highlight */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/30 dark:bg-white/5 rounded-full blur-2xl pointer-events-none group-hover:scale-150 transition-transform" />
+
+                {/* Header: Icon & Badge */}
+                <div className="flex items-center justify-between gap-2 relative z-10 mb-3">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl ${card.iconBg} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform shrink-0`}>
+                    <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/80 text-gray-700 backdrop-blur-xs border border-black/5 shadow-2xs">
+
+                  <span className="text-[10px] sm:text-[11px] font-black px-2.5 py-1 rounded-full bg-white/95 dark:bg-zinc-800/95 text-gray-800 dark:text-gray-100 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-xs font-bengali truncate">
                     {card.badge}
                   </span>
                 </div>
 
-                <div>
-                  <h3 className="font-extrabold text-sm md:text-base text-gray-900 group-hover:text-black flex items-center gap-1.5">
+                {/* Body: Title & Subtitle */}
+                <div className="relative z-10 mt-auto space-y-1">
+                  <h3 className="font-black text-sm sm:text-base text-gray-900 dark:text-white group-hover:text-[var(--primary)] flex items-center justify-between gap-1 transition-colors leading-snug">
                     <span>{card.title}</span>
-                    <ChevronRight className="w-4 h-4 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-gray-700" />
+                    <ChevronRight className="w-4 h-4 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[var(--primary)] shrink-0" />
                   </h3>
-                  <p className="text-xs text-gray-600 mt-1 font-medium leading-normal line-clamp-2">
+                  <p className="text-xs text-gray-600 dark:text-gray-300 font-medium leading-relaxed line-clamp-2">
                     {card.subtitle}
                   </p>
                 </div>
