@@ -39,7 +39,14 @@ import {
   Sun,
   Moon,
   Sunrise,
-  Sunset
+  Sunset,
+  Printer,
+  Share2,
+  Download,
+  Lock,
+  KeyRound,
+  ShieldCheck,
+  FileText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -148,7 +155,24 @@ export const ProgressView = () => {
     setTimeout(() => setNoteSavedToast(false), 2500);
   };
 
-  // Modals state
+  // Modals & Journey Start State
+  const [journeyStartDate, setJourneyStartDate] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('quran_journey_start_date');
+      if (saved) return saved;
+      const today = new Date().toISOString().split('T')[0];
+      localStorage.setItem('quran_journey_start_date', today);
+      return today;
+    } catch (e) {
+      return new Date().toISOString().split('T')[0];
+    }
+  });
+
+  const [showLifetimeReportModal, setShowLifetimeReportModal] = useState<boolean>(false);
+  const [resetPinInput, setResetPinInput] = useState<string>('');
+  const [pinErrorToast, setPinErrorToast] = useState<string | null>(null);
+  const [shareReportToast, setShareReportToast] = useState<boolean>(false);
+
   const [showFullResetModal, setShowFullResetModal] = useState<boolean>(false);
   const [fullResetConfirmed, setFullResetConfirmed] = useState<boolean>(false);
 
@@ -188,7 +212,15 @@ export const ProgressView = () => {
   // Active days count
   const activeDaysCount = weeklyProgress.filter(p => (p.seconds || 0) > 0 || (p.ayahs || 0) > 0).length;
   
-  const todayDateStr = new Date().toISOString().split('T')[0];
+  const todayDateObj = new Date();
+  const todayDateStr = todayDateObj.toISOString().split('T')[0];
+
+  const startDateObj = new Date(journeyStartDate);
+  const diffTime = Math.abs(todayDateObj.getTime() - startDateObj.getTime());
+  const elapsedDays = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1);
+
+  const totalHours = Math.floor(totalMinutesListened / 60);
+  const totalRemainingMins = totalMinutesListened % 60;
 
   // Selected Day data for "দৈনিক বিবরণী"
   const selectedDayData = weeklyProgress[selectedDayIdx] || {
@@ -212,8 +244,11 @@ export const ProgressView = () => {
     const percentage = Math.min(100, Math.round((readAyahs / totalAyahs) * 100));
     const isCompleted = percentage >= 100;
     const isMadani = MADANI_SURAHS_SET.has(item.surahNumber);
+    const bData = getBanglaSurahData(item.surahNumber);
+    const banglaName = bData ? bData.banglaName : (BANGLA_SURAH_MAP[item.surahNumber] || `সূরা ${item.surahNumber}`);
     return {
       ...item,
+      banglaName,
       totalAyahs,
       readAyahs,
       listenedMins,
@@ -359,11 +394,69 @@ export const ProgressView = () => {
     };
   };
 
-  // Execute full reset
+  // Execute full reset with 8-digit password verification
   const handleConfirmFullReset = () => {
+    if (resetPinInput.trim().length !== 8) {
+      setPinErrorToast('অনুগ্রহ করে সঠিক ৮ সংখ্যার পাসওয়ার্ড/পিন লিখুন!');
+      setTimeout(() => setPinErrorToast(null), 3500);
+      return;
+    }
+
     resetProgress('RESTART');
+    const newStartDate = new Date().toISOString().split('T')[0];
+    setJourneyStartDate(newStartDate);
+    localStorage.setItem('quran_journey_start_date', newStartDate);
+
     setShowFullResetModal(false);
     setFullResetConfirmed(false);
+    setResetPinInput('');
+    setPinErrorToast(null);
+  };
+
+  // Lifetime report export helpers
+  const handleShareReport = () => {
+    const textReport = `📖 আল-কুরআনুল কারিম - সম্পূর্ণ তেলাওয়াত রিপোর্ট কার্ড\n` +
+      `----------------------------------------\n` +
+      `📅 পড়া শুরুর তারিখ: ${formatBnDate(journeyStartDate)}\n` +
+      `📅 আজকের তারিখ: ${formatBnDate(todayDateStr)}\n` +
+      `⏳ মোট অতিক্রান্ত দিন: ${toBnNumber(elapsedDays)} দিন\n` +
+      `⏱️ মোট তেলাওয়াত সময়: ${toBnNumber(totalHours)} ঘণ্টা ${toBnNumber(totalRemainingMins)} মিনিট\n` +
+      `📖 মোট পঠিত আয়াত: ${toBnNumber(totalAyahsRead)} টি\n` +
+      `🌟 খতম অগ্রগতি: ${toBnNumber(quranCompletionPercent)}%\n` +
+      `----------------------------------------\n` +
+      `আল-কুরআন ডিজিটাল অ্যাপ থেকে তৈরি লাইভ রিপোর্ট।`;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(textReport);
+      setShareReportToast(true);
+      setTimeout(() => setShareReportToast(false), 3000);
+    }
+  };
+
+  const handleDownloadReport = () => {
+    const textReport = `========================================\n` +
+      `   আল-কুরআনুল কারিম - তেলাওয়াত রিপোর্ট কার্ড   \n` +
+      `========================================\n\n` +
+      `পড়া শুরুর তারিখ: ${formatBnDate(journeyStartDate)}\n` +
+      `আজকের তারিখ: ${formatBnDate(todayDateStr)}\n` +
+      `মোট অতিক্রান্ত সময়: ${toBnNumber(elapsedDays)} দিন\n` +
+      `সক্রিয় পঠন দিন: ${toBnNumber(activeDaysCount)} দিন\n` +
+      `মোট তেলাওয়াত সময়: ${toBnNumber(totalHours)} ঘণ্টা ${toBnNumber(totalRemainingMins)} মিনিট\n` +
+      `মোট পঠিত আয়াত: ${toBnNumber(totalAyahsRead)} টি\n` +
+      `খতম অগ্রগতি: ${toBnNumber(quranCompletionPercent)}%\n\n` +
+      `জেনারেট সময়: ${new Date().toLocaleString('bn-BD')}\n`;
+
+    const blob = new Blob([textReport], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Quran_Lifetime_Report_${todayDateStr}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handlePrintReport = () => {
+    window.print();
   };
 
   // Execute surah progress reset only
@@ -417,6 +510,76 @@ export const ProgressView = () => {
           >
             <RotateCcw className="w-3.5 h-3.5 text-rose-500 group-hover:-rotate-90 transition-transform" />
             <span>নতুন করে শুরু (রিসেট)</span>
+          </button>
+        </div>
+      </div>
+
+      {/* UNIQUE JOURNEY TRACKER CARD (কবে থেকে পড়া শুরু করা হয়েছে) */}
+      <div className="mb-8 p-6 sm:p-8 rounded-[2.5rem] bg-gradient-to-br from-emerald-950 via-teal-900 to-slate-900 text-white border-2 border-emerald-500/40 shadow-xl relative overflow-hidden font-bengali">
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-teal-400/20 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center space-x-2 bg-emerald-400/20 text-emerald-300 px-3.5 py-1 rounded-full text-xs font-extrabold border border-emerald-400/30">
+              <Calendar className="w-3.5 h-3.5 text-emerald-300" />
+              <span>কুরআন তেলাওয়াত যাত্রা ট্র্যাকার</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+              <span>পড়া শুরুর তারিখ ও মোট অতিক্রান্ত সময়</span>
+              <Sparkles className="w-5 h-5 text-amber-300 animate-spin" style={{ animationDuration: '6s' }} />
+            </h2>
+            <p className="text-xs text-emerald-100/80 leading-relaxed">
+              আপনি কবে থেকে তেলাওয়াত শুরু করেছেন, আজ কত দিন অতিবাহিত হলো এবং মোট কত ঘণ্টা সময় দিয়েছেন তার সার্বিক ট্র্যাকিং
+            </p>
+          </div>
+
+          {/* Metrics Grid inside Card */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 bg-white/10 backdrop-blur-md p-3.5 sm:p-4 rounded-3xl border border-white/15">
+            <div className="p-3 rounded-2xl bg-black/30 border border-white/10">
+              <span className="text-[10px] text-emerald-200/80 font-bold block">পড়া শুরু</span>
+              <span className="text-xs sm:text-sm font-black text-white mt-0.5 block leading-snug">
+                {formatBnDate(journeyStartDate)}
+              </span>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-black/30 border border-white/10">
+              <span className="text-[10px] text-emerald-200/80 font-bold block">আজকের তারিখ</span>
+              <span className="text-xs sm:text-sm font-black text-amber-300 mt-0.5 block leading-snug">
+                {formatBnDate(todayDateStr)}
+              </span>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-black/30 border border-white/10">
+              <span className="text-[10px] text-emerald-200/80 font-bold block">অতিক্রান্ত দিন</span>
+              <span className="text-xs sm:text-sm font-black text-emerald-300 mt-0.5 block leading-snug">
+                {toBnNumber(elapsedDays)} দিন
+              </span>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-black/30 border border-white/10">
+              <span className="text-[10px] text-emerald-200/80 font-bold block">মোট তেলাওয়াত</span>
+              <span className="text-xs sm:text-sm font-black text-teal-300 mt-0.5 block leading-snug">
+                {toBnNumber(totalHours)}ঘ {toBnNumber(totalRemainingMins)}মি
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card Footer Button */}
+        <div className="mt-6 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 relative z-10">
+          <div className="text-xs text-emerald-200/90 flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>নিরাপদ ট্র্যাকিং • রিসেট দিলে আজকের তারিখ থেকে নতুন অতিক্রান্ত দিন গণনা শুরু হবে</span>
+          </div>
+
+          <button
+            onClick={() => setShowLifetimeReportModal(true)}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all cursor-pointer shadow-lg shadow-amber-400/20 active:scale-95 flex items-center justify-center space-x-2 shrink-0"
+          >
+            <FileText className="w-4 h-4 text-slate-950" />
+            <span>সারা জীবনের সকল তথ্য ও রিপোর্ট প্রিন্ট/শেয়ার করুন</span>
+            <ArrowUpRight className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -1356,9 +1519,41 @@ export const ProgressView = () => {
                 <h3 className="text-xl font-black text-[var(--text-main)] mb-2">
                   সম্পূর্ণ অগ্রগতি রিসেট নিশ্চিতকরণ
                 </h3>
-                <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-6">
+                <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-4">
                   আপনি কি নিশ্চিত যে আপনার সমস্ত আল-কুরআন তেলাওয়াত হিস্ট্রি, সূরা ট্র্যাকিং, স্ট্রিক, পড়ার সময় ও রিসেন্ট লগ মুছে ফেলে নতুন করে শুরু করতে চান?
                 </p>
+
+                {/* 8-Digit Password Input Security Field */}
+                <div className="w-full mb-4 text-left">
+                  <label className="text-xs font-extrabold text-[var(--text-main)] mb-1.5 flex items-center gap-1.5">
+                    <KeyRound className="w-4 h-4 text-rose-500" />
+                    <span>রিসেট সিকিউরিটি পাসওয়ার্ড (৮ ডিজিট):</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      maxLength={8}
+                      value={resetPinInput}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, '');
+                        setResetPinInput(val);
+                      }}
+                      placeholder="৮ সংখ্যার পিন (যেমন: 12345678)"
+                      className="w-full p-3 pl-10 rounded-2xl bg-[var(--bg-main)] border border-rose-500/30 text-sm font-mono font-bold tracking-widest text-[var(--text-main)] focus:outline-none focus:border-rose-500 transition-all"
+                    />
+                    <Lock className="w-4 h-4 text-[var(--text-muted)] absolute left-3 top-3.5" />
+                  </div>
+                  <p className="text-[10px] text-[var(--text-muted)] mt-1 font-bengali">
+                    * অনাকাঙ্ক্ষিত ডিলিট বা রিসেট ঠেকাতে ৮ সংখ্যার পিন দেওয়া বাধ্যতামূলক।
+                  </p>
+                </div>
+
+                {/* Error Toast */}
+                {pinErrorToast && (
+                  <div className="p-2.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-bold mb-4 w-full text-center font-bengali">
+                    {pinErrorToast}
+                  </div>
+                )}
 
                 {/* Double Safety Checkbox */}
                 <label className="flex items-center space-x-2.5 bg-rose-500/5 p-3 rounded-2xl border border-rose-500/20 w-full mb-6 cursor-pointer text-left">
@@ -1369,7 +1564,7 @@ export const ProgressView = () => {
                     className="w-4 h-4 text-rose-500 rounded focus:ring-rose-500 cursor-pointer accent-rose-500"
                   />
                   <span className="text-xs font-bold text-rose-700 dark:text-rose-400">
-                    আমি সমস্ত হিস্ট্রি ডিলিট নিশ্চিত করছি
+                    আমি সমস্ত হিস্ট্রি ডিলিট ও রিস্টার্টে সম্মত
                   </span>
                 </label>
 
@@ -1378,6 +1573,8 @@ export const ProgressView = () => {
                     onClick={() => {
                       setShowFullResetModal(false);
                       setFullResetConfirmed(false);
+                      setResetPinInput('');
+                      setPinErrorToast(null);
                     }}
                     className="py-3 px-4 rounded-2xl border border-[var(--border)] text-[var(--text-main)] font-extrabold text-xs hover:bg-[var(--bg-main)] transition-all cursor-pointer"
                   >
@@ -1385,10 +1582,10 @@ export const ProgressView = () => {
                   </button>
 
                   <button
-                    disabled={!fullResetConfirmed}
+                    disabled={!fullResetConfirmed || resetPinInput.trim().length !== 8}
                     onClick={handleConfirmFullReset}
                     className={`py-3 px-4 rounded-2xl font-black text-xs text-white transition-all shadow-md flex items-center justify-center space-x-2 ${
-                      fullResetConfirmed 
+                      fullResetConfirmed && resetPinInput.trim().length === 8
                         ? 'bg-rose-500 hover:bg-rose-600 active:scale-95 cursor-pointer shadow-rose-500/20' 
                         : 'bg-rose-300 dark:bg-rose-950/50 cursor-not-allowed opacity-60'
                     }`}
@@ -1634,6 +1831,180 @@ export const ProgressView = () => {
                     নোট সেভ করুন
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* 11. LIFETIME REPORT MODAL (সারা জীবনের সকল তথ্য ও রিপোর্ট) */}
+      <AnimatePresence>
+        {showLifetimeReportModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 font-bengali">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLifetimeReportModal(false)}
+              className="absolute inset-0 bg-black/75 backdrop-blur-md"
+            />
+
+            {/* Modal Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-[var(--bg-surface)] border-2 border-emerald-500/30 rounded-[2.5rem] shadow-2xl overflow-hidden z-10 p-6 sm:p-8 max-h-[90vh] flex flex-col justify-between"
+            >
+              {/* Share Toast */}
+              {shareReportToast && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs font-black px-4 py-2 rounded-full shadow-lg z-30 animate-bounce flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>রিপোর্ট কপি করা হয়েছে! যেকোনো জায়গায় পেস্ট করুন</span>
+                </div>
+              )}
+
+              <button
+                onClick={() => setShowLifetimeReportModal(false)}
+                className="absolute top-5 right-5 p-2 rounded-full hover:bg-[var(--bg-main)] text-[var(--text-muted)] transition-colors cursor-pointer z-20"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Printable Content Area */}
+              <div className="overflow-y-auto pr-1 space-y-6" id="printable-report-card">
+                
+                {/* Header Banner */}
+                <div className="p-6 rounded-3xl bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 text-white relative overflow-hidden border border-emerald-500/30">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none" />
+                  
+                  <div className="flex items-center space-x-2 bg-emerald-400/20 text-emerald-300 w-max px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase border border-emerald-400/30 mb-3">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <span>অফিসিয়াল আল-কুরআন তেলাওয়াত রেকর্ড</span>
+                  </div>
+
+                  <h2 className="text-xl sm:text-2xl font-black text-white font-bengali">
+                    সারা জীবনের আল-কুরআন তেলাওয়াত সামারি
+                  </h2>
+                  <p className="text-xs text-emerald-100/80 mt-1">
+                    পড়া শুরু থেকে আজ পর্যন্ত আপনার সর্বমোট পঠিত সময়, দিন ও সূরার তথ্যচিত্র
+                  </p>
+                </div>
+
+                {/* Key Metrics Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">পড়া শুরুর তারিখ</span>
+                    <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1 block">
+                      {formatBnDate(journeyStartDate)}
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">আজকের তারিখ</span>
+                    <span className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400 mt-1 block">
+                      {formatBnDate(todayDateStr)}
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">মোট অতিক্রান্ত সময়</span>
+                    <span className="text-xs sm:text-sm font-black text-[var(--text-main)] mt-1 block">
+                      {toBnNumber(elapsedDays)} দিন
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">সক্রিয় পঠন দিন</span>
+                    <span className="text-xs sm:text-sm font-black text-teal-600 dark:text-teal-400 mt-1 block">
+                      {toBnNumber(activeDaysCount)} দিন
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">মোট তেলাওয়াত সময়</span>
+                    <span className="text-xs sm:text-sm font-black text-[var(--text-main)] mt-1 block">
+                      {toBnNumber(totalHours)}ঘ {toBnNumber(totalRemainingMins)}মি
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">মোট পঠিত আয়াত</span>
+                    <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1 block">
+                      {toBnNumber(totalAyahsRead)} টি
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">খতম অগ্রগতি</span>
+                    <span className="text-xs sm:text-sm font-black text-amber-500 mt-1 block">
+                      {toBnNumber(quranCompletionPercent)}%
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">সম্পূর্ণ পঠিত সূরা</span>
+                    <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1 block">
+                      {toBnNumber(trackedSurahList.filter(s => s.isCompleted).length)} টি
+                    </span>
+                  </div>
+                </div>
+
+                {/* Read Surahs Summary */}
+                <div className="p-5 rounded-3xl bg-[var(--bg-main)] border border-[var(--border)]">
+                  <h4 className="font-extrabold text-sm text-[var(--text-main)] mb-3 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-emerald-500" />
+                    <span>পঠিত ও ট্র্যাককৃত সূরা সমূহের সংক্ষিপ্ত তালিকা</span>
+                  </h4>
+
+                  {trackedSurahList.length === 0 ? (
+                    <p className="text-xs text-[var(--text-muted)] py-4 text-center">
+                      এখনো কোনো সূরা পড়া বা শোনা শুরু হয়নি। পড়ার সাথে সাথে স্বয়ংক্রিয়ভাবে তালিকায় যুক্ত হবে।
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                      {trackedSurahList.map((item) => (
+                        <div key={item.surahNumber} className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] flex items-center justify-between text-xs">
+                          <span className="font-bold text-[var(--text-main)]">
+                            {toBnNumber(item.surahNumber)}. {item.banglaName}
+                          </span>
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${item.isCompleted ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`}>
+                            {item.isCompleted ? 'সম্পূর্ণ' : `${toBnNumber(item.percentage)}%`}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Action Bar: Print, Share, Download */}
+              <div className="mt-6 pt-4 border-t border-[var(--border)] grid grid-cols-1 sm:grid-cols-3 gap-2.5 shrink-0">
+                <button
+                  onClick={handlePrintReport}
+                  className="py-3 px-4 rounded-2xl bg-[var(--bg-main)] hover:bg-[var(--border)] text-[var(--text-main)] font-black text-xs transition-all flex items-center justify-center space-x-2 cursor-pointer border border-[var(--border)] active:scale-95"
+                >
+                  <Printer className="w-4 h-4 text-emerald-500" />
+                  <span>প্রিন্ট করুন</span>
+                </button>
+
+                <button
+                  onClick={handleShareReport}
+                  className="py-3 px-4 rounded-2xl bg-[var(--bg-main)] hover:bg-[var(--border)] text-[var(--text-main)] font-black text-xs transition-all flex items-center justify-center space-x-2 cursor-pointer border border-[var(--border)] active:scale-95"
+                >
+                  <Share2 className="w-4 h-4 text-amber-500" />
+                  <span>কপি / শেয়ার করুন</span>
+                </button>
+
+                <button
+                  onClick={handleDownloadReport}
+                  className="py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition-all flex items-center justify-center space-x-2 cursor-pointer shadow-md shadow-emerald-600/20 active:scale-95"
+                >
+                  <Download className="w-4 h-4 text-white" />
+                  <span>ডাউনলোড করুন</span>
+                </button>
               </div>
             </motion.div>
           </div>
