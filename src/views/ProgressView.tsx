@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAppStore, SurahProgressDetail } from '../Store';
 import { getBanglaSurahData, BANGLA_SURAH_MAP } from '../utils/banglaSurahNames';
+import { toPng } from 'html-to-image';
 import { 
   TrendingUp, 
   Flame, 
@@ -46,7 +47,10 @@ import {
   Lock,
   KeyRound,
   ShieldCheck,
-  FileText
+  FileText,
+  Image as ImageIcon,
+  Loader2,
+  Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -413,7 +417,30 @@ export const ProgressView = () => {
     setPinErrorToast(null);
   };
 
+  const [isGeneratingCardImage, setIsGeneratingCardImage] = useState<boolean>(false);
+
   // Lifetime report export helpers
+  const handleDownloadCardImage = async () => {
+    const node = document.getElementById('printable-report-card');
+    if (!node) return;
+    setIsGeneratingCardImage(true);
+    try {
+      const dataUrl = await toPng(node, {
+        quality: 0.98,
+        cacheBust: true,
+        backgroundColor: '#064e3b',
+      });
+      const link = document.createElement('a');
+      link.download = `Quran_Lifetime_Report_Card_${todayDateStr}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to generate PNG image card', err);
+    } finally {
+      setIsGeneratingCardImage(false);
+    }
+  };
+
   const handleShareReport = () => {
     const textReport = `📖 আল-কুরআনুল কারিম - সম্পূর্ণ তেলাওয়াত রিপোর্ট কার্ড\n` +
       `----------------------------------------\n` +
@@ -1876,102 +1903,222 @@ export const ProgressView = () => {
               <div className="overflow-y-auto pr-1 space-y-6" id="printable-report-card">
                 
                 {/* Header Banner */}
-                <div className="p-6 rounded-3xl bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 text-white relative overflow-hidden border border-emerald-500/30">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none" />
+                <div className="p-6 rounded-3xl bg-gradient-to-br from-emerald-950 via-teal-900 to-slate-900 text-white relative overflow-hidden border border-emerald-500/40 shadow-xl font-bengali">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
                   
-                  <div className="flex items-center space-x-2 bg-emerald-400/20 text-emerald-300 w-max px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase border border-emerald-400/30 mb-3">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                    <span>অফিসিয়াল আল-কুরআন তেলাওয়াত রেকর্ড</span>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center space-x-2 bg-emerald-400/20 text-emerald-300 px-3.5 py-1 rounded-full text-[11px] font-black tracking-wider border border-emerald-400/30">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                      <span>অফিসিয়াল আল-কুরআন তেলাওয়াত সামারি</span>
+                    </div>
+
+                    <div className="bg-amber-400/20 text-amber-300 border border-amber-400/40 px-3 py-1 rounded-full text-[10px] font-black flex items-center gap-1">
+                      <Award className="w-3.5 h-3.5 text-amber-300" />
+                      <span>
+                        {quranCompletionPercent >= 100 
+                          ? 'আল-কুরআন খতমকারী' 
+                          : totalHours >= 20 
+                          ? 'মুফাসসির স্কলার' 
+                          : totalHours >= 5 
+                          ? 'নিয়মিত পাঠক' 
+                          : 'নবীন শিক্ষার্থী'}
+                      </span>
+                    </div>
                   </div>
 
-                  <h2 className="text-xl sm:text-2xl font-black text-white font-bengali">
-                    সারা জীবনের আল-কুরআন তেলাওয়াত সামারি
+                  <h2 className="text-xl sm:text-2xl font-black text-white">
+                    সারা জীবনের আল-কুরআন তেলাওয়াত ও ইবাদত রেকর্ড
                   </h2>
-                  <p className="text-xs text-emerald-100/80 mt-1">
-                    পড়া শুরু থেকে আজ পর্যন্ত আপনার সর্বমোট পঠিত সময়, দিন ও সূরার তথ্যচিত্র
+                  <p className="text-xs text-emerald-100/80 mt-1 leading-relaxed">
+                    পড়া শুরুর তারিখ থেকে আজ পর্যন্ত আপনার সর্বমোট সময়, পঠিত আয়াত, অর্জিত আনুমানিক সওয়াব ও সূরার সার্বিক চিত্র
                   </p>
                 </div>
 
-                {/* Key Metrics Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                {/* Primary Key Metrics Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                  <div className="p-3.5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
                     <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">পড়া শুরুর তারিখ</span>
                     <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1 block">
                       {formatBnDate(journeyStartDate)}
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                  <div className="p-3.5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
                     <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">আজকের তারিখ</span>
                     <span className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400 mt-1 block">
                       {formatBnDate(todayDateStr)}
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
-                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">মোট অতিক্রান্ত সময়</span>
+                  <div className="p-3.5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">মোট সময়</span>
                     <span className="text-xs sm:text-sm font-black text-[var(--text-main)] mt-1 block">
                       {toBnNumber(elapsedDays)} দিন
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                  <div className="p-3.5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
                     <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">সক্রিয় পঠন দিন</span>
                     <span className="text-xs sm:text-sm font-black text-teal-600 dark:text-teal-400 mt-1 block">
                       {toBnNumber(activeDaysCount)} দিন
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                  <div className="p-3.5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
                     <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">মোট তেলাওয়াত সময়</span>
                     <span className="text-xs sm:text-sm font-black text-[var(--text-main)] mt-1 block">
                       {toBnNumber(totalHours)}ঘ {toBnNumber(totalRemainingMins)}মি
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                  <div className="p-3.5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">দৈনিক গড় পঠন</span>
+                    <span className="text-xs sm:text-sm font-black text-teal-600 dark:text-teal-400 mt-1 block">
+                      {toBnNumber((totalMinutesListened / elapsedDays).toFixed(1))} মি/দিন
+                    </span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
                     <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">মোট পঠিত আয়াত</span>
                     <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1 block">
                       {toBnNumber(totalAyahsRead)} টি
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
+                  <div className="p-3.5 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
                     <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">খতম অগ্রগতি</span>
                     <span className="text-xs sm:text-sm font-black text-amber-500 mt-1 block">
                       {toBnNumber(quranCompletionPercent)}%
                     </span>
                   </div>
+                </div>
 
-                  <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border)]">
-                    <span className="text-[10px] font-extrabold text-[var(--text-muted)] block">সম্পূর্ণ পঠিত সূরা</span>
-                    <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1 block">
-                      {toBnNumber(trackedSurahList.filter(s => s.isCompleted).length)} টি
+                {/* Additional Unique Analytics Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <Star className="w-4 h-4 text-amber-500" />
+                      <span className="text-xs font-black">আনুমানিক নেকী ট্র্যাকার</span>
+                    </div>
+                    <span className="text-lg font-black block">
+                      ~{toBnNumber(totalAyahsRead * 250)} নেকী
+                    </span>
+                    <span className="text-[10px] text-[var(--text-muted)] block mt-0.5">
+                      ১ হরফে ১০ সওয়াব হাদিস অনুযায়ী
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <Compass className="w-4 h-4 text-emerald-500" />
+                      <span className="text-xs font-black">মাক্কী বনাম মাদানী</span>
+                    </div>
+                    <span className="text-xs font-bold block">
+                      মাক্কী: {toBnNumber(trackedSurahList.filter(s => !s.isMadani).length)} টি • মাদানী: {toBnNumber(trackedSurahList.filter(s => s.isMadani).length)} টি
+                    </span>
+                    <span className="text-[10px] text-[var(--text-muted)] block mt-0.5">
+                      ট্র্যাককৃত সূরার স্থানভিত্তিক বিভাজন
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-800 dark:text-teal-300">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <Trophy className="w-4 h-4 text-teal-500" />
+                      <span className="text-xs font-black">সম্পূর্ণ পঠিত সূরা</span>
+                    </div>
+                    <span className="text-lg font-black block">
+                      {toBnNumber(trackedSurahList.filter(s => s.isCompleted).length)} টি সূরা
+                    </span>
+                    <span className="text-[10px] text-[var(--text-muted)] block mt-0.5">
+                      ১০০% সমাপ্তকৃত মোট সূরা
                     </span>
                   </div>
                 </div>
 
-                {/* Read Surahs Summary */}
+                {/* Top Surahs by Time Spent */}
+                {trackedSurahList.length > 0 && (
+                  <div className="p-4 rounded-3xl bg-[var(--bg-main)] border border-[var(--border)]">
+                    <h4 className="font-extrabold text-xs sm:text-sm text-[var(--text-main)] mb-3 flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-amber-500" />
+                      <span>সর্বোচ্চ সময় দেওয়া শীর্ষ সূরাসমূহ</span>
+                    </h4>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      {[...trackedSurahList]
+                        .sort((a, b) => (b.listenedSeconds || 0) - (a.listenedSeconds || 0))
+                        .slice(0, 3)
+                        .map((s, idx) => (
+                          <div key={s.surahNumber} className="p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)]">
+                            <div className="flex items-center justify-between text-xs mb-1">
+                              <span className="font-black text-[var(--text-main)]">
+                                #{toBnNumber(idx + 1)} {s.banglaName}
+                              </span>
+                              <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400">
+                                {toBnNumber(s.listenedMins)}মি {toBnNumber(s.listenedSecs)}সে
+                              </span>
+                            </div>
+                            <div className="text-[10px] text-[var(--text-muted)] flex items-center justify-between">
+                              <span>{toBnNumber(s.readAyahs)}/{toBnNumber(s.totalAyahs)} আয়াত</span>
+                              <span>{toBnNumber(s.percentage)}%</span>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Detailed Surahs List with Time & Ayah breakdown */}
                 <div className="p-5 rounded-3xl bg-[var(--bg-main)] border border-[var(--border)]">
-                  <h4 className="font-extrabold text-sm text-[var(--text-main)] mb-3 flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-emerald-500" />
-                    <span>পঠিত ও ট্র্যাককৃত সূরা সমূহের সংক্ষিপ্ত তালিকা</span>
+                  <h4 className="font-extrabold text-xs sm:text-sm text-[var(--text-main)] mb-3 flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-emerald-500" />
+                      <span>সকল সূরার সময় ও পড়ার বিস্তারিত রেকর্ড</span>
+                    </span>
+                    <span className="text-[10px] text-[var(--text-muted)]">
+                      মোট {toBnNumber(trackedSurahList.length)} টি সূরা
+                    </span>
                   </h4>
 
                   {trackedSurahList.length === 0 ? (
-                    <p className="text-xs text-[var(--text-muted)] py-4 text-center">
-                      এখনো কোনো সূরা পড়া বা শোনা শুরু হয়নি। পড়ার সাথে সাথে স্বয়ংক্রিয়ভাবে তালিকায় যুক্ত হবে।
+                    <p className="text-xs text-[var(--text-muted)] py-4 text-center font-bengali">
+                      এখনো কোনো সূরা পড়া বা শোনা শুরু হয়নি। তেলাওয়াত শুরুর সাথে সাথে স্বয়ংক্রিয়ভাবে বিস্তারিত যুক্ত হবে।
                     </p>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                    <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                       {trackedSurahList.map((item) => (
-                        <div key={item.surahNumber} className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] flex items-center justify-between text-xs">
-                          <span className="font-bold text-[var(--text-main)]">
-                            {toBnNumber(item.surahNumber)}. {item.banglaName}
-                          </span>
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${item.isCompleted ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`}>
-                            {item.isCompleted ? 'সম্পূর্ণ' : `${toBnNumber(item.percentage)}%`}
-                          </span>
+                        <div key={item.surahNumber} className="p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                          <div className="flex items-center space-x-2.5">
+                            <div className="w-7 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs flex items-center justify-center shrink-0">
+                              {toBnNumber(item.surahNumber)}
+                            </div>
+                            <div>
+                              <div className="font-bold text-[var(--text-main)] flex items-center gap-1.5">
+                                <span>{item.banglaName}</span>
+                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-[var(--bg-main)] text-[var(--text-muted)] border border-[var(--border)]">
+                                  {item.isMadani ? 'মাদানী' : 'মাক্কী'}
+                                </span>
+                              </div>
+                              <div className="text-[10px] text-[var(--text-muted)] flex items-center gap-2 mt-0.5">
+                                <span>পঠিত: {toBnNumber(item.readAyahs)}/{toBnNumber(item.totalAyahs)} আয়াত</span>
+                                <span>•</span>
+                                <span className="text-teal-600 dark:text-teal-400 font-bold">
+                                  সময়: {toBnNumber(item.listenedMins)}মি {toBnNumber(item.listenedSecs)}সে
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-2 justify-end">
+                            <div className="w-20 bg-[var(--bg-main)] h-2 rounded-full overflow-hidden border border-[var(--border)]">
+                              <div 
+                                className="h-full bg-emerald-500 rounded-full transition-all"
+                                style={{ width: `${item.percentage}%` }}
+                              />
+                            </div>
+                            <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full ${item.isCompleted ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'}`}>
+                              {item.isCompleted ? 'সম্পূর্ণ' : `${toBnNumber(item.percentage)}%`}
+                            </span>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1980,30 +2127,43 @@ export const ProgressView = () => {
 
               </div>
 
-              {/* Action Bar: Print, Share, Download */}
-              <div className="mt-6 pt-4 border-t border-[var(--border)] grid grid-cols-1 sm:grid-cols-3 gap-2.5 shrink-0">
+              {/* Action Bar: Print, Share, Download TXT, Download PNG Card Image */}
+              <div className="mt-6 pt-4 border-t border-[var(--border)] grid grid-cols-2 sm:grid-cols-4 gap-2 shrink-0">
                 <button
                   onClick={handlePrintReport}
-                  className="py-3 px-4 rounded-2xl bg-[var(--bg-main)] hover:bg-[var(--border)] text-[var(--text-main)] font-black text-xs transition-all flex items-center justify-center space-x-2 cursor-pointer border border-[var(--border)] active:scale-95"
+                  className="py-2.5 px-3 rounded-2xl bg-[var(--bg-main)] hover:bg-[var(--border)] text-[var(--text-main)] font-black text-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer border border-[var(--border)] active:scale-95"
                 >
-                  <Printer className="w-4 h-4 text-emerald-500" />
-                  <span>প্রিন্ট করুন</span>
+                  <Printer className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>প্রিন্ট</span>
                 </button>
 
                 <button
                   onClick={handleShareReport}
-                  className="py-3 px-4 rounded-2xl bg-[var(--bg-main)] hover:bg-[var(--border)] text-[var(--text-main)] font-black text-xs transition-all flex items-center justify-center space-x-2 cursor-pointer border border-[var(--border)] active:scale-95"
+                  className="py-2.5 px-3 rounded-2xl bg-[var(--bg-main)] hover:bg-[var(--border)] text-[var(--text-main)] font-black text-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer border border-[var(--border)] active:scale-95"
                 >
-                  <Share2 className="w-4 h-4 text-amber-500" />
-                  <span>কপি / শেয়ার করুন</span>
+                  <Share2 className="w-3.5 h-3.5 text-amber-500" />
+                  <span>শেয়ার/কপি</span>
                 </button>
 
                 <button
                   onClick={handleDownloadReport}
-                  className="py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition-all flex items-center justify-center space-x-2 cursor-pointer shadow-md shadow-emerald-600/20 active:scale-95"
+                  className="py-2.5 px-3 rounded-2xl bg-[var(--bg-main)] hover:bg-[var(--border)] text-[var(--text-main)] font-black text-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer border border-[var(--border)] active:scale-95"
                 >
-                  <Download className="w-4 h-4 text-white" />
-                  <span>ডাউনলোড করুন</span>
+                  <FileText className="w-3.5 h-3.5 text-teal-500" />
+                  <span>টেক্সট ফাইল</span>
+                </button>
+
+                <button
+                  disabled={isGeneratingCardImage}
+                  onClick={handleDownloadCardImage}
+                  className="py-2.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-md shadow-emerald-600/20 active:scale-95 disabled:opacity-50"
+                >
+                  {isGeneratingCardImage ? (
+                    <Loader2 className="w-3.5 h-3.5 text-white animate-spin" />
+                  ) : (
+                    <ImageIcon className="w-3.5 h-3.5 text-white" />
+                  )}
+                  <span>কার্ড পিকচার (PNG)</span>
                 </button>
               </div>
             </motion.div>
