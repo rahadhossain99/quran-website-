@@ -3,6 +3,11 @@ import { Search, Sparkles, Filter, ChevronDown, ChevronUp, Loader, Copy, Check, 
 import { motion, AnimatePresence } from 'motion/react';
 import { useAppStore } from '../Store';
 
+const toBengaliNumber = (num: number) => {
+  const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+  return num.toString().split('').map(d => bnDigits[Number(d)] || d).join('');
+};
+
 export interface RemoteDua {
   id: string;
   title: string;
@@ -88,9 +93,10 @@ export const DuasView = () => {
         setLoading(true);
         
         // Load both local high-quality curated data files
+        const baseUrl = import.meta.env.BASE_URL || './';
         const responses = await Promise.allSettled([
-          fetch('/duas_data.json'),
-          fetch('/more_duas_data.json')
+          fetch(`${baseUrl}duas_data.json`),
+          fetch(`${baseUrl}more_duas_data.json`)
         ]);
         
         let mergedDuas: RemoteDua[] = [];
@@ -195,13 +201,20 @@ export const DuasView = () => {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <div className="flex items-center space-x-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white shadow-md">
-            <Sparkles className="w-5 h-5" />
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white shadow-md">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <h1 className="text-2xl font-bold text-[var(--text-main)] font-sans">দৈনন্দিন দোয়া</h1>
           </div>
-          <h1 className="text-2xl font-bold text-[var(--text-main)] font-sans">দৈনন্দিন দোয়া</h1>
+          {duas.length > 0 && (
+            <span className="text-xs font-bold text-[var(--primary)] bg-[var(--primary-soft)] px-3.5 py-1.5 rounded-full border border-[var(--border)] shadow-2xs">
+              মোট {toBengaliNumber(duas.length)}টি দোয়া
+            </span>
+          )}
         </div>
-        <p className="text-[var(--text-muted)] text-sm ml-13 font-semibold">কুরআন ও সুন্নাহ থেকে নির্বাচিত নিত্য প্রয়োজনীয় দোয়া সমূহ</p>
+        <p className="text-[var(--text-muted)] text-sm ml-13 font-semibold">কুরআন ও সুন্নাহ থেকে সংগৃহীত ১০০টি অত্যন্ত প্রয়োজনীয় দোয়া</p>
       </motion.div>
 
       {/* Search Input */}
