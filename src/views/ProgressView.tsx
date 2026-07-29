@@ -307,39 +307,9 @@ export const ProgressView = () => {
         });
       }
     } else {
-      // Deterministic activity calculation for past days so month view looks rich and colorful
-      const today = new Date();
-      const thisCellDate = new Date(viewYear, viewMonth, dayNum);
-
-      if (thisCellDate <= today) {
-        const seed = (viewYear * 365) + ((viewMonth + 1) * 31) + dayNum;
-        if (seed % 11 === 0 || seed % 17 === 0) {
-          // MAXIMUM FLAME RED DAY (46+ mins - "সবথেকে বেশি লাল/শিখা")
-          minutes = 48 + (seed % 35);
-          ayahs = 32 + (seed % 45);
-          surahsList = ['সূরা আল-কাহফ', 'সূরা আর-রহমান', 'সূরা ইয়াসীন'];
-        } else if (seed % 3 === 0) {
-          // HIGH DAY (31 - 45 mins)
-          minutes = 32 + (seed % 13);
-          ayahs = 22 + (seed % 16);
-          surahsList = ['সূরা আল-বাকারা', 'সূরা আল-ইমরান'];
-        } else if (seed % 2 === 0) {
-          // MEDIUM DAY (16 - 30 mins)
-          minutes = 18 + (seed % 12);
-          ayahs = 12 + (seed % 10);
-          surahsList = ['সূরা আল-মুলক', 'সূরা আল-ওয়াকিআহ'];
-        } else if (seed % 5 === 0) {
-          // LIGHT DAY (1 - 15 mins)
-          minutes = 5 + (seed % 10);
-          ayahs = 4 + (seed % 5);
-          surahsList = ['সূরা আল-ফীল', 'সূরা আল-ইখলাস'];
-        } else {
-          // NO READING DAY (0 mins - "পড়া হয়নি")
-          minutes = 0;
-          ayahs = 0;
-          surahsList = [];
-        }
-      }
+      minutes = 0;
+      ayahs = 0;
+      surahsList = [];
     }
 
     let level: 'none' | 'light' | 'medium' | 'high' | 'peak_red' = 'none';
