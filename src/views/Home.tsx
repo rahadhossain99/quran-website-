@@ -137,7 +137,7 @@ export const HomeView = () => {
       title: 'ক্লিন মোড ও প্রশান্তির আমেজ',
       subtitle: 'বিজ্ঞাপনমুক্ত ফুলস্ক্রীন তিলাওয়াত, ব্যাকগ্রাউন্ড অডিও ও ফোকাস ধ্যান',
       icon: Headphones,
-      color: 'from-emerald-600/10 via-teal-600/15 to-emerald-900/10 border-emerald-500/40 text-emerald-800 dark:text-emerald-300 hover:border-emerald-500',
+      color: 'bg-[var(--bg-surface)] border-emerald-500/50 hover:border-emerald-500 shadow-sm hover:shadow-emerald-500/10',
       iconBg: 'bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-md shadow-emerald-500/20',
       action: () => setIsCleanMode(true),
       badge: 'শান্তি ও ফোকাস'
@@ -147,7 +147,7 @@ export const HomeView = () => {
       title: 'সালাত ট্র্যাকার ও সময়সূচি',
       subtitle: 'দৈনিক ৫ ওয়াক্ত নামাজ ট্র্যাকিং, জামায়াত ও সঠিক সময়সূচি',
       icon: Clock,
-      color: 'from-teal-50/80 to-emerald-50/80 border-teal-200/80 text-teal-800 hover:border-teal-400',
+      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
       iconBg: 'bg-gradient-to-tr from-teal-500 to-emerald-500 text-white shadow-md shadow-teal-500/20',
       tab: 'salah-tracker' as const,
       badge: nextPrayer ? `পরবর্তী: ${nextPrayer.name}` : 'সময়সূচি'
@@ -157,7 +157,7 @@ export const HomeView = () => {
       title: 'ডিজিটাল তাসবিহ',
       subtitle: 'লাইভ ডিজিটাল গণনাকারী, কাস্টম জিকির ও শব্দসহ গণনা',
       icon: RefreshCw,
-      color: 'from-sky-50/80 to-blue-50/80 border-sky-200/80 text-sky-800 hover:border-sky-400',
+      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
       iconBg: 'bg-gradient-to-tr from-sky-500 to-blue-500 text-white shadow-md shadow-sky-500/20',
       tab: 'tasbih' as const,
       badge: 'ডিজিটাল জিকির'
@@ -167,7 +167,7 @@ export const HomeView = () => {
       title: 'নিত্যদিনের দো\'আ',
       subtitle: 'কুরআন ও হাদিসের বিশুদ্ধ দো\'আ ও মোনাজাতের সংগ্রহ',
       icon: Sparkles,
-      color: 'from-amber-50/80 to-orange-50/80 border-amber-200/80 text-amber-800 hover:border-amber-400',
+      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
       iconBg: 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/20',
       tab: 'duas' as const,
       badge: 'প্রয়োজনীয় দো\'আ'
@@ -177,7 +177,7 @@ export const HomeView = () => {
       title: 'সালাত শিক্ষা ও গাইড',
       subtitle: 'ধাপে ধাপে ছবি ও চিত্রসহ সঠিক উপায়ে নামাজ শিক্ষার গাইড',
       icon: BookOpen,
-      color: 'from-indigo-50/80 to-purple-50/80 border-indigo-200/80 text-indigo-800 hover:border-indigo-400',
+      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
       iconBg: 'bg-gradient-to-tr from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-500/20',
       tab: 'salah-guide' as const,
       badge: 'নামাজ গাইড'
@@ -187,7 +187,7 @@ export const HomeView = () => {
       title: 'বুকমার্ক ও প্রিয় সূরা',
       subtitle: 'আপনার সংরক্ষিত গুরুত্বপূর্ণ আয়াত ও প্রিয় সূরাসমূহ',
       icon: Bookmark,
-      color: 'from-rose-50/80 to-pink-50/80 border-rose-200/80 text-rose-800 hover:border-rose-400',
+      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
       iconBg: 'bg-gradient-to-tr from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/20',
       tab: 'bookmarks' as const,
       badge: `${toBengaliNumber(favorites.length)}টি প্রিয়`
@@ -197,7 +197,7 @@ export const HomeView = () => {
       title: 'অ্যাপ সেটিংস ও থিম',
       subtitle: 'কারী নির্বাচন, অডিও কন্ট্রোল, ফন্ট সাইজ ও থিম কালার',
       icon: Settings,
-      color: 'from-slate-100/80 to-zinc-100/80 border-slate-200/80 text-slate-800 hover:border-slate-400',
+      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
       iconBg: 'bg-gradient-to-tr from-slate-600 to-zinc-700 text-white shadow-md shadow-slate-500/20',
       tab: 'settings' as const,
       badge: 'কনফিগারেশন'
@@ -427,24 +427,21 @@ export const HomeView = () => {
                 key={card.id}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
+                transition={{ delay: idx * 0.04 }}
                 whileHover={{ y: -5, scale: 1.02 }}
                 whileTap={{ scale: 0.96 }}
                 onClick={() => card.action ? card.action() : card.tab && setActiveTab(card.tab)}
-                className={`cursor-pointer p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br ${card.color} border transition-all duration-300 flex flex-col justify-between group shadow-sm hover:shadow-xl relative overflow-hidden backdrop-blur-md min-h-[150px] sm:min-h-[170px] ${
+                className={`cursor-pointer p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${card.color} border transition-all duration-300 flex flex-col justify-between group shadow-sm hover:shadow-xl relative overflow-hidden backdrop-blur-md min-h-[150px] sm:min-h-[170px] ${
                   isCleanMode ? 'col-span-2 sm:col-span-2 md:col-span-1 border-emerald-500/60 shadow-emerald-500/15' : ''
                 }`}
               >
                 {/* Islamic Star Lattice Watermark Background Texture */}
-                <div className="absolute -bottom-8 -right-8 w-28 h-28 text-emerald-950/10 dark:text-white/10 pointer-events-none group-hover:scale-125 group-hover:rotate-45 transition-transform duration-700 ease-out flex items-center justify-center">
-                  <svg viewBox="0 0 100 100" fill="currentColor" className="w-full h-full opacity-40">
+                <div className="absolute -bottom-8 -right-8 w-28 h-28 text-[var(--primary)] opacity-[0.06] pointer-events-none group-hover:scale-125 group-hover:rotate-45 transition-transform duration-700 ease-out flex items-center justify-center">
+                  <svg viewBox="0 0 100 100" fill="currentColor" className="w-full h-full">
                     <polygon points="50,0 65,35 100,50 65,65 50,100 35,65 0,50 35,35" />
                     <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" strokeWidth="3" />
                   </svg>
                 </div>
-
-                {/* Subtle Glass Glow Highlight */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/30 dark:bg-white/5 rounded-full blur-2xl pointer-events-none group-hover:scale-150 transition-transform" />
 
                 {/* Header: Icon & Badge */}
                 <div className="flex items-center justify-between gap-2 relative z-10 mb-3">
@@ -452,18 +449,18 @@ export const HomeView = () => {
                     <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
 
-                  <span className="text-[10px] sm:text-[11px] font-black px-2.5 py-1 rounded-full bg-white/95 dark:bg-zinc-800/95 text-gray-800 dark:text-gray-100 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-xs font-bengali truncate">
+                  <span className="text-[10px] sm:text-[11px] font-black px-2.5 py-1 rounded-full bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary)] border-opacity-20 shadow-2xs font-bengali truncate">
                     {card.badge}
                   </span>
                 </div>
 
                 {/* Body: Title & Subtitle */}
                 <div className="relative z-10 mt-auto space-y-1">
-                  <h3 className="font-black text-sm sm:text-base text-gray-900 dark:text-white group-hover:text-[var(--primary)] flex items-center justify-between gap-1 transition-colors leading-snug">
+                  <h3 className="font-black text-sm sm:text-base text-[var(--text-main)] group-hover:text-[var(--primary)] flex items-center justify-between gap-1 transition-colors leading-snug">
                     <span>{card.title}</span>
                     <ChevronRight className="w-4 h-4 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[var(--primary)] shrink-0" />
                   </h3>
-                  <p className="text-xs text-gray-600 dark:text-gray-300 font-medium leading-relaxed line-clamp-2">
+                  <p className="text-xs text-[var(--text-muted)] font-medium leading-relaxed line-clamp-2">
                     {card.subtitle}
                   </p>
                 </div>

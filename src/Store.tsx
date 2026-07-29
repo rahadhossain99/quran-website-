@@ -108,6 +108,8 @@ interface AppState {
   setZoomLocked: (v: boolean) => void;
   salahLogs: Record<string, SalahLog>;
   toggleSalahLog: (dateStr: string, prayerId: keyof SalahLog) => void;
+  isSidebarCollapsed: boolean;
+  setIsSidebarCollapsed: (v: boolean | ((prev: boolean) => boolean)) => void;
 }
 
 const toBengaliNumber = (num: number) => {
@@ -199,6 +201,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const saved = localStorage.getItem('quran_salah_logs');
     return saved ? JSON.parse(saved) : {};
   });
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('quran_sidebar_collapsed') === 'true';
+    }
+    return false;
+  });
+
+  const handleSetIsSidebarCollapsed = (v: boolean | ((prev: boolean) => boolean)) => {
+    setIsSidebarCollapsed(prev => {
+      const nextVal = typeof v === 'function' ? v(prev) : v;
+      localStorage.setItem('quran_sidebar_collapsed', nextVal ? 'true' : 'false');
+      return nextVal;
+    });
+  };
 
   const setGlobalZoom = (zoom: number) => {
     setGlobalZoomState(zoom);
@@ -1102,6 +1119,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         globalZoom, setGlobalZoom,
         zoomLocked, setZoomLocked,
         salahLogs, toggleSalahLog,
+        isSidebarCollapsed, setIsSidebarCollapsed: handleSetIsSidebarCollapsed,
       }}
     >
       {children}
