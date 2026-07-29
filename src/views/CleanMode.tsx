@@ -6,7 +6,7 @@ import {
   X, Play, Pause, Search, Music, Volume2, VolumeX, SkipForward, SkipBack, 
   Sparkles, Heart, Headphones, RefreshCw, Eye, EyeOff, Check, AlertCircle, Settings,
   Share2, CloudRain, Wind, Disc, Bookmark, Sliders, Zap, Sun, Moon, Waves, Feather,
-  BookOpen, Compass, Layers, Shield, Sparkle
+  BookOpen, Compass, Layers, Shield, Sparkle, ZoomIn, ZoomOut, Maximize2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShareModal } from '../components/ShareModal';
@@ -29,6 +29,9 @@ export const CleanModeView = () => {
   
   // Clean Mode Theme preset
   const [themePreset, setThemePreset] = useState<CleanTheme>('emerald');
+
+  // Card Zoom Scale State (60% to 160%)
+  const [cardScale, setCardScale] = useState<number>(1.0);
 
   // Dual layout modes: true = Focus Mode (hides panels, centers text), false = Full split view
   const [isFocusImmersive, setIsFocusImmersive] = useState(false);
@@ -343,6 +346,31 @@ export const CleanModeView = () => {
 
         {/* Header Actions */}
         <div className="flex items-center space-x-2">
+          {/* Card Zoom Scale Controller */}
+          <div className="flex items-center space-x-1 bg-zinc-900 border border-zinc-800 rounded-xl p-1 text-xs shadow-inner">
+            <button
+              onClick={() => setCardScale(prev => Math.max(0.6, parseFloat((prev - 0.1).toFixed(1))))}
+              className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all active:scale-90"
+              title="কার্ড ছোট করুন (-)"
+            >
+              <ZoomOut className="w-3.5 h-3.5 text-zinc-400" />
+            </button>
+            <span 
+              onClick={() => setCardScale(1.0)} 
+              className="text-[10px] font-black text-amber-400 font-sans px-1 min-w-[38px] text-center cursor-pointer hover:underline"
+              title="পুনরায় স্বাভাবিক (১০০%) সাইজে আনুন"
+            >
+              {Math.round(cardScale * 100)}%
+            </span>
+            <button
+              onClick={() => setCardScale(prev => Math.min(1.6, parseFloat((prev + 0.1).toFixed(1))))}
+              className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-300 hover:text-white transition-all active:scale-90"
+              title="কার্ড বড় করুন (+)"
+            >
+              <ZoomIn className="w-3.5 h-3.5 text-zinc-400" />
+            </button>
+          </div>
+
           {/* Share Card Generator Trigger */}
           {activeAyahObj && playingSurah && (
             <button
@@ -636,165 +664,171 @@ export const CleanModeView = () => {
             {playingSurah ? (
               <div className="w-full text-center flex flex-col items-center flex-1 justify-center py-2">
                 
-                {/* STRUCTURAL LAYOUT VARIATION 1: Royal Mihrab Arch Frame */}
-                {themeStyle.layoutStyle === 'royal-mihrab' && (
-                  <div className="w-full max-w-lg relative bg-gradient-to-b from-emerald-950/40 via-zinc-900/80 to-zinc-950 border-2 border-emerald-500/40 rounded-t-[5rem] rounded-b-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md mb-2 overflow-hidden">
-                    {/* Arch Top Header Ornament */}
-                    <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center justify-center space-x-2 text-emerald-400 opacity-60">
-                      <Sparkle className="w-4 h-4" />
-                      <div className="w-16 h-0.5 bg-emerald-500/40" />
-                      <Compass className="w-4 h-4" />
-                      <div className="w-16 h-0.5 bg-emerald-500/40" />
-                      <Sparkle className="w-4 h-4" />
-                    </div>
+                {/* Scalable Card Wrapper Container */}
+                <div 
+                  className="w-full flex justify-center transition-transform duration-200 ease-out origin-center my-auto"
+                  style={{ transform: `scale(${cardScale})` }}
+                >
+                  {/* STRUCTURAL LAYOUT VARIATION 1: Royal Mihrab Arch Frame */}
+                  {themeStyle.layoutStyle === 'royal-mihrab' && (
+                    <div className="w-full max-w-lg relative bg-gradient-to-b from-emerald-950/40 via-zinc-900/80 to-zinc-950 border-2 border-emerald-500/40 rounded-t-[5rem] rounded-b-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md mb-2 overflow-hidden">
+                      {/* Arch Top Header Ornament */}
+                      <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center justify-center space-x-2 text-emerald-400 opacity-60">
+                        <Sparkle className="w-4 h-4" />
+                        <div className="w-16 h-0.5 bg-emerald-500/40" />
+                        <Compass className="w-4 h-4" />
+                        <div className="w-16 h-0.5 bg-emerald-500/40" />
+                        <Sparkle className="w-4 h-4" />
+                      </div>
 
-                    <div className="pt-4 pb-2">
-                      <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight mb-1 font-sans">
-                        {playingSurah.englishName}
-                      </h2>
-                      <p className="text-xs font-bold text-emerald-400 font-bengali">
-                        সূরা {playingSurah.name} ({playingSurah.revelationType === 'Meccan' ? 'মাক্কী' : 'মাদানী'})
-                      </p>
-                    </div>
+                      <div className="pt-4 pb-2">
+                        <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight mb-1 font-sans">
+                          {playingSurah.englishName}
+                        </h2>
+                        <p className="text-xs font-bold text-emerald-400 font-bengali">
+                          সূরা {playingSurah.name} ({playingSurah.revelationType === 'Meccan' ? 'মাক্কী' : 'মাদানী'})
+                        </p>
+                      </div>
 
-                    {/* Ayah Verse Box inside Arch */}
-                    <div className="mt-2 w-full bg-zinc-950/80 border border-emerald-500/20 rounded-2xl p-5 h-[190px] sm:h-[220px] overflow-y-auto custom-scrollbar relative flex flex-col items-center justify-center">
-                      <AnimatePresence mode="wait">
-                        {activeAyahObj && (
-                          <motion.div
-                            key={playingAyahIndex}
-                            initial={{ opacity: 0, scale: 0.96 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.96 }}
-                            className="text-center w-full"
-                          >
-                            <p 
-                              className="font-arabic text-emerald-300 drop-shadow-md mb-3 leading-relaxed font-semibold filter saturate-[1.3]" 
-                              dir="rtl"
-                              style={{ fontSize: `${arabicFontSize}px` }}
+                      {/* Ayah Verse Box inside Arch */}
+                      <div className="mt-2 w-full bg-zinc-950/80 border border-emerald-500/20 rounded-2xl p-5 h-[190px] sm:h-[220px] overflow-y-auto custom-scrollbar relative flex flex-col items-center justify-center">
+                        <AnimatePresence mode="wait">
+                          {activeAyahObj && (
+                            <motion.div
+                              key={playingAyahIndex}
+                              initial={{ opacity: 0, scale: 0.96 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.96 }}
+                              className="text-center w-full"
                             >
+                              <p 
+                                className="font-arabic text-emerald-300 drop-shadow-md mb-3 leading-relaxed font-semibold filter saturate-[1.3]" 
+                                dir="rtl"
+                                style={{ fontSize: `${arabicFontSize}px` }}
+                              >
+                                {activeAyahObj.arabicText}
+                              </p>
+                              {showTranslation && (
+                                <p 
+                                  className="font-semibold font-bengali text-zinc-200 leading-relaxed max-w-sm mx-auto"
+                                  style={{ fontSize: `${bengaliFontSize}px` }}
+                                >
+                                  {activeAyahObj.bengaliText}
+                                </p>
+                              )}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STRUCTURAL LAYOUT VARIATION 2: Modern Minimal Glass Pod */}
+                  {themeStyle.layoutStyle === 'minimal-glass' && (
+                    <div className="w-full max-w-lg relative bg-zinc-900/40 border border-indigo-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-2xl mb-2">
+                      <div className="flex items-center justify-between mb-4 px-2">
+                        <span className="text-xs font-black text-indigo-400 font-sans tracking-widest uppercase">MINIMAL FOCUS</span>
+                        <span className="text-xs font-bold bg-indigo-500/10 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/20">
+                          Ayah {playingAyahIndex + 1} / {playingSurah.ayahs.length}
+                        </span>
+                      </div>
+
+                      {/* Circular Audio Wave Ring Visualizer */}
+                      <div className="relative w-28 h-28 mx-auto rounded-full bg-zinc-950 border border-indigo-500/40 flex items-center justify-center shadow-xl mb-4">
+                        <Headphones className={`w-8 h-8 text-indigo-400 ${isPlaying ? 'scale-110' : 'opacity-40'}`} />
+                        {isPlaying && (
+                          <div className="absolute inset-0 rounded-full border border-indigo-400/50 animate-ping opacity-25" />
+                        )}
+                      </div>
+
+                      <h2 className="text-xl font-black text-white font-sans">{playingSurah.englishName}</h2>
+                      <p className="text-xs text-indigo-300 font-bengali mb-3">সূরা {playingSurah.name}</p>
+
+                      <div className="bg-zinc-950/80 border border-indigo-500/20 rounded-2xl p-5 h-[170px] overflow-y-auto custom-scrollbar flex items-center justify-center">
+                        {activeAyahObj && (
+                          <div className="text-center">
+                            <p className="font-arabic text-indigo-200 leading-relaxed font-semibold mb-2" dir="rtl" style={{ fontSize: `${arabicFontSize}px` }}>
                               {activeAyahObj.arabicText}
                             </p>
                             {showTranslation && (
-                              <p 
-                                className="font-semibold font-bengali text-zinc-200 leading-relaxed max-w-sm mx-auto"
-                                style={{ fontSize: `${bengaliFontSize}px` }}
-                              >
+                              <p className="font-bengali text-zinc-300 text-xs" style={{ fontSize: `${bengaliFontSize}px` }}>
                                 {activeAyahObj.bengaliText}
                               </p>
                             )}
-                          </motion.div>
+                          </div>
                         )}
-                      </AnimatePresence>
-                    </div>
-                  </div>
-                )}
-
-                {/* STRUCTURAL LAYOUT VARIATION 2: Modern Minimal Glass Pod */}
-                {themeStyle.layoutStyle === 'minimal-glass' && (
-                  <div className="w-full max-w-lg relative bg-zinc-900/40 border border-indigo-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-2xl mb-2">
-                    <div className="flex items-center justify-between mb-4 px-2">
-                      <span className="text-xs font-black text-indigo-400 font-sans tracking-widest uppercase">MINIMAL FOCUS</span>
-                      <span className="text-xs font-bold bg-indigo-500/10 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/20">
-                        Ayah {playingAyahIndex + 1} / {playingSurah.ayahs.length}
-                      </span>
-                    </div>
-
-                    {/* Circular Audio Wave Ring Visualizer */}
-                    <div className="relative w-28 h-28 mx-auto rounded-full bg-zinc-950 border border-indigo-500/40 flex items-center justify-center shadow-xl mb-4">
-                      <Headphones className={`w-8 h-8 text-indigo-400 ${isPlaying ? 'scale-110' : 'opacity-40'}`} />
-                      {isPlaying && (
-                        <div className="absolute inset-0 rounded-full border border-indigo-400/50 animate-ping opacity-25" />
-                      )}
-                    </div>
-
-                    <h2 className="text-xl font-black text-white font-sans">{playingSurah.englishName}</h2>
-                    <p className="text-xs text-indigo-300 font-bengali mb-3">সূরা {playingSurah.name}</p>
-
-                    <div className="bg-zinc-950/80 border border-indigo-500/20 rounded-2xl p-5 h-[170px] overflow-y-auto custom-scrollbar flex items-center justify-center">
-                      {activeAyahObj && (
-                        <div className="text-center">
-                          <p className="font-arabic text-indigo-200 leading-relaxed font-semibold mb-2" dir="rtl" style={{ fontSize: `${arabicFontSize}px` }}>
-                            {activeAyahObj.arabicText}
-                          </p>
-                          {showTranslation && (
-                            <p className="font-bengali text-zinc-300 text-xs" style={{ fontSize: `${bengaliFontSize}px` }}>
-                              {activeAyahObj.bengaliText}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* STRUCTURAL LAYOUT VARIATION 3: Ancient Gold Illuminated Manuscript */}
-                {themeStyle.layoutStyle === 'ancient-manuscript' && (
-                  <div className="w-full max-w-lg relative bg-[#18120a] border-4 border-double border-amber-600/50 rounded-xl p-6 sm:p-8 shadow-2xl mb-2 relative">
-                    {/* Ornate Corner Flourish Accents */}
-                    <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 border-amber-500" />
-                    <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2 border-amber-500" />
-                    <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2 border-amber-500" />
-                    <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 border-amber-500" />
-
-                    <div className="border-b border-amber-600/30 pb-3 mb-4 flex items-center justify-between">
-                      <Sun className="w-5 h-5 text-amber-500" />
-                      <div className="text-center">
-                        <span className="text-xs font-black text-amber-400 font-sans tracking-widest uppercase block">HOLY MANUSCRIPT</span>
-                        <h2 className="text-lg font-black text-amber-100 font-sans">{playingSurah.englishName}</h2>
                       </div>
-                      <Feather className="w-5 h-5 text-amber-500" />
                     </div>
+                  )}
 
-                    <div className="bg-[#100b06] border border-amber-600/30 rounded-lg p-5 h-[180px] overflow-y-auto custom-scrollbar flex items-center justify-center">
-                      {activeAyahObj && (
+                  {/* STRUCTURAL LAYOUT VARIATION 3: Ancient Gold Illuminated Manuscript */}
+                  {themeStyle.layoutStyle === 'ancient-manuscript' && (
+                    <div className="w-full max-w-lg relative bg-[#18120a] border-4 border-double border-amber-600/50 rounded-xl p-6 sm:p-8 shadow-2xl mb-2 relative">
+                      {/* Ornate Corner Flourish Accents */}
+                      <div className="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 border-amber-500" />
+                      <div className="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2 border-amber-500" />
+                      <div className="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2 border-amber-500" />
+                      <div className="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 border-amber-500" />
+
+                      <div className="border-b border-amber-600/30 pb-3 mb-4 flex items-center justify-between">
+                        <Sun className="w-5 h-5 text-amber-500" />
                         <div className="text-center">
-                          <p className="font-arabic text-amber-200 leading-relaxed font-semibold mb-2" dir="rtl" style={{ fontSize: `${arabicFontSize}px` }}>
-                            {activeAyahObj.arabicText}
-                          </p>
-                          {showTranslation && (
-                            <p className="font-bengali text-amber-100/90 text-xs" style={{ fontSize: `${bengaliFontSize}px` }}>
-                              {activeAyahObj.bengaliText}
-                            </p>
-                          )}
+                          <span className="text-xs font-black text-amber-400 font-sans tracking-widest uppercase block">HOLY MANUSCRIPT</span>
+                          <h2 className="text-lg font-black text-amber-100 font-sans">{playingSurah.englishName}</h2>
                         </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* STRUCTURAL LAYOUT VARIATION 4: Cosmic Ocean Wave */}
-                {themeStyle.layoutStyle === 'cosmic-ocean' && (
-                  <div className="w-full max-w-lg relative bg-slate-900/80 border border-cyan-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl mb-2">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-2 text-cyan-400">
-                        <Waves className="w-4 h-4 animate-pulse" />
-                        <span className="text-xs font-black font-sans uppercase">Abyssal Wave</span>
+                        <Feather className="w-5 h-5 text-amber-500" />
                       </div>
-                      <span className="text-xs font-bold text-cyan-300 bg-cyan-500/10 px-3 py-0.5 rounded-full border border-cyan-500/20">
-                        Ayah {playingAyahIndex + 1}
-                      </span>
-                    </div>
 
-                    <h2 className="text-xl font-black text-white font-sans mb-1">{playingSurah.englishName}</h2>
-                    <p className="text-xs text-cyan-300 font-bengali mb-4">সূরা {playingSurah.name}</p>
-
-                    <div className="bg-slate-950/80 border border-cyan-500/20 rounded-2xl p-5 h-[180px] overflow-y-auto custom-scrollbar flex items-center justify-center">
-                      {activeAyahObj && (
-                        <div className="text-center">
-                          <p className="font-arabic text-cyan-200 leading-relaxed font-semibold mb-2" dir="rtl" style={{ fontSize: `${arabicFontSize}px` }}>
-                            {activeAyahObj.arabicText}
-                          </p>
-                          {showTranslation && (
-                            <p className="font-bengali text-cyan-100 text-xs" style={{ fontSize: `${bengaliFontSize}px` }}>
-                              {activeAyahObj.bengaliText}
+                      <div className="bg-[#100b06] border border-amber-600/30 rounded-lg p-5 h-[180px] overflow-y-auto custom-scrollbar flex items-center justify-center">
+                        {activeAyahObj && (
+                          <div className="text-center">
+                            <p className="font-arabic text-amber-200 leading-relaxed font-semibold mb-2" dir="rtl" style={{ fontSize: `${arabicFontSize}px` }}>
+                              {activeAyahObj.arabicText}
                             </p>
-                          )}
-                        </div>
-                      )}
+                            {showTranslation && (
+                              <p className="font-bengali text-amber-100/90 text-xs" style={{ fontSize: `${bengaliFontSize}px` }}>
+                                {activeAyahObj.bengaliText}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+
+                  {/* STRUCTURAL LAYOUT VARIATION 4: Cosmic Ocean Wave */}
+                  {themeStyle.layoutStyle === 'cosmic-ocean' && (
+                    <div className="w-full max-w-lg relative bg-slate-900/80 border border-cyan-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl mb-2">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-2 text-cyan-400">
+                          <Waves className="w-4 h-4 animate-pulse" />
+                          <span className="text-xs font-black font-sans uppercase">Abyssal Wave</span>
+                        </div>
+                        <span className="text-xs font-bold text-cyan-300 bg-cyan-500/10 px-3 py-0.5 rounded-full border border-cyan-500/20">
+                          Ayah {playingAyahIndex + 1}
+                        </span>
+                      </div>
+
+                      <h2 className="text-xl font-black text-white font-sans mb-1">{playingSurah.englishName}</h2>
+                      <p className="text-xs text-cyan-300 font-bengali mb-4">সূরা {playingSurah.name}</p>
+
+                      <div className="bg-slate-950/80 border border-cyan-500/20 rounded-2xl p-5 h-[180px] overflow-y-auto custom-scrollbar flex items-center justify-center">
+                        {activeAyahObj && (
+                          <div className="text-center">
+                            <p className="font-arabic text-cyan-200 leading-relaxed font-semibold mb-2" dir="rtl" style={{ fontSize: `${arabicFontSize}px` }}>
+                              {activeAyahObj.arabicText}
+                            </p>
+                            {showTranslation && (
+                              <p className="font-bengali text-cyan-100 text-xs" style={{ fontSize: `${bengaliFontSize}px` }}>
+                                {activeAyahObj.bengaliText}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* Jump & Action Row */}
                 <div className="flex flex-wrap items-center justify-center gap-2 mt-2">

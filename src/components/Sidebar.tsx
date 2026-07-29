@@ -2,12 +2,12 @@ import { useAppStore } from '../Store';
 import { 
   Home, Bookmark, Settings, CircleDashed, Sparkles, Clock, Palette, 
   BookOpen, Volume2, MapPin, CalendarCheck, Headphones, Sparkle,
-  PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight
+  PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight, TrendingUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 
-type Tab = 'home' | 'bookmarks' | 'tasbih' | 'duas' | 'settings' | 'salah-tracker' | 'salah-guide';
+type Tab = 'home' | 'bookmarks' | 'tasbih' | 'duas' | 'settings' | 'salah-tracker' | 'salah-guide' | 'progress';
 type AppTheme = 'light' | 'dark' | 'emerald' | 'luxury' | 'ocean' | 'rose' | 'sunset' | 'midnight';
 
 export const Sidebar = ({ className }: { className?: string }) => {
@@ -35,6 +35,7 @@ export const Sidebar = ({ className }: { className?: string }) => {
 
   const navItems = [
     { id: 'home', icon: Home, label: 'হোম', desc: 'আজকের কন্ট্রোল ও সূরা' },
+    { id: 'progress', icon: TrendingUp, label: 'অগ্রগতি', desc: 'তেলাওয়াত ও পড়ার পারফর্ম্যান্স' },
     { id: 'salah-tracker', icon: CalendarCheck, label: 'সালাত ট্র্যাকার', desc: 'দৈনিক নামাজ জিপিএস ট্র্যাকিং ও গ্রাফ' },
     { id: 'salah-guide', icon: BookOpen, label: 'সালাত শিক্ষা', desc: 'সালাতের নিয়ম ও প্রয়োজনীয় দোয়া' },
     { id: 'tasbih', icon: CircleDashed, label: 'তাসবিহ', desc: 'ডিজিটাল জিকির কাউন্টার' },

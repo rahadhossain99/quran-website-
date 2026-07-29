@@ -185,7 +185,7 @@ export const Player = () => {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ scale: 0.5, opacity: 0, filter: 'blur(10px)' }}
-            className={`fixed ${currentViewSurah === null ? 'bottom-24' : 'bottom-6'} left-4 right-4 md:left-auto md:right-auto md:w-full md:max-w-xl md:left-1/2 md:-translate-x-1/2 z-50`}
+            className={`fixed ${currentViewSurah === null ? 'bottom-20 md:bottom-6' : 'bottom-6'} left-4 right-4 md:left-auto md:right-6 lg:right-8 md:w-[400px] md:max-w-md z-50`}
             onClick={() => setExpanded(true)}
           >
             {/* Mini Player */}

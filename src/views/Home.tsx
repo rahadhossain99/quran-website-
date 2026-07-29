@@ -153,6 +153,16 @@ export const HomeView = () => {
       badge: nextPrayer ? `পরবর্তী: ${nextPrayer.name}` : 'সময়সূচি'
     },
     {
+      id: 'progress',
+      title: 'তেলাওয়াত ও পড়ার অগ্রগতি',
+      subtitle: 'দৈনিক গোল, লড়িয়াল বিশ্লেষণ, বার চার্ট ও সূরা ট্র্যাকিং',
+      icon: TrendingUp,
+      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
+      iconBg: 'bg-gradient-to-tr from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/20',
+      tab: 'progress' as const,
+      badge: 'রিপোর্ট ও অ্যানালিটিক্স'
+    },
+    {
       id: 'tasbih',
       title: 'ডিজিটাল তাসবিহ',
       subtitle: 'লাইভ ডিজিটাল গণনাকারী, কাস্টম জিকির ও শব্দসহ গণনা',

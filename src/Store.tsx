@@ -16,7 +16,7 @@ export interface SalahLog {
 }
 
 type AppTheme = 'light' | 'dark' | 'emerald' | 'luxury' | 'ocean' | 'rose' | 'sunset' | 'midnight';
-type Tab = 'home' | 'bookmarks' | 'tasbih' | 'duas' | 'settings' | 'salah-tracker' | 'salah-guide';
+type Tab = 'home' | 'bookmarks' | 'tasbih' | 'duas' | 'settings' | 'salah-tracker' | 'salah-guide' | 'progress';
 
 interface LastRead {
   surahNumber: number;
@@ -39,6 +39,14 @@ interface DayProgress {
   minutes: number;
   seconds: number;
   surahs: number[];
+}
+
+export interface SurahProgressDetail {
+  surahNumber: number;
+  readAyahs: number;
+  listenedSeconds: number;
+  lastAyahIndex: number;
+  lastUpdated: string;
 }
 
 interface AppState {
@@ -81,6 +89,11 @@ interface AppState {
   weeklyProgress: DayProgress[];
   recordAyahRead: (surahNumber: number) => void;
   resetProgress: (confirm: string) => boolean;
+
+  // Surah Progress Tracking
+  surahProgressMap: Record<number, SurahProgressDetail>;
+  recordSurahProgress: (surahNumber: number, ayahIndex: number, listenedSecondsDelta?: number) => void;
+  resetSurahProgressOnly: () => void;
 
   // Prayer Times
   prayerTimes: PrayerTimes | null;
@@ -429,6 +442,44 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('quran_progress', JSON.stringify(weeklyProgress));
   }, [weeklyProgress]);
 
+  // Surah Progress Map State
+  const [surahProgressMap, setSurahProgressMap] = useState<Record<number, SurahProgressDetail>>(() => {
+    const saved = localStorage.getItem('quran_surah_progress_map');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return {};
+  });
+
+  const recordSurahProgress = (surahNumber: number, ayahIndex: number, listenedSecondsDelta: number = 0) => {
+    setSurahProgressMap(prev => {
+      const existing = prev[surahNumber] || {
+        surahNumber,
+        readAyahs: 0,
+        listenedSeconds: 0,
+        lastAyahIndex: 0,
+        lastUpdated: new Date().toISOString()
+      };
+      const updatedItem: SurahProgressDetail = {
+        surahNumber,
+        readAyahs: Math.max(existing.readAyahs, ayahIndex + 1),
+        listenedSeconds: existing.listenedSeconds + listenedSecondsDelta,
+        lastAyahIndex: Math.max(existing.lastAyahIndex, ayahIndex),
+        lastUpdated: new Date().toISOString()
+      };
+      const updatedMap = { ...prev, [surahNumber]: updatedItem };
+      localStorage.setItem('quran_surah_progress_map', JSON.stringify(updatedMap));
+      return updatedMap;
+    });
+  };
+
+  const resetSurahProgressOnly = () => {
+    setSurahProgressMap({});
+    localStorage.removeItem('quran_surah_progress_map');
+  };
+
   const recordAyahRead = (surahNumber: number) => {
     const today = new Date().toISOString().split('T')[0];
     setWeeklyProgress(prev => {
@@ -444,6 +495,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
       return updated;
     });
+    recordSurahProgress(surahNumber, 0, 0);
   };
 
   const resetProgress = (confirm: string) => {
@@ -461,12 +513,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         });
       }
       setWeeklyProgress(initial);
+      resetSurahProgressOnly();
       return true;
     }
     return false;
   };
 
-  // Tracking reading time in seconds
+  // Tracking reading time in seconds & updating Surah progress
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying) {
@@ -494,10 +547,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           }
           return updated;
         });
+
+        // Also update surah specific listening progress dynamically!
+        if (playingSurah) {
+          const currentAyah = playingAyahIndex >= 0 ? playingAyahIndex : 0;
+          recordSurahProgress(playingSurah.number, currentAyah, 1);
+        }
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, playingSurah, playingAyahIndex]);
 
   const setTheme = (t: AppTheme) => {
     setThemeState(t);
@@ -1008,6 +1067,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setPlayingSurah(surah);
     setPlayingAyahIndex(index);
     setIsPlaying(true);
+    recordSurahProgress(surah.number, index, 0);
     if (isAzanPlaying) playAzan(); // Stop Azan if starting Quran
   };
 
@@ -1091,6 +1151,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const handleSetCurrentViewSurah = (surahNum: number | null) => {
+    setCurrentViewSurah(surahNum);
+    if (surahNum !== null) {
+      recordSurahProgress(surahNum, 0, 0);
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -1103,13 +1170,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         bengaliFontSize, setBengaliFontSize,
         repeatMode, setRepeatMode,
         lastRead, setLastRead,
-        currentViewSurah, setCurrentViewSurah,
+        currentViewSurah, setCurrentViewSurah: handleSetCurrentViewSurah,
         initialTargetAyahIndex, setInitialTargetAyahIndex,
         isCleanMode, setIsCleanMode,
         notificationsEnabled, setNotificationsEnabled,
         reminders, addReminder, removeReminder,
 
         weeklyProgress, recordAyahRead, resetProgress,
+        surahProgressMap, recordSurahProgress, resetSurahProgressOnly,
 
         prayerTimes, nextPrayer, location, playAzan, isAzanPlaying,
 

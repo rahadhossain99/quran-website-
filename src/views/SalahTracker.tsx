@@ -55,7 +55,7 @@ const PRAYER_HADITHS = [
 ];
 
 export const SalahTrackerView = () => {
-  const { salahLogs, toggleSalahLog } = useAppStore();
+  const { salahLogs, toggleSalahLog, setActiveTab } = useAppStore();
   const [selectedDate, setSelectedDate] = useState(() => {
     const d = new Date();
     const yr = d.getFullYear();
@@ -253,15 +253,31 @@ export const SalahTrackerView = () => {
           <p className="text-xs text-[var(--text-muted)] mt-1 font-sans">Track your 5 daily prayers, build streaks, and get complete visual logs of your consistency.</p>
         </div>
         
-        {/* Streak Pill */}
-        <div className="bg-gradient-to-r from-orange-400 to-amber-500 rounded-2xl p-[3px] shadow-md hover:shadow-lg transition-all active:scale-98">
-          <div className="bg-white dark:bg-slate-900 rounded-[13px] px-4 py-2.5 flex items-center space-x-2.5">
-            <Flame className="w-6 h-6 text-orange-500 fill-orange-500 animate-bounce" />
-            <div>
-              <p className="text-[9px] uppercase font-black text-[var(--text-muted)] tracking-widest leading-none">সালাত স্ট্রিক</p>
-              <p className="text-base font-extrabold text-[var(--text-main)] leading-none mt-1 font-bengali">
-                {toBnNumber(stats.currentStreak)} দিন একাদিক্রমে
-              </p>
+        <div className="flex items-center gap-3">
+          {/* Salah Guide Link Button inside Salah Tracker */}
+          <button
+            onClick={() => setActiveTab('salah-guide')}
+            className="bg-[var(--bg-surface)] border border-[var(--primary)] border-opacity-30 hover:border-opacity-100 hover:bg-[var(--primary-soft)] rounded-2xl px-4 py-2.5 flex items-center space-x-2.5 transition-all shadow-sm active:scale-95 group cursor-pointer"
+          >
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[var(--primary)] to-emerald-400 text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+              <BookOpen className="w-4 h-4" />
+            </div>
+            <div className="text-left font-bengali">
+              <p className="text-[9px] uppercase font-bold text-[var(--primary)] tracking-wider leading-none">নামাজ নিয়ম ও দোয়া</p>
+              <p className="text-xs font-black text-[var(--text-main)] leading-none mt-1">সালাত শিক্ষা ➔</p>
+            </div>
+          </button>
+
+          {/* Streak Pill */}
+          <div className="bg-gradient-to-r from-orange-400 to-amber-500 rounded-2xl p-[2px] shadow-md hover:shadow-lg transition-all active:scale-98">
+            <div className="bg-white dark:bg-slate-900 rounded-[14px] px-3.5 py-2 flex items-center space-x-2">
+              <Flame className="w-5 h-5 text-orange-500 fill-orange-500 animate-bounce" />
+              <div>
+                <p className="text-[8px] uppercase font-black text-[var(--text-muted)] tracking-widest leading-none">সালাত স্ট্রিক</p>
+                <p className="text-sm font-extrabold text-[var(--text-main)] leading-none mt-0.5 font-bengali">
+                  {toBnNumber(stats.currentStreak)} দিন
+                </p>
+              </div>
             </div>
           </div>
         </div>

@@ -12,6 +12,7 @@ import { DuasView } from './views/Duas';
 import { CleanModeView } from './views/CleanMode';
 import { SalahTrackerView } from './views/SalahTracker';
 import { SalahGuideView } from './views/SalahGuide';
+import { ProgressView } from './views/ProgressView';
 import { motion, AnimatePresence } from 'motion/react';
 
 const AppContent = () => {
@@ -58,6 +59,7 @@ const AppContent = () => {
                   {activeTab === 'tasbih' && <TasbihView />}
                   {activeTab === 'salah-tracker' && <SalahTrackerView />}
                   {activeTab === 'salah-guide' && <SalahGuideView />}
+                  {activeTab === 'progress' && <ProgressView />}
                 </motion.div>
               ) : (
                 <motion.div

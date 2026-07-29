@@ -1,5 +1,5 @@
 import { useAppStore } from '../Store';
-import { Home, Bookmark, Settings, Sparkles, CalendarCheck, BookOpen, Headphones } from 'lucide-react';
+import { Home, Bookmark, Settings, Sparkles, CalendarCheck, BookOpen, Headphones, TrendingUp } from 'lucide-react';
 
 export const Navigation = () => {
   const { activeTab, setActiveTab, currentViewSurah, setIsCleanMode } = useAppStore();
@@ -8,9 +8,9 @@ export const Navigation = () => {
 
   const navItems = [
     { id: 'home', icon: Home, label: 'হোম', action: () => setActiveTab('home') },
-    { id: 'clean-mode', icon: Headphones, label: 'ক্লিন মোড', action: () => setIsCleanMode(true), isSpecial: true },
+    { id: 'progress', icon: TrendingUp, label: 'অগ্রগতি', action: () => setActiveTab('progress') },
     { id: 'salah-tracker', icon: CalendarCheck, label: 'সালাত ট্র্যাকার', action: () => setActiveTab('salah-tracker') },
-    { id: 'salah-guide', icon: BookOpen, label: 'সালাত শিক্ষা', action: () => setActiveTab('salah-guide') },
+    { id: 'clean-mode', icon: Headphones, label: 'ক্লিন মোড', action: () => setIsCleanMode(true), isSpecial: true },
     { id: 'duas', icon: Sparkles, label: 'দোয়া', action: () => setActiveTab('duas') },
     { id: 'bookmarks', icon: Bookmark, label: 'বুকমার্ক', action: () => setActiveTab('bookmarks') },
     { id: 'settings', icon: Settings, label: 'সেটিংস', action: () => setActiveTab('settings') },
