@@ -8,7 +8,7 @@ import {
   Search, Sparkles, BookOpen, MapPin, Clock, Volume2, VolumeX, 
   TrendingUp, RefreshCw, Heart, Calendar, Bell, BellOff, 
   ArrowRight, Compass, Bookmark, Settings, CheckCircle2, ChevronRight,
-  Sun, Moon, Shield, Sparkle, Headphones, CloudRain, Wind, Disc, Zap
+  Sun, Moon, Shield, Sparkle, Headphones, CloudRain, Wind, Disc, Zap, Waves
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PrayerTimesModal } from '../components/PrayerTimesModal';
@@ -369,18 +369,19 @@ export const HomeView = () => {
             {/* Quick Mood Selector Pills */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
               {[
-                '🌿 শান্ত পরিবেশ',
-                '🌧️ বৃষ্টির শব্দ',
-                '🕌 রয়্যাল গোল্ডেন',
-                '🌌 নাইট ভেলভেট',
-                '🌊 অসীম সাগর'
-              ].map((moodLabel, idx) => (
+                { label: 'শান্ত পরিবেশ', icon: Sparkles },
+                { label: 'বৃষ্টির শব্দ', icon: CloudRain },
+                { label: 'রয়্যাল গোল্ডেন', icon: Sun },
+                { label: 'নাইট ভেলভেট', icon: Moon },
+                { label: 'অসীম সাগর', icon: Waves }
+              ].map((mood, idx) => (
                 <button
                   key={idx}
                   onClick={() => setIsCleanMode(true)}
-                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 border border-white/15 hover:border-emerald-400 text-xs font-bold text-white transition-all active:scale-95 flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 border border-white/15 hover:border-emerald-400 text-xs font-bold text-white transition-all active:scale-95 flex items-center gap-1.5 shadow-2xs"
                 >
-                  <span>{moodLabel}</span>
+                  <mood.icon className="w-3.5 h-3.5 text-emerald-300" />
+                  <span>{mood.label}</span>
                 </button>
               ))}
             </div>

@@ -24,10 +24,10 @@
     --text-main: #0f172a;
     --text-muted: #64748b;
     --border: #e2e8f0;
-    --primary: #2563eb; /* Royal Blue */
-    --primary-hover: #1d4ed8;
-    --primary-soft: #eff6ff;
-    --accent: #f59e0b;
+    --primary: #059669; /* Royal Islamic Emerald */
+    --primary-hover: #047857;
+    --primary-soft: #ecfdf5;
+    --accent: #d97706;
     --accent-soft: #fef3c7;
     
     --arabic-size: 38px;
@@ -35,14 +35,14 @@
   }
 
   .dark {
-    --bg-main: #020617;
-    --bg-surface: #0f172a;
+    --bg-main: #090d16;
+    --bg-surface: #111827;
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
-    --border: #1e293b;
-    --primary: #38bdf8; /* Sky Blue */
-    --primary-hover: #0ea5e9;
-    --primary-soft: #082f49;
+    --border: #1f2937;
+    --primary: #10b981; /* Emerald Dark */
+    --primary-hover: #059669;
+    --primary-soft: #064e3b;
     --accent: #fbbf24;
     --accent-soft: #451a03;
   }
@@ -51,75 +51,75 @@
     --bg-main: #f0fdf4;
     --bg-surface: #ffffff;
     --text-main: #064e3b;
-    --text-muted: #10b981;
+    --text-muted: #059669;
     --border: #d1fae5;
-    --primary: #059669; /* Islamic Green */
+    --primary: #059669; /* Islamic Emerald */
     --primary-hover: #047857;
     --primary-soft: #ecfdf5;
-    --accent: #f59e0b;
-    --accent-soft: #fffbeb;
+    --accent: #d97706;
+    --accent-soft: #fef3c7;
   }
 
   .luxury {
-    --bg-main: #0a0a0a;
-    --bg-surface: #141414;
-    --text-main: #ffffff;
-    --text-muted: #a3a3a3;
-    --border: #262626;
-    --primary: #d4af37; /* Royal Gold */
-    --primary-hover: #b8860b;
-    --primary-soft: #1c1917;
-    --accent: #ffffff;
-    --accent-soft: #262626;
+    --bg-main: #faf8f5;
+    --bg-surface: #ffffff;
+    --text-main: #291e12;
+    --text-muted: #b45309;
+    --border: #fef3c7;
+    --primary: #d97706; /* Royal Gold Manuscript */
+    --primary-hover: #b45309;
+    --primary-soft: #fffbeb;
+    --accent: #f59e0b;
+    --accent-soft: #fef3c7;
   }
 
   .ocean {
     --bg-main: #f0f9ff;
     --bg-surface: #ffffff;
     --text-main: #0c4a6e;
-    --text-muted: #38bdf8;
+    --text-muted: #0284c7;
     --border: #e0f2fe;
     --primary: #0284c7; /* Ocean Blue */
     --primary-hover: #0369a1;
     --primary-soft: #f0f9ff;
-    --accent: #fb7185;
-    --accent-soft: #fff1f2;
+    --accent: #0ea5e9;
+    --accent-soft: #e0f2fe;
   }
 
   .rose {
     --bg-main: #fff1f2;
     --bg-surface: #ffffff;
     --text-main: #881337;
-    --text-muted: #fb7185;
+    --text-muted: #e11d48;
     --border: #ffe4e6;
-    --primary: #e11d48; /* Rose Red */
+    --primary: #e11d48; /* Velvet Rose */
     --primary-hover: #be123c;
     --primary-soft: #fff1f2;
-    --accent: #f59e0b;
-    --accent-soft: #fef3c7;
+    --accent: #f43f5e;
+    --accent-soft: #ffe4e6;
   }
 
   .sunset {
-    --bg-main: #fdf2f8;
+    --bg-main: #faf5ff;
     --bg-surface: #ffffff;
-    --text-main: #701a75;
-    --text-muted: #d946ef;
-    --border: #f5d0fe;
-    --primary: #6366f1; /* Indigo */
-    --primary-hover: #4f46e5;
-    --primary-soft: #eef2ff;
-    --accent: #f43f5e;
-    --accent-soft: #fff1f2;
+    --text-main: #4c1d95;
+    --text-muted: #7c3aed;
+    --border: #f3e8ff;
+    --primary: #7c3aed; /* Royal Dusk Indigo */
+    --primary-hover: #6d28d9;
+    --primary-soft: #f3e8ff;
+    --accent: #a855f7;
+    --accent-soft: #faf5ff;
   }
 
   .midnight {
-    --bg-main: #020617;
+    --bg-main: #030712;
     --bg-surface: #0f172a;
-    --text-main: #e2e8f0;
-    --text-muted: #64748b;
+    --text-main: #f1f5f9;
+    --text-muted: #818cf8;
     --border: #1e293b;
-    --primary: #818cf8; /* Light Indigo */
-    --primary-hover: #6366f1;
+    --primary: #6366f1; /* Midnight Velvet */
+    --primary-hover: #4f46e5;
     --primary-soft: #1e1b4b;
     --accent: #c084fc;
     --accent-soft: #3b0764;
