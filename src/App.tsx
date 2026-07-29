@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AppProvider, useAppStore } from './Store';
 import { Navigation } from './components/Navigation';
 import { Sidebar } from './components/Sidebar';
@@ -14,9 +14,11 @@ import { SalahTrackerView } from './views/SalahTracker';
 import { SalahGuideView } from './views/SalahGuide';
 import { ProgressView } from './views/ProgressView';
 import { motion, AnimatePresence } from 'motion/react';
+import { BookOpen, Menu, X } from 'lucide-react';
 
 const AppContent = () => {
-  const { currentViewSurah, activeTab, isCleanMode, globalZoom } = useAppStore();
+  const { currentViewSurah, activeTab, isCleanMode, globalZoom, setCurrentViewSurah, setActiveTab } = useAppStore();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const zoomStyle = {
     zoom: `${globalZoom}%`
@@ -33,14 +35,71 @@ const AppContent = () => {
   return (
     <div 
       style={zoomStyle}
-      className="min-h-screen bg-[var(--bg-main)] flex justify-center text-[var(--text-main)] w-full transition-colors duration-300"
+      className="min-h-screen bg-[var(--bg-main)] flex justify-center text-[var(--text-main)] w-full transition-colors duration-300 relative"
     >
       <div className="w-full max-w-7xl flex flex-col md:flex-row min-h-screen relative mx-auto">
-        {/* Sidebar on Desktop (hidden on mobile) */}
+        {/* Sidebar on Desktop */}
         <Sidebar />
 
-        {/* Content Container (adapted for responsive desktop & mobile) */}
+        {/* Mobile Slide-Over Drawer with Quran Icon Header trigger */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 md:hidden"
+              />
+              {/* Slide Drawer */}
+              <motion.div
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+                className="fixed inset-y-0 left-0 w-[290px] bg-[var(--bg-surface)] z-50 md:hidden shadow-2xl flex flex-col"
+              >
+                <Sidebar isMobileDrawer={true} onCloseMobile={() => setIsMobileMenuOpen(false)} />
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Content Container */}
         <div className="flex-1 min-w-0 bg-[var(--bg-main)] min-h-screen relative shadow-2xl flex flex-col md:border-r md:border-[var(--border)] transition-all duration-300 w-full">
+          {/* Mobile Header with Quran Icon to slide open menu bar */}
+          <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[var(--bg-surface)] border-b border-[var(--border)] sticky top-0 z-20 shadow-2xs">
+            <div 
+              onClick={() => {
+                if (currentViewSurah !== null) setCurrentViewSurah(null);
+                setActiveTab('home');
+                setIsMobileMenuOpen(true);
+              }}
+              className="flex items-center space-x-2.5 cursor-pointer group"
+              title="কুরআন মেনুবার স্লাইড খুলুন"
+            >
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--primary)] to-[var(--accent)] p-0.5 shadow-sm active:scale-95 transition-transform">
+                <div className="w-full h-full bg-[var(--bg-surface)] rounded-[10px] flex items-center justify-center">
+                  <BookOpen className="w-4.5 h-4.5 text-[var(--primary)] animate-pulse" />
+                </div>
+              </div>
+              <div>
+                <span className="font-extrabold text-sm text-[var(--text-main)] font-sans tracking-tight block leading-tight">আল-কুরআনুল কারিম</span>
+                <span className="text-[9px] text-[var(--primary)] font-extrabold uppercase tracking-wider block leading-none font-sans">মেনু স্লাইড বার</span>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary)] border-opacity-20 text-xs font-bold flex items-center gap-1.5 font-bengali active:scale-95 transition-all cursor-pointer"
+            >
+              <Menu className="w-4 h-4" />
+              <span>মেনুবার</span>
+            </button>
+          </div>
+
           <div className="flex-1 overflow-x-hidden pb-32 md:pb-6">
             <AnimatePresence mode="wait">
               {currentViewSurah === null ? (

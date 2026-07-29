@@ -10,7 +10,15 @@ import { useEffect, useState } from 'react';
 type Tab = 'home' | 'bookmarks' | 'tasbih' | 'duas' | 'settings' | 'salah-tracker' | 'salah-guide' | 'progress';
 type AppTheme = 'light' | 'dark' | 'emerald' | 'luxury' | 'ocean' | 'rose' | 'sunset' | 'midnight';
 
-export const Sidebar = ({ className }: { className?: string }) => {
+export const Sidebar = ({ 
+  className, 
+  isMobileDrawer = false, 
+  onCloseMobile 
+}: { 
+  className?: string; 
+  isMobileDrawer?: boolean; 
+  onCloseMobile?: () => void; 
+}) => {
   const { 
     activeTab, setActiveTab, currentViewSurah, setCurrentViewSurah,
     theme, setTheme, location, nextPrayer, isPlaying, playingSurah,
@@ -60,61 +68,87 @@ export const Sidebar = ({ className }: { className?: string }) => {
       setCurrentViewSurah(null);
     }
     setActiveTab(tabId);
+    if (isMobileDrawer && onCloseMobile) {
+      onCloseMobile();
+    }
   };
+
+  const isCollapsedEffective = isMobileDrawer ? false : isSidebarCollapsed;
 
   return (
     <motion.aside 
-      animate={{ width: isSidebarCollapsed ? 80 : 320 }}
+      animate={{ width: isMobileDrawer ? '100%' : isSidebarCollapsed ? 80 : 320 }}
       transition={{ duration: 0.25, ease: 'easeInOut' }}
       className={`h-screen sticky top-0 bg-[var(--bg-surface)] border-r border-[var(--border)] flex-col justify-between ${
-        isSidebarCollapsed ? 'p-3' : 'p-5'
-      } z-30 flex-shrink-0 hidden md:flex overflow-y-auto overflow-x-hidden ${className || ''}`}
+        isCollapsedEffective ? 'p-3' : 'p-5'
+      } z-30 flex-shrink-0 ${isMobileDrawer ? 'flex w-full' : 'hidden md:flex'} overflow-y-auto overflow-x-hidden ${className || ''}`}
     >
       {/* Visual background accents */}
       <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-[var(--primary)] to-transparent opacity-[0.02] pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-32 h-32 bg-[var(--primary)] rounded-full blur-[80px] opacity-[0.03] pointer-events-none" />
 
       <div className="flex flex-col space-y-6 relative z-10 w-full">
-        {/* Brand Header & Toggle Collapse Button */}
+        {/* Brand Header & Toggle Collapse / Slide Button */}
         <div className="flex items-center justify-between gap-2">
-          {!isSidebarCollapsed ? (
-            <div className="flex items-center space-x-3 cursor-pointer overflow-hidden min-w-0" onClick={() => handleTabClick('home')}>
+          {!isCollapsedEffective ? (
+            <div className="flex items-center space-x-3 cursor-pointer overflow-hidden min-w-0 group" onClick={() => handleTabClick('home')}>
               <motion.div 
                 animate={{ rotate: isPlaying ? 360 : 0 }}
                 transition={{ repeat: isPlaying ? Infinity : 0, duration: 20, ease: "linear" }}
-                className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white shadow-md relative overflow-hidden shrink-0"
+                onClick={(e) => {
+                  if (!isMobileDrawer) {
+                    e.stopPropagation();
+                    setIsSidebarCollapsed(!isSidebarCollapsed);
+                  }
+                }}
+                title={isMobileDrawer ? "হোম পেজে যান" : "সাইডবার গুটিয়ে নিন/প্রসারিত করুন"}
+                className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white shadow-md relative overflow-hidden shrink-0 group-hover:scale-105 transition-transform"
               >
-                <div className="absolute inset-[2px] bg-[var(--bg-surface)] rounded-[12px] flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-[var(--primary)]" />
+                <div className="absolute inset-[2px] bg-[var(--bg-surface)] rounded-[12px] flex items-center justify-center group-hover:bg-[var(--primary-soft)] transition-colors">
+                  <BookOpen className="w-5 h-5 text-[var(--primary)] animate-pulse" />
                 </div>
               </motion.div>
               <div className="min-w-0 flex-1">
                 <h1 className="text-lg font-bold font-sans tracking-tight text-[var(--text-main)] truncate">আল-কুরআনুল কারিম</h1>
-                <p className="text-[9px] uppercase font-bold tracking-[0.15em] text-[var(--primary)] font-sans truncate">Desktop Pro</p>
+                <p className="text-[9px] uppercase font-bold tracking-[0.15em] text-[var(--primary)] font-sans truncate">ডিজিটাল সংস্করণ</p>
               </div>
             </div>
           ) : (
+            /* When collapsed: Clicking Quran Icon slides out / expands the sidebar! */
             <div 
-              onClick={() => handleTabClick('home')}
-              className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white shadow-md cursor-pointer relative overflow-hidden shrink-0"
+              onClick={() => {
+                setIsSidebarCollapsed(false);
+                handleTabClick('home');
+              }}
+              title="সাইডবার মেনু প্রসারিত করুন (Slide Out)"
+              className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white shadow-md cursor-pointer relative overflow-hidden shrink-0 hover:scale-110 active:scale-95 transition-all group"
             >
-              <div className="absolute inset-[2px] bg-[var(--bg-surface)] rounded-[12px] flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-[var(--primary)]" />
+              <div className="absolute inset-[2px] bg-[var(--bg-surface)] rounded-[12px] flex items-center justify-center group-hover:bg-[var(--primary-soft)] transition-colors">
+                <BookOpen className="w-6 h-6 text-[var(--primary)] animate-pulse" />
               </div>
             </div>
           )}
 
-          <button
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            title={isSidebarCollapsed ? 'সাইডবার প্রসারিত করুন' : 'সাইডবার গুটিয়ে নিন'}
-            className="p-2 rounded-xl bg-[var(--bg-main)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--primary-soft)] border border-[var(--border)] transition-all shrink-0 active:scale-95 mx-auto"
-          >
-            {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5 text-[var(--primary)]" /> : <PanelLeftClose className="w-5 h-5" />}
-          </button>
+          {!isMobileDrawer ? (
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              title={isSidebarCollapsed ? 'সাইডবার প্রসারিত করুন' : 'সাইডবার গুটিয়ে নিন'}
+              className="p-2 rounded-xl bg-[var(--bg-main)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--primary-soft)] border border-[var(--border)] transition-all shrink-0 active:scale-95 mx-auto cursor-pointer"
+            >
+              {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5 text-[var(--primary)]" /> : <PanelLeftClose className="w-5 h-5" />}
+            </button>
+          ) : (
+            <button
+              onClick={onCloseMobile}
+              className="p-2 rounded-xl bg-[var(--bg-main)] text-[var(--text-muted)] hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-[var(--border)] transition-all shrink-0 active:scale-95 cursor-pointer"
+            >
+              <PanelLeftClose className="w-5 h-5 text-rose-500" />
+            </button>
+          )}
         </div>
 
         {/* Live Clock & Next Prayer Header Card (only expanded) */}
-        {!isSidebarCollapsed && (
+        {!isCollapsedEffective && (
           <div className="bg-[var(--bg-main)] rounded-2xl p-4 border border-[var(--border)] border-opacity-60 relative overflow-hidden shadow-inner group">
             <div className="flex justify-between items-start mb-2">
               <div>
@@ -147,17 +181,20 @@ export const Sidebar = ({ className }: { className?: string }) => {
 
         {/* Clean Mode Dedicated Banner Button */}
         <button
-          onClick={() => setIsCleanMode(true)}
+          onClick={() => {
+            setIsCleanMode(true);
+            if (isMobileDrawer && onCloseMobile) onCloseMobile();
+          }}
           title="ক্লিন মোড ও ফোকাস"
           className={`rounded-2xl bg-gradient-to-r from-emerald-900/90 via-teal-900/90 to-zinc-900 border border-emerald-500/40 text-white flex items-center justify-between group hover:scale-[1.02] active:scale-95 transition-all shadow-md ${
-            isSidebarCollapsed ? 'p-3 justify-center' : 'p-3.5'
+            isCollapsedEffective ? 'p-3 justify-center' : 'p-3.5'
           }`}
         >
           <div className="flex items-center space-x-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-zinc-950 flex items-center justify-center font-bold shadow-sm group-hover:rotate-12 transition-transform shrink-0">
               <Headphones className="w-5 h-5 fill-current" />
             </div>
-            {!isSidebarCollapsed && (
+            {!isCollapsedEffective && (
               <div className="text-left font-bengali">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-black text-white">ক্লিন মোড</span>
@@ -169,7 +206,7 @@ export const Sidebar = ({ className }: { className?: string }) => {
               </div>
             )}
           </div>
-          {!isSidebarCollapsed && (
+          {!isCollapsedEffective && (
             <Sparkle className="w-4 h-4 text-emerald-400 animate-spin" style={{ animationDuration: '8s' }} />
           )}
         </button>
@@ -182,9 +219,9 @@ export const Sidebar = ({ className }: { className?: string }) => {
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                title={isSidebarCollapsed ? `${item.label} - ${item.desc}` : undefined}
+                title={isCollapsedEffective ? `${item.label} - ${item.desc}` : undefined}
                 className={`w-full flex items-center rounded-2xl transition-all duration-300 relative group font-bengali text-left ${
-                  isSidebarCollapsed ? 'p-3 justify-center' : 'px-3.5 py-3'
+                  isCollapsedEffective ? 'p-3 justify-center' : 'px-3.5 py-3'
                 } ${
                   isActive 
                     ? 'text-[var(--primary)] bg-[var(--primary-soft)] font-black shadow-sm' 
@@ -199,11 +236,11 @@ export const Sidebar = ({ className }: { className?: string }) => {
                   />
                 )}
                 <item.icon className={`w-5 h-5 transition-all duration-300 flex-shrink-0 ${
-                  isSidebarCollapsed ? '' : 'mr-3'
+                  isCollapsedEffective ? '' : 'mr-3'
                 } ${
                   isActive ? 'scale-110 text-[var(--primary)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-main)]'
                 }`} />
-                {!isSidebarCollapsed && (
+                {!isCollapsedEffective && (
                   <div className="flex-1 min-w-0">
                     <span className="text-[13px] tracking-wide leading-none block truncate">{item.label}</span>
                     <p className="text-[9px] text-[var(--text-muted)] mt-0.5 tracking-normal font-medium leading-none font-sans opacity-70 group-hover:opacity-100 transition-all truncate">{item.desc}</p>
@@ -217,7 +254,7 @@ export const Sidebar = ({ className }: { className?: string }) => {
 
       {/* Footer Settings & Theme Fast Changer */}
       <div className="flex flex-col space-y-3 pt-4 border-t border-[var(--border)] relative z-10 w-full">
-        {!isSidebarCollapsed ? (
+        {!isCollapsedEffective ? (
           <div>
             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 font-sans flex items-center">
               <Palette className="w-3.5 h-3.5 mr-1.5 text-[var(--primary)]" />
