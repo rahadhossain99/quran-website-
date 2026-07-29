@@ -35,12 +35,12 @@ const AppContent = () => {
       style={zoomStyle}
       className="min-h-screen bg-[var(--bg-main)] flex justify-center text-[var(--text-main)] w-full transition-colors duration-300"
     >
-      <div className="w-full max-w-7xl flex flex-col md:flex-row min-h-screen relative">
+      <div className="w-full max-w-7xl flex flex-col md:flex-row min-h-screen relative mx-auto">
         {/* Sidebar on Desktop (hidden on mobile) */}
         <Sidebar />
 
         {/* Content Container (adapted for responsive desktop & mobile) */}
-        <div className="flex-1 max-w-4xl lg:max-w-5xl bg-[var(--bg-main)] min-h-screen relative shadow-2xl flex flex-col md:border-r md:border-[var(--border)] transition-all duration-300 w-full mx-auto">
+        <div className="flex-1 min-w-0 bg-[var(--bg-main)] min-h-screen relative shadow-2xl flex flex-col md:border-r md:border-[var(--border)] transition-all duration-300 w-full">
           <div className="flex-1 overflow-x-hidden pb-32 md:pb-6">
             <AnimatePresence mode="wait">
               {currentViewSurah === null ? (

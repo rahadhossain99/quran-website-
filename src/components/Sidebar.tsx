@@ -68,7 +68,7 @@ export const Sidebar = ({ className }: { className?: string }) => {
       transition={{ duration: 0.25, ease: 'easeInOut' }}
       className={`h-screen sticky top-0 bg-[var(--bg-surface)] border-r border-[var(--border)] flex-col justify-between ${
         isSidebarCollapsed ? 'p-3' : 'p-5'
-      } z-50 flex-shrink-0 relative hidden md:flex overflow-hidden ${className || ''}`}
+      } z-30 flex-shrink-0 hidden md:flex overflow-y-auto overflow-x-hidden ${className || ''}`}
     >
       {/* Visual background accents */}
       <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-[var(--primary)] to-transparent opacity-[0.02] pointer-events-none" />
