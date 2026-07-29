@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Catch-all deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reusable hardened global helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Validation Blueprint for UserSetting
+    function isValidUserSetting(data) {
+      return (!('reminders' in data) || (data.reminders is list && data.reminders.size() <= 20)) &&
+             (!('favorites' in data) || (data.favorites is list && data.favorites.size() <= 114)) &&
+             (!('theme' in data) || (data.theme is string && data.theme.size() <= 50)) &&
+             (!('qari' in data) || (data.qari is string && data.qari.size() <= 100)) &&
+             (!('notificationsEnabled' in data) || (data.notificationsEnabled is bool));
+    }
+
+    // Users collection rules
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUserSetting(incoming());
+      allow update: if isOwner(userId) && isValidId(userId) && isValidUserSetting(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['reminders', 'favorites', 'theme', 'qari', 'notificationsEnabled'])
+      );
+      allow delete: if isOwner(userId);
+    }
+    
+    // Connection test document
+    match /test/connection {
+      allow read: if true;
+    }
+  }
+}

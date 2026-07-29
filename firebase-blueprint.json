@@ -1,0 +1,37 @@
+{
+  "entities": {
+    "UserSetting": {
+      "title": "User Setting",
+      "description": "User's app settings and preferences",
+      "type": "object",
+      "properties": {
+        "reminders": {
+          "type": "array",
+          "description": "Daily reminder times in HH:mm format"
+        },
+        "favorites": {
+          "type": "array",
+          "description": "Favorite surah numbers"
+        },
+        "theme": {
+          "type": "string",
+          "description": "App theme name"
+        },
+        "qari": {
+          "type": "string",
+          "description": "Selected qari ID"
+        },
+        "notificationsEnabled": {
+          "type": "boolean",
+          "description": "Flag indicating if notifications are enabled"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserSetting",
+      "description": "Individual user settings"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Al-Quran",
+  "description": "A premium Quran reading and listening application with Tasbih, shareable ayah cards, and prayer times.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
