@@ -1,19 +1,27 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Clock, MapPin, Sun, Sunrise, Sunset, Moon, CloudSun, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { toBengaliDigits } from '../utils/prayerTimes';
+import { useAppStore } from '../Store';
 
 interface PrayerTimesModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  prayerTimes: any;
-  location: any;
-  onPlayAzan: () => void;
-  isAzanPlaying: boolean;
+  isOpen?: boolean;
+  onClose?: () => void;
+  prayerTimes?: any;
+  location?: any;
+  onPlayAzan?: () => void;
+  isAzanPlaying?: boolean;
 }
 
-export const PrayerTimesModal: React.FC<PrayerTimesModalProps> = ({ 
-  isOpen, onClose, prayerTimes, location, onPlayAzan, isAzanPlaying 
-}) => {
+export const PrayerTimesModal: React.FC<PrayerTimesModalProps> = (props) => {
+  const store = useAppStore();
+  const isOpen = props.isOpen !== undefined ? props.isOpen : true;
+  const onClose = props.onClose || (() => {});
+  const prayerTimes = props.prayerTimes || store.prayerTimes;
+  const location = props.location || store.location;
+  const onPlayAzan = props.onPlayAzan || store.playAzan;
+  const isAzanPlaying = props.isAzanPlaying !== undefined ? props.isAzanPlaying : store.isAzanPlaying;
+
   if (!isOpen || !prayerTimes) return null;
 
   const prayers = [
@@ -29,7 +37,7 @@ export const PrayerTimesModal: React.FC<PrayerTimesModalProps> = ({
     const [hours, minutes] = time24.split(':').map(Number);
     const period = hours >= 12 ? 'PM' : 'AM';
     const hours12 = hours % 12 || 12;
-    return `${hours12.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`;
+    return `${toBengaliDigits(hours12)}:${toBengaliDigits(minutes.toString().padStart(2, '0'))} ${period}`;
   };
 
   return (
@@ -136,7 +144,7 @@ export const PrayerTimesModal: React.FC<PrayerTimesModalProps> = ({
             </div>
             
             <a 
-              href={`https://aladhan.com/prayer-times/bahladesh/${location?.city || 'dhaka'}`} 
+              href={`https://aladhan.com/prayer-times/bangladesh/${location?.city === 'ঢাকা' ? 'dhaka' : (location?.city || 'dhaka')}`} 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center w-full px-6 py-3.5 text-xs font-bold text-white bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] hover:shadow-lg transition-all rounded-2xl border border-white/10 group"
@@ -145,7 +153,7 @@ export const PrayerTimesModal: React.FC<PrayerTimesModalProps> = ({
               <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
             </a>
             
-            <p className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest opacity-40">Powered by AlAdhan Digital Intelligence</p>
+            <p className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest opacity-40">ইসলামিক ফাউন্ডেশন বাংলাদেশ ও ঢাকা স্ট্যান্ডার্ড সময়সূচি</p>
           </div>
         </motion.div>
       </motion.div>

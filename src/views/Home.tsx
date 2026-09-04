@@ -295,6 +295,20 @@ export const HomeView = () => {
             <Clock className="w-3.5 h-3.5 text-[#b04f14] dark:text-amber-400" />
             <span>{currentTime}</span>
           </div>
+
+          {nextPrayer && (
+            <button
+              onClick={() => setShowPrayerModal(true)}
+              className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#a6480e] dark:text-amber-400 bg-[#f4ece1] dark:bg-slate-800/90 border border-[#e4d6c4] dark:border-slate-700/80 px-3.5 py-1.5 rounded-full shadow-2xs hover:border-[#a6480e] active:scale-95 transition-all cursor-pointer group"
+              title="ঢাকার নামাজের পূর্ণাঙ্গ সময়সূচি দেখুন"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>{nextPrayer.name}: {nextPrayer.time}</span>
+              {nextPrayer.remaining && (
+                <span className="text-[11px] text-[#615344] dark:text-slate-400 font-medium hidden md:inline">({nextPrayer.remaining})</span>
+              )}
+            </button>
+          )}
         </div>
 
         {/* Greeting & Headline */}

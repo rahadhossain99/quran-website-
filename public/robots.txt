@@ -1,0 +1,6 @@
+# robots.txt for https://alquranread.netlify.app
+User-agent: *
+Allow: /
+
+# Sitemap Index
+Sitemap: https://alquranread.netlify.app/sitemap.xml

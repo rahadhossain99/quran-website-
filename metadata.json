@@ -1,6 +1,6 @@
 {
   "name": "Remix: Al-Quran",
-  "description": "A premium Quran reading and listening application with Tasbih, shareable ayah cards, and prayer times.",
+  "description": "পবিত্র আল-কুরআনুল কারীম বাংলা অনুবাদ, অডিও তিলাওয়াত, তাফসির ও ঢাকার সঠিক নামাজের সময়সূচি (https://alquranread.netlify.app)",
   "requestFramePermissions": [
     "geolocation"
   ],
