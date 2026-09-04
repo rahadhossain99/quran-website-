@@ -6,7 +6,7 @@ import { ShareModal } from './ShareModal';
 import { QARIS } from '../types';
 
 export const Player = () => {
-  const { playingSurah, playingAyahIndex, isPlaying, togglePlay, stopPlayback, nextAyah, prevAyah, seekAyah, audioProgress, currentViewSurah, setCurrentViewSurah, repeatMode, setRepeatMode, arabicFontSize, bengaliFontSize, qari, setQari } = useAppStore();
+  const { playingSurah, playingAyahIndex, isPlaying, audioPhase, togglePlay, stopPlayback, nextAyah, prevAyah, seekAyah, audioProgress, currentViewSurah, setCurrentViewSurah, repeatMode, setRepeatMode, arabicFontSize, bengaliFontSize, qari, setQari } = useAppStore();
   const [expanded, setExpanded] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showQariModal, setShowQariModal] = useState(false);
@@ -202,7 +202,7 @@ export const Player = () => {
                     <motion.div animate={{ height: [6, 14, 6] }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-0.5 bg-white rounded-full"></motion.div>
                   </div>
                 ) : (
-                  <span className="font-bold text-sm">{qari === 'special.bangla_translation' ? 'বাং' : currentAyah.numberInSurah}</span>
+                  <span className="font-bold text-sm">{currentAyah.numberInSurah}</span>
                 )}
               </div>
               <div className="flex-1 px-4 truncate">
@@ -210,8 +210,17 @@ export const Player = () => {
                   <h4 className="font-bold text-sm font-sans text-[var(--text-main)] truncate">{playingSurah.englishName}</h4>
                   <span className="w-1 h-1 bg-[var(--text-muted)] rounded-full opacity-30" />
                   <p className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-tight">
-                    {qari === 'special.bangla_translation' ? 'বাংলা অনুবাদসহ তেলাওয়াত' : `Ayah ${currentAyah.numberInSurah}`}
+                    Ayah {currentAyah.numberInSurah}
                   </p>
+                  {qari === 'special.bangla_translation' && (
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                      audioPhase === 'bangla'
+                        ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 animate-pulse'
+                        : 'bg-[var(--primary)]/20 text-[var(--primary)] border border-[var(--primary)]/30'
+                    }`}>
+                      {audioPhase === 'bangla' ? 'বাংলা অনুবাদ' : 'আরবি তিলাওয়াত'}
+                    </span>
+                  )}
                 </div>
                 <div className="mt-1 h-1 w-full bg-[var(--bg-main)] rounded-full overflow-hidden">
                    <motion.div 
@@ -251,7 +260,22 @@ export const Player = () => {
                 <ChevronDown className="w-6 h-6 text-[var(--text-main)]" />
               </button>
               <div className="text-center flex flex-col items-center">
-                <span className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-wider">Now Playing</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-wider">
+                    {qari === 'special.bangla_translation' 
+                      ? (audioPhase === 'bangla' ? 'বাংলা অনুবাদ' : 'আরবি তিলাওয়াত')
+                      : 'Now Playing'}
+                  </span>
+                  {qari === 'special.bangla_translation' && (
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                      audioPhase === 'bangla'
+                        ? 'bg-amber-500 text-white animate-pulse'
+                        : 'bg-[var(--primary)] text-white'
+                    }`}>
+                      {audioPhase === 'bangla' ? 'বাংলা অডিও' : 'আরবি অডিও'}
+                    </span>
+                  )}
+                </div>
                 <h3 className="text-lg font-bold font-sans tracking-tight">{playingSurah.englishName}</h3>
                 <button
                   onClick={() => setShowQariModal(true)}
@@ -259,7 +283,7 @@ export const Player = () => {
                   title="ক্বারী পরিবর্তন করুন"
                 >
                   <Headphones className="w-3.5 h-3.5" />
-                  <span className="max-w-[160px] truncate">{QARIS.find(q => q.id === qari)?.name.split(' (')[0] || 'তেলাওয়াতকারী'}</span>
+                  <span className="max-w-[160px] truncate">{QARIS.find(q => q.id === qari)?.name.split(' (')[0] || 'теলাওয়াতকারী'}</span>
                   <ChevronDown className="w-3 h-3 opacity-60" />
                 </button>
               </div>
@@ -270,14 +294,24 @@ export const Player = () => {
 
             <div className="flex-1 flex flex-col items-center justify-start px-6 py-8 overflow-y-auto custom-scrollbar relative">
                <div className="absolute w-64 h-64 bg-[var(--primary)] rounded-full blur-[100px] opacity-10 pointer-events-none" />
-               <div className="bg-[var(--bg-main)] p-8 md:p-12 rounded-3xl w-full text-center relative shadow-sm border border-[var(--border)] border-opacity-50 mb-8 min-h-max flex-shrink-0">
+               <div className={`p-8 md:p-12 rounded-3xl w-full text-center relative shadow-sm border mb-6 min-h-max flex-shrink-0 transition-all duration-300 ${
+                 qari === 'special.bangla_translation' && audioPhase === 'arabic'
+                   ? 'bg-[var(--bg-main)] border-[var(--primary)] ring-2 ring-[var(--primary)]/30 shadow-md'
+                   : 'bg-[var(--bg-main)] border-[var(--border)] border-opacity-50'
+               }`}>
                  <p className="text-arabic text-[var(--text-main)] drop-shadow-sm font-arabic min-h-full" dir="rtl" style={{ fontSize: `${arabicFontSize}px`, lineHeight: '1.8' }}>
                    {currentAyah.arabicText} <span className="text-[var(--primary)] mx-2" style={{ fontSize: '0.6em' }}>۝</span>
                  </p>
                </div>
-               <p className="text-translation text-[var(--text-muted)] font-bold text-center font-bengali px-2 leading-relaxed min-h-max flex-shrink-0" style={{ fontSize: `${bengaliFontSize}px`, lineHeight: '1.7' }}>
-                 {currentAyah.bengaliText}
-               </p>
+               <div className={`p-6 rounded-2xl w-full text-center transition-all duration-300 ${
+                 qari === 'special.bangla_translation' && audioPhase === 'bangla'
+                   ? 'bg-amber-500/10 border border-amber-500/40 shadow-sm ring-1 ring-amber-500/30'
+                   : ''
+               }`}>
+                 <p className="text-translation text-[var(--text-muted)] font-bold text-center font-bengali px-2 leading-relaxed min-h-max flex-shrink-0" style={{ fontSize: `${bengaliFontSize}px`, lineHeight: '1.7' }}>
+                   {currentAyah.bengaliText}
+                 </p>
+               </div>
             </div>
 
             <div className="px-6 pb-12 pt-6 bg-gradient-to-t from-[var(--bg-surface)] to-transparent relative z-20">

@@ -13,6 +13,7 @@ export interface Ayah {
   bengaliText: string;
   transliterationText: string;
   audioUrl: string;
+  banglaAudioUrl?: string;
 }
 
 export interface SurahData {
@@ -27,8 +28,8 @@ export interface SurahData {
 }
 
 export const QARIS = [
+  { id: 'special.bangla_translation', name: 'আরবি তিলাওয়াত ও বাংলা অনুবাদ (Mishary + Bangla Translation)' },
   { id: 'ar.alafasy', name: 'মিশারি আল-আফাসি (Mishary Alafasy)' },
-  { id: 'special.bangla_translation', name: 'বাংলা অডিও অনুবাদ (Mishary + Bangla Translation)' },
   { id: 'ar.abdurrahmaansudais', name: 'আব্দুর রহমান আস-সুদাইস (Sudais)' },
   { id: 'ar.abdulbasitmurattal', name: 'আব্দুল বাসিত আব্দুল সামাদ (AbdulBaset)' },
   { id: 'ar.husary', name: 'খলিল আল-হুসারি (Al-Husary)' },

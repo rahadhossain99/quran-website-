@@ -1,6 +1,6 @@
 import { SurahInfo, SurahData, Ayah, QARIS } from './types';
 import { SURAH_LIST } from './data/surahList';
-import { getBanglaAudioUrl } from './data/specialReciters';
+import { getBanglaAudioUrl, getAyahBanglaAudioUrl } from './data/specialReciters';
 
 const BASE_URL = 'https://api.alquran.cloud/v1';
 
@@ -12,15 +12,7 @@ export const fetchAllSurahs = async (): Promise<SurahInfo[]> => {
 // Fetch just the audio URLs for a surah to allow instant, ultra-fast reciter switching
 export const fetchSurahAudioOnly = async (number: number, qari: string): Promise<string[]> => {
   const isBangla = qari === 'special.bangla_translation';
-  if (isBangla) {
-    const res = await fetch(`${BASE_URL}/surah/${number}/ar.alafasy`);
-    if (!res.ok) throw new Error('Failed to fetch surah audio');
-    const data = await res.json();
-    return data.data.ayahs.map((a: any) =>
-      `https://cdn.jsdelivr.net/gh/imranpollob/quran-text-audio-image-verse-by-verse@master/audio/bangla-translation/${number}-${a.numberInSurah}.mp3`
-    );
-  }
-  const qariValid = QARIS.some(q => q.id === qari) ? qari : 'ar.alafasy';
+  const qariValid = isBangla ? 'ar.alafasy' : (QARIS.some(q => q.id === qari) ? qari : 'ar.alafasy');
   const res = await fetch(`${BASE_URL}/surah/${number}/${qariValid}`);
   if (!res.ok) throw new Error('Failed to fetch surah audio');
   const data = await res.json();
@@ -49,9 +41,8 @@ export const fetchSurahDetails = async (number: number, qari: string = 'ar.alafa
     arabicText: ayah.text,
     bengaliText: bengaliEdition.ayahs[index]?.text || '',
     transliterationText: translitEdition.ayahs[index]?.text || '',
-    audioUrl: isBangla
-      ? `https://cdn.jsdelivr.net/gh/imranpollob/quran-text-audio-image-verse-by-verse@master/audio/bangla-translation/${number}-${ayah.numberInSurah}.mp3`
-      : (audioEdition.ayahs[index]?.audio || ''),
+    audioUrl: audioEdition.ayahs[index]?.audio || '',
+    banglaAudioUrl: getAyahBanglaAudioUrl(number, ayah.numberInSurah),
   }));
 
   return {

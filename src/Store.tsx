@@ -109,6 +109,7 @@ interface AppState {
   playingAyahIndex: number;
   isPlaying: boolean;
   audioProgress: number; // 0 to 1
+  audioPhase: 'arabic' | 'bangla';
   playAyah: (surah: SurahData, index: number, isWholeSurah?: boolean) => void;
   playWholeSurah: (surah: SurahData) => void;
   togglePlay: () => void;
@@ -529,6 +530,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [playingAyahIndex, setPlayingAyahIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioProgress, setAudioProgress] = useState(0);
+  const [audioPhase, setAudioPhase] = useState<'arabic' | 'bangla'>('arabic');
+  const audioPhaseRef = useRef<'arabic' | 'bangla'>('arabic');
 
   // Prayer Times State (Guaranteed immediate Dhaka Islamic Foundation Standard timings)
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes>(() => getDhakaStandardPrayerTimes() as unknown as PrayerTimes);
@@ -1056,12 +1059,32 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const currentRepeatMode = repeatModeRef.current;
       
       if (currentRepeatMode === 'ayah') {
-        // Force replay of the same ayah
-        if (audioRef.current) {
-          audioRef.current.currentTime = 0;
-          safePlay();
+        if (qari === 'special.bangla_translation') {
+          if (audioPhaseRef.current === 'arabic') {
+            const banglaUrl = playingSurah.ayahs[playingAyahIndex]?.banglaAudioUrl;
+            if (banglaUrl) {
+              audioPhaseRef.current = 'bangla';
+              setAudioPhase('bangla');
+              changeAudioTrack(banglaUrl, true);
+              return;
+            }
+          } else {
+            audioPhaseRef.current = 'arabic';
+            setAudioPhase('arabic');
+            const arabicUrl = playingSurah.ayahs[playingAyahIndex]?.audioUrl;
+            if (arabicUrl) {
+              changeAudioTrack(arabicUrl, true);
+            }
+            return;
+          }
+        } else {
+          // Force replay of the same ayah
+          if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+            safePlay();
+          }
+          return;
         }
-        return;
       }
 
       // If playing full-surah Bangla translation audio
@@ -1079,10 +1102,31 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
+      // Dual Arabic + Bangla Translation Audio mode:
+      if (qari === 'special.bangla_translation') {
+        if (audioPhaseRef.current === 'arabic') {
+          // Arabic recitation of current verse finished! Now play its Bangla translation audio!
+          const banglaUrl = playingSurah.ayahs[playingAyahIndex]?.banglaAudioUrl;
+          if (banglaUrl) {
+            audioPhaseRef.current = 'bangla';
+            setAudioPhase('bangla');
+            changeAudioTrack(banglaUrl, true);
+            return;
+          }
+        } else {
+          // Bangla translation audio of this ayah has just finished!
+          // Reset phase back to arabic for the next verse:
+          audioPhaseRef.current = 'arabic';
+          setAudioPhase('arabic');
+        }
+      }
+
       if (playingAyahIndex < playingSurah.ayahs.length - 1) {
         const nextIndex = playingAyahIndex + 1;
         setPlayingAyahIndex(nextIndex);
         setIsPlaying(true);
+        audioPhaseRef.current = 'arabic';
+        setAudioPhase('arabic');
         const url = playingSurah.ayahs[nextIndex]?.audioUrl;
         if (url) {
           changeAudioTrack(url, true);
@@ -1095,6 +1139,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           const nextIndex = 0;
           setPlayingAyahIndex(nextIndex);
           setIsPlaying(true);
+          audioPhaseRef.current = 'arabic';
+          setAudioPhase('arabic');
           const url = playingSurah.ayahs[nextIndex]?.audioUrl;
           if (url) {
             changeAudioTrack(url, true);
@@ -1105,9 +1151,24 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           setIsPlaying(false);
           setPlayingAyahIndex(-1);
+          audioPhaseRef.current = 'arabic';
+          setAudioPhase('arabic');
           activeUrlRef.current = '';
         }
       }
+    };
+
+    const handleError = () => {
+      // If error happened while trying to play Bangla audio from quran.gov.bd, try the high-speed CDN mirror fallback!
+      if (qari === 'special.bangla_translation' && audioPhaseRef.current === 'bangla' && playingSurah && playingAyahIndex >= 0) {
+        const curAyah = playingSurah.ayahs[playingAyahIndex];
+        const fallbackUrl = `https://cdn.jsdelivr.net/gh/imranpollob/quran-text-audio-image-verse-by-verse@master/audio/bangla-translation/${playingSurah.number}-${curAyah?.numberInSurah}.mp3`;
+        if (activeUrlRef.current !== fallbackUrl) {
+          changeAudioTrack(fallbackUrl, true);
+          return;
+        }
+      }
+      setIsPlaying(false);
     };
 
     const handlePlay = () => {
@@ -1123,12 +1184,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
     
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
     };
@@ -1171,11 +1234,22 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const prevAyahIndexRef = useRef<number>(-1);
+  const prevSurahNumRef = useRef<number | null>(null);
+
   useEffect(() => {
     if (playingSurah && playingAyahIndex >= 0) {
-      const currentAyahObj = playingSurah.ayahs[playingAyahIndex];
-      if (currentAyahObj?.audioUrl) {
-        changeAudioTrack(currentAyahObj.audioUrl, isPlaying);
+      const isNewAyahOrSurah = prevAyahIndexRef.current !== playingAyahIndex || prevSurahNumRef.current !== playingSurah.number;
+      prevAyahIndexRef.current = playingAyahIndex;
+      prevSurahNumRef.current = playingSurah.number;
+
+      if (isNewAyahOrSurah) {
+        audioPhaseRef.current = 'arabic';
+        setAudioPhase('arabic');
+        const currentAyahObj = playingSurah.ayahs[playingAyahIndex];
+        if (currentAyahObj?.audioUrl) {
+          changeAudioTrack(currentAyahObj.audioUrl, isPlaying);
+        }
       }
       
       setLastRead({
@@ -1206,6 +1280,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setPlayingSurah(surah);
     setPlayingAyahIndex(index);
     setIsPlaying(true);
+    audioPhaseRef.current = 'arabic';
+    setAudioPhase('arabic');
     recordSurahProgress(surah.number, index, 0);
     if (isAzanPlaying) playAzan(); // Stop Azan if starting Quran
     let url = surah.ayahs[index]?.audioUrl;
@@ -1232,12 +1308,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const idx = playingAyahIndex === -1 ? 0 : playingAyahIndex;
         setPlayingAyahIndex(idx);
         setIsPlaying(true);
-        let url = playingSurah.ayahs[idx]?.audioUrl;
-        if (qari === 'special.bangla_translation' && idx === 0 && playingSurah.banglaAudioUrl) {
-          url = playingSurah.banglaAudioUrl;
-        }
-        if (url) {
-          changeAudioTrack(url, true);
+        if (activeUrlRef.current && audio.src) {
+          safePlay();
+        } else {
+          audioPhaseRef.current = 'arabic';
+          setAudioPhase('arabic');
+          let url = playingSurah.ayahs[idx]?.audioUrl;
+          if (qari === 'special.bangla_translation' && idx === 0 && playingSurah.banglaAudioUrl) {
+            url = playingSurah.banglaAudioUrl;
+          }
+          if (url) {
+            changeAudioTrack(url, true);
+          }
         }
       }
     }
@@ -1248,6 +1330,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setPlayingSurah(null);
     setPlayingAyahIndex(-1);
     setAudioProgress(0);
+    audioPhaseRef.current = 'arabic';
+    setAudioPhase('arabic');
     activeUrlRef.current = '';
     if (audioRef.current) {
       audioRef.current.pause();
@@ -1261,6 +1345,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const nextIndex = playingAyahIndex + 1;
       setPlayingAyahIndex(nextIndex);
       setIsPlaying(true);
+      audioPhaseRef.current = 'arabic';
+      setAudioPhase('arabic');
       const url = playingSurah.ayahs[nextIndex]?.audioUrl;
       if (url) {
         changeAudioTrack(url, true);
@@ -1276,6 +1362,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const prevIndex = playingAyahIndex - 1;
       setPlayingAyahIndex(prevIndex);
       setIsPlaying(true);
+      audioPhaseRef.current = 'arabic';
+      setAudioPhase('arabic');
       const url = playingSurah.ayahs[prevIndex]?.audioUrl;
       if (url) {
         changeAudioTrack(url, true);
@@ -1290,6 +1378,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (playingSurah && index >= 0 && index < playingSurah.ayahs.length) {
       setPlayingAyahIndex(index);
       setIsPlaying(true);
+      audioPhaseRef.current = 'arabic';
+      setAudioPhase('arabic');
       const url = playingSurah.ayahs[index]?.audioUrl;
       if (url) {
         changeAudioTrack(url, true);
@@ -1330,7 +1420,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         prayerTimes, nextPrayer, location, playAzan, isAzanPlaying,
 
-        playingSurah, playingAyahIndex, isPlaying, audioProgress,
+        playingSurah, playingAyahIndex, isPlaying, audioProgress, audioPhase,
         playAyah, playWholeSurah, togglePlay, stopPlayback, nextAyah, prevAyah, seekAyah, audioRef,
         firebaseAuthError,
         globalZoom, setGlobalZoom,
