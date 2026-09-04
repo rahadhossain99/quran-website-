@@ -197,6 +197,73 @@ export const parseRoute = (): { tab: Tab; surah: number | null } => {
 // Backward-compatible alias
 export const parseHashRoute = parseRoute;
 
+export const calculateUpcomingPrayer = (times: any) => {
+  if (!times) return null;
+  const now = new Date();
+  const prayers = [
+    { id: 'Fajr', name: 'ফজর' },
+    { id: 'Dhuhr', name: 'যোহর' },
+    { id: 'Asr', name: 'আসর' },
+    { id: 'Maghrib', name: 'মাগরিব' },
+    { id: 'Isha', name: 'এশা' }
+  ];
+  
+  let current = null;
+  let next = null;
+
+  for (let i = 0; i < prayers.length; i++) {
+    const p = prayers[i];
+    if (!times[p.id]) continue;
+    const [h, m] = times[p.id].split(':').map(Number);
+    const pDate = new Date();
+    pDate.setHours(h, m, 0, 0);
+
+    const nextPrayerTime = i + 1 < prayers.length ? times[prayers[i + 1].id] : null;
+    let nextPDate = null;
+    if (nextPrayerTime) {
+      const [nh, nm] = nextPrayerTime.split(':').map(Number);
+      nextPDate = new Date();
+      nextPDate.setHours(nh, nm, 0, 0);
+    }
+
+    if (now >= pDate && (!nextPDate || now < nextPDate)) {
+      current = { name: p.name, time: times[p.id], isCurrent: true };
+      break;
+    }
+  }
+  
+  if (!current) {
+    for (const p of prayers) {
+      if (!times[p.id]) continue;
+      const [h, m] = times[p.id].split(':').map(Number);
+      const pDate = new Date();
+      pDate.setHours(h, m, 0, 0);
+      if (pDate > now) {
+        const diff = pDate.getTime() - now.getTime();
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const remaining = `${hours > 0 ? toBengaliDigits(hours) + ' ঘণ্টা ' : ''}${toBengaliDigits(mins)} মিনিট`;
+        next = { name: p.name, time: times[p.id], remaining, isCurrent: false };
+        break;
+      }
+    }
+  }
+
+  if (!current && !next && times.Fajr) {
+    const [fh, fm] = times.Fajr.split(':').map(Number);
+    const tomorrowFajr = new Date();
+    tomorrowFajr.setDate(tomorrowFajr.getDate() + 1);
+    tomorrowFajr.setHours(fh, fm, 0, 0);
+    const diff = tomorrowFajr.getTime() - now.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const remaining = `${hours > 0 ? toBengaliDigits(hours) + ' ঘণ্টা ' : ''}${toBengaliDigits(mins)} মিনিট`;
+    next = { name: 'ফজর', time: times.Fajr, remaining, isCurrent: false };
+  }
+  
+  return current || next || { name: 'ফজর', time: times.Fajr || '04:30', remaining: 'শীঘ্রই', isCurrent: false };
+};
+
 const AppContext = createContext<AppState | null>(null);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
@@ -456,7 +523,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Prayer Times State (Guaranteed immediate Dhaka Islamic Foundation Standard timings)
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes>(() => getDhakaStandardPrayerTimes() as unknown as PrayerTimes);
-  const [nextPrayer, setNextPrayer] = useState<any>(null);
+  const [nextPrayer, setNextPrayer] = useState<any>(() => calculateUpcomingPrayer(getDhakaStandardPrayerTimes()));
   const [location, setLocation] = useState<{ city: string; country: string }>({ 
     city: 'ঢাকা', 
     country: 'বাংলাদেশ' 
@@ -706,72 +773,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (!prayerTimes) return;
 
     const updateNextPrayer = () => {
-      const now = new Date();
-      const prayers = [
-        { id: 'Fajr', name: 'ফজর' },
-        { id: 'Dhuhr', name: 'যোহর' },
-        { id: 'Asr', name: 'আসর' },
-        { id: 'Maghrib', name: 'মাগরিব' },
-        { id: 'Isha', name: 'এশা' }
-      ];
-      
-      let current = null;
-      let next = null;
-
-      for (let i = 0; i < prayers.length; i++) {
-        const p = prayers[i];
-        if (!prayerTimes[p.id]) continue;
-        const [h, m] = prayerTimes[p.id].split(':').map(Number);
-        const pDate = new Date();
-        pDate.setHours(h, m, 0, 0);
-
-        const nextPrayerTime = i + 1 < prayers.length ? prayerTimes[prayers[i + 1].id] : null;
-        let nextPDate = null;
-        if (nextPrayerTime) {
-          const [nh, nm] = nextPrayerTime.split(':').map(Number);
-          nextPDate = new Date();
-          nextPDate.setHours(nh, nm, 0, 0);
-        }
-
-        // Check if current time is within this prayer time range
-        if (now >= pDate && (!nextPDate || now < nextPDate)) {
-          current = { name: p.name, time: prayerTimes[p.id], isCurrent: true };
-          break;
-        }
-      }
-      
-      if (!current) {
-        // Find next upcoming prayer today
-        for (const p of prayers) {
-          if (!prayerTimes[p.id]) continue;
-          const [h, m] = prayerTimes[p.id].split(':').map(Number);
-          const pDate = new Date();
-          pDate.setHours(h, m, 0, 0);
-          if (pDate > now) {
-            const diff = pDate.getTime() - now.getTime();
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const remaining = `${hours > 0 ? toBengaliDigits(hours) + ' ঘণ্টা ' : ''}${toBengaliDigits(mins)} মিনিট`;
-            next = { name: p.name, time: prayerTimes[p.id], remaining, isCurrent: false };
-            break;
-          }
-        }
-      }
-
-      // If all prayers today have passed, calculate time to tomorrow's Fajr
-      if (!current && !next && prayerTimes.Fajr) {
-        const [fh, fm] = prayerTimes.Fajr.split(':').map(Number);
-        const tomorrowFajr = new Date();
-        tomorrowFajr.setDate(tomorrowFajr.getDate() + 1);
-        tomorrowFajr.setHours(fh, fm, 0, 0);
-        const diff = tomorrowFajr.getTime() - now.getTime();
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const remaining = `${hours > 0 ? toBengaliDigits(hours) + ' ঘণ্টা ' : ''}${toBengaliDigits(mins)} মিনিট`;
-        next = { name: 'ফজর', time: prayerTimes.Fajr, remaining, isCurrent: false };
-      }
-      
-      setNextPrayer(current || next || { name: 'ফজর', time: prayerTimes.Fajr, remaining: 'শীঘ্রই', isCurrent: false });
+      setNextPrayer(calculateUpcomingPrayer(prayerTimes));
     };
 
     updateNextPrayer();

@@ -1,12 +1,11 @@
 import { SurahInfo, SurahData, Ayah } from './types';
+import { SURAH_LIST } from './data/surahList';
 
 const BASE_URL = 'https://api.alquran.cloud/v1';
 
 export const fetchAllSurahs = async (): Promise<SurahInfo[]> => {
-  const res = await fetch(`${BASE_URL}/surah`);
-  if (!res.ok) throw new Error('Failed to fetch surahs');
-  const data = await res.json();
-  return data.data;
+  // Return embedded immutable Quran Surah metadata instantly for 0ms delay & 0 CLS
+  return SURAH_LIST;
 };
 
 // We fetch parallel editions to combine them into one seamless data structure

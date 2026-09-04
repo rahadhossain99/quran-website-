@@ -54,7 +54,7 @@ export const PrayerTimesModal: React.FC<PrayerTimesModalProps> = (props) => {
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-[var(--bg-surface)] w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl relative flex flex-col border border-[var(--border)]"
+          className="bg-[var(--bg-surface)] w-full max-w-md min-h-[480px] rounded-[2.5rem] overflow-hidden shadow-2xl relative flex flex-col border border-[var(--border)]"
         >
           {/* Header */}
           <div className="p-6 border-b border-[var(--border)] bg-gradient-to-br from-[var(--bg-surface)] to-[var(--bg-main)]">

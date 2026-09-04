@@ -106,7 +106,15 @@ export const Sidebar = ({
                 className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white shadow-md relative overflow-hidden shrink-0 group-hover:scale-105 transition-transform"
               >
                 <div className="absolute inset-[2px] bg-[var(--bg-surface)] rounded-[12px] flex items-center justify-center p-1 group-hover:bg-[var(--primary-soft)] transition-colors">
-                  <img src="/logo.png" alt="লোগো" className="w-6 h-6 object-contain" />
+                  <img 
+                    src="/logo.png" 
+                    alt="লোগো" 
+                    width="24" 
+                    height="24" 
+                    loading="lazy" 
+                    decoding="async" 
+                    className="w-6 h-6 object-contain aspect-square" 
+                  />
                 </div>
               </motion.div>
               <div className="min-w-0 flex-1">
@@ -125,7 +133,15 @@ export const Sidebar = ({
               className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white shadow-md cursor-pointer relative overflow-hidden shrink-0 hover:scale-110 active:scale-95 transition-all group"
             >
               <div className="absolute inset-[2px] bg-[var(--bg-surface)] rounded-[12px] flex items-center justify-center p-1.5 group-hover:bg-[var(--primary-soft)] transition-colors">
-                <img src="/logo.png" alt="লোগো" className="w-7 h-7 object-contain" />
+                <img 
+                  src="/logo.png" 
+                  alt="লোগো" 
+                  width="28" 
+                  height="28" 
+                  loading="lazy" 
+                  decoding="async" 
+                  className="w-7 h-7 object-contain aspect-square" 
+                />
               </div>
             </div>
           )}

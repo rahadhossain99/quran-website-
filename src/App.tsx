@@ -71,7 +71,7 @@ const AppContent = () => {
         {/* Content Container */}
         <div className="flex-1 min-w-0 bg-[var(--bg-main)] min-h-screen relative shadow-2xl flex flex-col md:border-r md:border-[var(--border)] transition-all duration-300 w-full">
           {/* Mobile Header with Quran Icon to slide open menu bar */}
-          <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[var(--bg-surface)] border-b border-[var(--border)] sticky top-0 z-20 shadow-2xs">
+          <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[var(--bg-surface)] border-b border-[var(--border)] sticky top-0 z-20 shadow-2xs min-h-[64px]">
             <div 
               onClick={() => {
                 if (currentViewSurah !== null) setCurrentViewSurah(null);
@@ -80,8 +80,16 @@ const AppContent = () => {
               className="flex items-center space-x-2.5 cursor-pointer group"
               title="হোম পেজে ফিরে যান"
             >
-              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/25 p-1 shadow-xs flex items-center justify-center shrink-0 overflow-hidden">
-                <img src="/logo.png" alt="আল-কুরআন" className="w-full h-full object-contain" />
+              <div className="w-10 h-10 aspect-square rounded-2xl bg-amber-500/10 border border-amber-500/25 p-1 shadow-xs flex items-center justify-center shrink-0 overflow-hidden">
+                <img 
+                  src="/logo.png" 
+                  alt="আল-কুরআন" 
+                  width="40" 
+                  height="40" 
+                  fetchPriority="high" 
+                  decoding="async" 
+                  className="w-full h-full object-contain aspect-square" 
+                />
               </div>
               <div>
                 <span className="font-extrabold text-base text-[var(--text-main)] font-bengali tracking-tight block leading-tight">আল-কুরআনুল কারীম</span>

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useAppStore } from '../Store';
 import { SurahInfo } from '../types';
 import { fetchAllSurahs } from '../api';
+import { SURAH_LIST } from '../data/surahList';
 import { SurahCard } from '../components/SurahCard';
 import { getBanglaSurahData } from '../utils/banglaSurahNames';
 import { 
@@ -65,13 +66,15 @@ export const HomeView = () => {
     setActiveTab, playingSurah, isPlaying
   } = useAppStore();
 
-  const [surahs, setSurahs] = useState<SurahInfo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [surahs, setSurahs] = useState<SurahInfo[]>(SURAH_LIST);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [revelationFilter, setRevelationFilter] = useState<'all' | 'Meccan' | 'Medinan' | 'fav'>('all');
   const [showPrayerModal, setShowPrayerModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
-  const [currentTime, setCurrentTime] = useState('');
+  const [currentTime, setCurrentTime] = useState(() => {
+    return new Date().toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+  });
   const [isVerseAudioPlaying, setIsVerseAudioPlaying] = useState(false);
   const verseAudioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -286,13 +289,13 @@ export const HomeView = () => {
         className="rounded-3xl bg-[#fdfbf7] dark:bg-slate-900/95 border border-[#ecdccf] dark:border-slate-800 shadow-xs p-5 sm:p-7 md:p-8 relative overflow-hidden"
       >
         {/* Top Badges Row: Bismillah & Live Clock */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center justify-between gap-3 flex-wrap min-h-[38px]">
           <span className="font-arabic text-sm sm:text-base font-bold text-[#8d5b28] dark:text-amber-400 bg-[#f4ece1] dark:bg-slate-800/90 border border-[#e4d6c4] dark:border-slate-700/80 px-4 py-1.5 rounded-full shadow-2xs tracking-wider">
             بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
           </span>
 
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#5c4a37] dark:text-slate-300 bg-[#f4ece1] dark:bg-slate-800/90 border border-[#e4d6c4] dark:border-slate-700/80 px-3.5 py-1.5 rounded-full shadow-2xs font-sans">
-            <Clock className="w-3.5 h-3.5 text-[#b04f14] dark:text-amber-400" />
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#5c4a37] dark:text-slate-300 bg-[#f4ece1] dark:bg-slate-800/90 border border-[#e4d6c4] dark:border-slate-700/80 px-3.5 py-1.5 rounded-full shadow-2xs font-sans min-w-[100px] justify-center">
+            <Clock className="w-3.5 h-3.5 text-[#b04f14] dark:text-amber-400 shrink-0" />
             <span>{currentTime}</span>
           </div>
 
@@ -302,7 +305,7 @@ export const HomeView = () => {
               className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#a6480e] dark:text-amber-400 bg-[#f4ece1] dark:bg-slate-800/90 border border-[#e4d6c4] dark:border-slate-700/80 px-3.5 py-1.5 rounded-full shadow-2xs hover:border-[#a6480e] active:scale-95 transition-all cursor-pointer group"
               title="ঢাকার নামাজের পূর্ণাঙ্গ সময়সূচি দেখুন"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
               <span>{nextPrayer.name}: {nextPrayer.time}</span>
               {nextPrayer.remaining && (
                 <span className="text-[11px] text-[#615344] dark:text-slate-400 font-medium hidden md:inline">({nextPrayer.remaining})</span>
@@ -403,12 +406,16 @@ export const HomeView = () => {
           </div>
 
           {/* Photograph Container */}
-          <div className="relative rounded-3xl overflow-hidden shadow-md border border-[#e6d8c8] dark:border-slate-800 group">
+          <div className="relative rounded-3xl overflow-hidden shadow-md border border-[#e6d8c8] dark:border-slate-800 group aspect-[16/7] min-h-[208px] sm:min-h-[256px] md:min-h-[288px] bg-[#f4ede3] dark:bg-slate-800">
             <img 
               src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=1200&q=80"
               alt="পবিত্র কুরআনুল কারীম"
+              width="1200"
+              height="525"
+              loading="lazy"
+              decoding="async"
               referrerPolicy="no-referrer"
-              className="w-full h-52 sm:h-64 md:h-72 object-cover object-center transform group-hover:scale-102 transition-transform duration-700"
+              className="w-full h-52 sm:h-64 md:h-72 object-cover object-center transform group-hover:scale-102 transition-transform duration-700 aspect-[16/7]"
             />
 
             {/* Bottom In-Image Floating Card */}
