@@ -1,6 +1,6 @@
 {
   "name": "Remix: Al-Quran",
-  "description": "পবিত্র আল-কুরআনুল কারীম বাংলা অনুবাদ, অডিও তিলাওয়াত, তাফসির ও ঢাকার সঠিক নামাজের সময়সূচি (https://alquranread.netlify.app)",
+  "description": "সহজে পড়ুন ও শুনুন আল-কুরআনুল কারীম বাংলা অনুবাদ, তাফসির ও অডিও তিলাওয়াতসহ। সাথে থাকছে প্রতিদিনের সঠিক নামাজের সময়সূচি।",
   "requestFramePermissions": [
     "geolocation"
   ],

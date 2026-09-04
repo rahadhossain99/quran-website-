@@ -118,7 +118,7 @@ export const Sidebar = ({
                 </div>
               </motion.div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg font-bold font-sans tracking-tight text-[var(--text-main)] truncate">আল-কুরআনুল কারিম</h1>
+                <h2 className="text-lg font-bold font-sans tracking-tight text-[var(--text-main)] truncate">আল-কুরআনুল কারীম</h2>
                 <p className="text-[9px] uppercase font-bold tracking-[0.15em] text-[var(--primary)] font-sans truncate">ডিজিটাল সংস্করণ</p>
               </div>
             </div>

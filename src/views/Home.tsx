@@ -321,15 +321,15 @@ export const HomeView = () => {
           </p>
 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#1e1913] dark:text-white leading-[1.25] tracking-tight">
-            কুরআনের নূর ও হিদায়াতে{' '}
+            আল-কুরআনুল কারীম -{' '}
             <span className="text-[#a6480e] dark:text-amber-400 underline decoration-wavy decoration-[#e4ad6d] underline-offset-4">
-              আলোকিত হোক
+              বাংলা অনুবাদ
             </span>{' '}
-            আপনার প্রতিটি মুহূর্ত
+            ও নামাজের সময়সূচি
           </h1>
 
           <p className="text-xs sm:text-sm text-[#615344] dark:text-slate-400 font-medium leading-relaxed max-w-2xl pt-1">
-            সহজ পাঠযোগ্য বাংলা অনুবাদ, নির্ভরযোগ্য তাফসির, সঠিক নামাজের সময়সূচি ও বিশ্বখ্যাত ২০+ ক্বারীর সুললিত তিলাওয়াত শুনুন একস্থানে।
+            সহজে পড়ুন ও শুনুন আল-কুরআনুল কারীম বাংলা অনুবাদ, তাফসির ও অডিও তিলাওয়াতসহ। সাথে থাকছে প্রতিদিনের সঠিক নামাজের সময়সূচি।
           </p>
         </div>
 

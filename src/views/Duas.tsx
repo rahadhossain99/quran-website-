@@ -206,7 +206,7 @@ export const DuasView = () => {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center text-white shadow-md">
               <Sparkles className="w-5 h-5" />
             </div>
-            <h1 className="text-2xl font-bold text-[var(--text-main)] font-sans">দৈনন্দিন দোয়া</h1>
+            <h2 className="text-2xl font-bold text-[var(--text-main)] font-sans">দৈনন্দিন দোয়া</h2>
           </div>
           {duas.length > 0 && (
             <span className="text-xs font-bold text-[var(--primary)] bg-[var(--primary-soft)] px-3.5 py-1.5 rounded-full border border-[var(--border)] shadow-2xs">

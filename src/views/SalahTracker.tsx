@@ -249,7 +249,7 @@ export const SalahTrackerView = () => {
             <Flame className="w-3.5 h-3.5 fill-current text-orange-500 animate-pulse mr-1" />
             <span>আধ্যাত্মিক ড্যাশবোর্ড ও নামাজ ট্র্যাকার</span>
           </div>
-          <h1 className="text-2xl font-black text-[var(--text-main)] tracking-tight font-bengali">সালাত ট্র্যাকার ও এনালাইটিক্স</h1>
+          <h2 className="text-2xl font-black text-[var(--text-main)] tracking-tight font-bengali">সালাত ট্র্যাকার ও এনালাইটিক্স</h2>
           <p className="text-xs text-[var(--text-muted)] mt-1 font-sans">Track your 5 daily prayers, build streaks, and get complete visual logs of your consistency.</p>
         </div>
         

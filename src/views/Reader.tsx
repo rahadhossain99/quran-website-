@@ -148,9 +148,9 @@ export const ReaderView = () => {
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold font-sans text-[var(--text-main)] truncate max-w-[200px] md:max-w-md mx-4">
+          <h2 className="text-xl font-bold font-sans text-[var(--text-main)] truncate max-w-[200px] md:max-w-md mx-4">
              {data?.englishName || "লোড হচ্ছে..."}
-          </h1>
+          </h2>
           <div className="w-10 flex-shrink-0"></div>
         </div>
       </div>

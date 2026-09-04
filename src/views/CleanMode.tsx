@@ -333,13 +333,13 @@ export const CleanModeView = () => {
             <Headphones className={`w-5 h-5 ${isPlaying ? 'animate-pulse' : ''}`} />
           </div>
           <div>
-            <h1 className="text-sm md:text-base font-extrabold tracking-tight text-white flex items-center space-x-2">
+            <h2 className="text-sm md:text-base font-extrabold tracking-tight text-white flex items-center space-x-2">
               <span className="font-sans font-black">ক্লিন মোড</span>
               <span className={`text-[9px] bg-zinc-900 ${themeStyle.accent} font-sans tracking-wide uppercase px-2.5 py-0.5 rounded-lg font-black border ${themeStyle.border} flex items-center gap-1`}>
                 <Sparkles className="w-3 h-3" />
                 <span>{themeStyle.title.split(' ')[0]}</span>
               </span>
-            </h1>
+            </h2>
             <p className="text-[9px] text-zinc-400 font-bold font-bengali uppercase tracking-wide">পবিত্র কুরআন তিলাওয়াত ও একাগ্র ধ্যান</p>
           </div>
         </div>

@@ -195,7 +195,7 @@ export const SalahGuideView = () => {
           <BookOpen className="w-3.5 h-3.5 mr-1" />
           <span>ইসলামিক জ্ঞানভান্ডার ও আমল সেকশন</span>
         </div>
-        <h1 className="text-2xl font-black text-[var(--text-main)] tracking-tight font-bengali">সহজ ও বিশুদ্ধ সালাত শিক্ষা গাইড</h1>
+        <h2 className="text-2xl font-black text-[var(--text-main)] tracking-tight font-bengali">সহজ ও বিশুদ্ধ সালাত শিক্ষা গাইড</h2>
         <p className="text-xs text-[var(--text-muted)] mt-1 font-sans">Learn how to make proper Ablution (Wudu), steps to perform prayers correctly, and read all essential Salah supplications.</p>
       </div>
 

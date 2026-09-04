@@ -611,10 +611,10 @@ export const ProgressView = () => {
             <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 mr-1" />
             <span>লাইভ অ্যানালিটিক্স ও ডাইনামিক রিপোর্ট</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-[var(--text-main)] tracking-tight font-bengali flex items-center gap-2">
+          <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-main)] tracking-tight font-bengali flex items-center gap-2">
             <span>কুরআন তিলাওয়াত অগ্রগতি ও পারফর্ম্যান্স</span>
             <Sparkles className="w-5 h-5 text-amber-500" />
-          </h1>
+          </h2>
           <p className="text-xs text-[var(--text-muted)] mt-1 font-sans">
             যেকোনো সূরা প্লে করা বা পড়া মাত্র স্বয়ংক্রিয়ভাবে লাইভ ডেটা হিস্ট্রি ও চার্ট আপডেট হবে
           </p>
