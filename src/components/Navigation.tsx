@@ -7,13 +7,13 @@ export const Navigation = () => {
   if (currentViewSurah !== null) return null;
 
   const navItems = [
-    { id: 'home', icon: Home, label: 'হোম', action: () => setActiveTab('home'), href: '#/home' },
-    { id: 'progress', icon: TrendingUp, label: 'অগ্রগতি', action: () => setActiveTab('progress'), href: '#/progress' },
-    { id: 'salah-tracker', icon: CalendarCheck, label: 'সালাত ট্র্যাকার', action: () => setActiveTab('salah-tracker'), href: '#/salah-tracker' },
-    { id: 'clean-mode', icon: Headphones, label: 'ক্লিন মোড', action: () => setIsCleanMode(true), isSpecial: true, href: '#/clean-mode' },
-    { id: 'duas', icon: Sparkles, label: 'দোয়া', action: () => setActiveTab('duas'), href: '#/duas' },
-    { id: 'bookmarks', icon: Bookmark, label: 'বুকমার্ক', action: () => setActiveTab('bookmarks'), href: '#/bookmarks' },
-    { id: 'settings', icon: Settings, label: 'সেটিংস', action: () => setActiveTab('settings'), href: '#/settings' },
+    { id: 'home', icon: Home, label: 'হোম', action: () => setActiveTab('home'), href: '/home' },
+    { id: 'progress', icon: TrendingUp, label: 'অগ্রগতি', action: () => setActiveTab('progress'), href: '/progress' },
+    { id: 'salah-tracker', icon: CalendarCheck, label: 'সালাত ট্র্যাকার', action: () => setActiveTab('salah-tracker'), href: '/salah-tracker' },
+    { id: 'clean-mode', icon: Headphones, label: 'ক্লিন মোড', action: () => setIsCleanMode(true), isSpecial: true, href: '/clean-mode' },
+    { id: 'duas', icon: Sparkles, label: 'দোয়া', action: () => setActiveTab('duas'), href: '/duas' },
+    { id: 'bookmarks', icon: Bookmark, label: 'বুকমার্ক', action: () => setActiveTab('bookmarks'), href: '/bookmarks' },
+    { id: 'settings', icon: Settings, label: 'সেটিংস', action: () => setActiveTab('settings'), href: '/settings' },
   ];
 
   return (

@@ -166,29 +166,40 @@ const updateMediaSessionMetadata = (surah: SurahData, ayahIndex: number, qariId:
   });
 };
 
-export const parseHashRoute = (): { tab: Tab; surah: number | null } => {
+export const parseRoute = (): { tab: Tab; surah: number | null } => {
   if (typeof window === 'undefined') return { tab: 'home', surah: null };
-  const rawHash = window.location.hash.replace(/^#\/?/, '').trim();
+
+  // Support clean slash pathname first, with fallback to hash for backward compatibility
+  let cleanPath = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
   
-  if (rawHash.startsWith('surah/')) {
-    const num = parseInt(rawHash.replace('surah/', ''), 10);
+  // If hash is present (e.g. #/surah/1), prioritize and convert it
+  if (window.location.hash) {
+    const hashClean = window.location.hash.replace(/^#\/?/, '').trim();
+    if (hashClean) cleanPath = hashClean;
+  }
+
+  if (cleanPath.startsWith('surah/')) {
+    const num = parseInt(cleanPath.replace('surah/', ''), 10);
     if (!isNaN(num) && num >= 1 && num <= 114) {
       return { tab: 'home', surah: num };
     }
   }
 
   const validTabs: Tab[] = ['home', 'bookmarks', 'tasbih', 'duas', 'settings', 'salah-tracker', 'salah-guide', 'progress'];
-  if (validTabs.includes(rawHash as Tab)) {
-    return { tab: rawHash as Tab, surah: null };
+  if (validTabs.includes(cleanPath as Tab)) {
+    return { tab: cleanPath as Tab, surah: null };
   }
 
   return { tab: 'home', surah: null };
 };
 
+// Backward-compatible alias
+export const parseHashRoute = parseRoute;
+
 const AppContext = createContext<AppState | null>(null);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const initialRoute = parseHashRoute();
+  const initialRoute = parseRoute();
   const [theme, setThemeState] = useState<AppTheme>(() => {
     const saved = localStorage.getItem('quran_theme');
     const validThemes: AppTheme[] = ['light', 'dark', 'emerald', 'luxury', 'ocean', 'rose', 'sunset', 'midnight'];
@@ -281,30 +292,33 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const isPoppingStateRef = useRef(false);
 
-  // Sync activeTab and currentViewSurah to browser URL Hash
+  // Sync activeTab and currentViewSurah to browser URL using clean slashes (e.g. /home, /surah/1, /salah-tracker)
   useEffect(() => {
     if (isPoppingStateRef.current) return;
     if (typeof window === 'undefined') return;
 
-    let targetHash = '#/home';
+    let targetPath = '/home';
     if (currentViewSurah !== null) {
-      targetHash = `#/surah/${currentViewSurah}`;
+      targetPath = `/surah/${currentViewSurah}`;
     } else if (activeTab) {
-      targetHash = `#/${activeTab}`;
+      targetPath = `/${activeTab}`;
     }
 
-    if (window.location.hash !== targetHash) {
-      // Use window.location.hash to cleanly reflect page URL
-      window.location.hash = targetHash;
+    const currentPath = window.location.pathname;
+    // If the browser currently has a hash (from old cache/link), clean it up
+    if (window.location.hash) {
+      window.history.replaceState({ tab: activeTab, surah: currentViewSurah }, '', targetPath);
+    } else if (currentPath !== targetPath && currentPath !== targetPath + '/') {
+      window.history.pushState({ tab: activeTab, surah: currentViewSurah }, '', targetPath);
     }
   }, [activeTab, currentViewSurah]);
 
-  // Listen to hashchange and popstate events (browser back/forward, manual link entry)
+  // Listen to popstate and hashchange events (browser back/forward, manual link entry)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const handleRouteChange = () => {
-      const route = parseHashRoute();
+      const route = parseRoute();
       isPoppingStateRef.current = true;
       setActiveTab(route.tab);
       setCurrentViewSurah(route.surah);
@@ -313,18 +327,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }, 70);
     };
 
-    window.addEventListener('hashchange', handleRouteChange);
     window.addEventListener('popstate', handleRouteChange);
+    window.addEventListener('hashchange', handleRouteChange);
 
-    // Initial check: if no hash exists, set default hash
-    if (!window.location.hash || window.location.hash === '#') {
-      const defaultHash = initialRoute.surah !== null ? `#/surah/${initialRoute.surah}` : `#/${initialRoute.tab}`;
-      window.location.hash = defaultHash;
+    // Initial check: clean up any hash if present
+    if (window.location.hash) {
+      const route = parseRoute();
+      const cleanPath = route.surah !== null ? `/surah/${route.surah}` : `/${route.tab}`;
+      window.history.replaceState({ tab: route.tab, surah: route.surah }, '', cleanPath);
     }
 
     return () => {
-      window.removeEventListener('hashchange', handleRouteChange);
       window.removeEventListener('popstate', handleRouteChange);
+      window.removeEventListener('hashchange', handleRouteChange);
     };
   }, []);
 
@@ -781,8 +796,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const isDarkTheme = ['dark', 'midnight'].includes(theme);
     if (isDarkTheme) {
       document.documentElement.className = `${theme} dark`;
+      document.documentElement.style.colorScheme = 'dark';
     } else {
       document.documentElement.className = theme;
+      document.documentElement.style.colorScheme = 'light';
     }
   }, [theme]);
 

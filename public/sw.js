@@ -1,4 +1,4 @@
-const CACHE_NAME = 'al-quran-pwa-v25';
+const CACHE_NAME = 'al-quran-pwa-v30';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

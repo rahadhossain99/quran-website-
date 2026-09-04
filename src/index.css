@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 @import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Noto+Serif+Bengali:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @theme {
@@ -32,6 +33,19 @@
     
     --arabic-size: 38px;
     --translation-size: 18px;
+  }
+
+  .light {
+    --bg-main: #fbf8f3;
+    --bg-surface: #ffffff;
+    --text-main: #1c1917;
+    --text-muted: #615344;
+    --border: #ebdccf;
+    --primary: #a6480e;
+    --primary-hover: #8f3e0c;
+    --primary-soft: #fbf4ec;
+    --accent: #b45309;
+    --accent-soft: #fef3c7;
   }
 
   .dark {

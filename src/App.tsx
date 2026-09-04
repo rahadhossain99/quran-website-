@@ -80,8 +80,8 @@ const AppContent = () => {
               className="flex items-center space-x-2.5 cursor-pointer group"
               title="হোম পেজে ফিরে যান"
             >
-              <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 p-0.5 shadow-xs flex items-center justify-center text-amber-700 dark:text-amber-400">
-                <BookOpen className="w-5 h-5 text-amber-700 dark:text-amber-400" />
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/25 p-1 shadow-xs flex items-center justify-center shrink-0 overflow-hidden">
+                <img src="/logo.png" alt="আল-কুরআন" className="w-full h-full object-contain" />
               </div>
               <div>
                 <span className="font-extrabold text-base text-[var(--text-main)] font-bengali tracking-tight block leading-tight">আল-কুরআনুল কারীম</span>
