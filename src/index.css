@@ -48,11 +48,11 @@
   }
   
   .emerald {
-    --bg-main: #f0fdf4;
+    --bg-main: #f8fafc;
     --bg-surface: #ffffff;
-    --text-main: #064e3b;
-    --text-muted: #059669;
-    --border: #d1fae5;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --border: #e2e8f0;
     --primary: #059669; /* Islamic Emerald */
     --primary-hover: #047857;
     --primary-soft: #ecfdf5;
@@ -63,9 +63,9 @@
   .luxury {
     --bg-main: #faf8f5;
     --bg-surface: #ffffff;
-    --text-main: #291e12;
-    --text-muted: #b45309;
-    --border: #fef3c7;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --border: #e2e8f0;
     --primary: #d97706; /* Royal Gold Manuscript */
     --primary-hover: #b45309;
     --primary-soft: #fffbeb;
@@ -74,11 +74,11 @@
   }
 
   .ocean {
-    --bg-main: #f0f9ff;
+    --bg-main: #f8fafc;
     --bg-surface: #ffffff;
-    --text-main: #0c4a6e;
-    --text-muted: #0284c7;
-    --border: #e0f2fe;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --border: #e2e8f0;
     --primary: #0284c7; /* Ocean Blue */
     --primary-hover: #0369a1;
     --primary-soft: #f0f9ff;
@@ -87,11 +87,11 @@
   }
 
   .rose {
-    --bg-main: #fff1f2;
+    --bg-main: #f8fafc;
     --bg-surface: #ffffff;
-    --text-main: #881337;
-    --text-muted: #e11d48;
-    --border: #ffe4e6;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --border: #e2e8f0;
     --primary: #e11d48; /* Velvet Rose */
     --primary-hover: #be123c;
     --primary-soft: #fff1f2;
@@ -100,11 +100,11 @@
   }
 
   .sunset {
-    --bg-main: #faf5ff;
+    --bg-main: #f8fafc;
     --bg-surface: #ffffff;
-    --text-main: #4c1d95;
-    --text-muted: #7c3aed;
-    --border: #f3e8ff;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --border: #e2e8f0;
     --primary: #7c3aed; /* Royal Dusk Indigo */
     --primary-hover: #6d28d9;
     --primary-soft: #f3e8ff;
@@ -294,6 +294,36 @@ input[type=range]::-webkit-slider-runnable-track {
   }
   100% {
     height: 16px;
+  }
+}
+
+/* Printable PDF & Paper Print Optimization */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  
+  /* Hide non-printable app UI elements during print */
+  #progress-screen > *:not(#printable-report-card-wrapper) {
+    display: none !important;
+  }
+
+  .fixed, header, nav, footer, button, .no-print {
+    display: none !important;
+  }
+
+  #printable-report-card {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    overflow: visible !important;
   }
 }
 

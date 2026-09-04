@@ -130,15 +130,19 @@ export const HomeView = () => {
     });
   }, [surahs, search, revelationFilter, favorites]);
 
-  // Feature Navigation Cards configuration
+  // Feature Navigation Cards configuration with Solid White Background & Distinct Vibrant Color Schemes
   const featureCards = [
     {
       id: 'clean-mode',
       title: 'ক্লিন মোড ও প্রশান্তির আমেজ',
       subtitle: 'বিজ্ঞাপনমুক্ত ফুলস্ক্রীন তিলাওয়াত, ব্যাকগ্রাউন্ড অডিও ও ফোকাস ধ্যান',
       icon: Headphones,
-      color: 'bg-[var(--bg-surface)] border-emerald-500/50 hover:border-emerald-500 shadow-sm hover:shadow-emerald-500/10',
-      iconBg: 'bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-md shadow-emerald-500/20',
+      topStripe: 'from-emerald-500 via-teal-500 to-emerald-400',
+      borderHover: 'hover:border-emerald-500 group-hover:shadow-emerald-500/15',
+      iconBg: 'bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-md shadow-emerald-600/25',
+      badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800',
+      titleHover: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
+      arrowBg: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
       action: () => setIsCleanMode(true),
       badge: 'শান্তি ও ফোকাস'
     },
@@ -147,18 +151,26 @@ export const HomeView = () => {
       title: 'সালাত ট্র্যাকার ও সময়সূচি',
       subtitle: 'দৈনিক ৫ ওয়াক্ত নামাজ ট্র্যাকিং, জামায়াত ও সঠিক সময়সূচি',
       icon: Clock,
-      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
-      iconBg: 'bg-gradient-to-tr from-teal-500 to-emerald-500 text-white shadow-md shadow-teal-500/20',
+      topStripe: 'from-amber-500 via-orange-500 to-amber-400',
+      borderHover: 'hover:border-amber-500 group-hover:shadow-amber-500/15',
+      iconBg: 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25',
+      badgeBg: 'bg-amber-50 text-amber-800 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800',
+      titleHover: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
+      arrowBg: 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300',
       tab: 'salah-tracker' as const,
       badge: nextPrayer ? `পরবর্তী: ${nextPrayer.name}` : 'সময়সূচি'
     },
     {
       id: 'progress',
       title: 'তেলাওয়াত ও পড়ার অগ্রগতি',
-      subtitle: 'দৈনিক গোল, লড়িয়াল বিশ্লেষণ, বার চার্ট ও সূরা ট্র্যাকিং',
+      subtitle: 'দৈনিক গোল, স্ট্রিক অ্যানালিসিস, বার চার্ট ও খতম ট্র্যাকিং',
       icon: TrendingUp,
-      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
-      iconBg: 'bg-gradient-to-tr from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/20',
+      topStripe: 'from-purple-600 via-indigo-600 to-fuchsia-500',
+      borderHover: 'hover:border-purple-500 group-hover:shadow-purple-500/15',
+      iconBg: 'bg-gradient-to-tr from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-600/25',
+      badgeBg: 'bg-purple-50 text-purple-800 border-purple-200/80 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800',
+      titleHover: 'group-hover:text-purple-600 dark:group-hover:text-purple-400',
+      arrowBg: 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300',
       tab: 'progress' as const,
       badge: 'রিপোর্ট ও অ্যানালিটিক্স'
     },
@@ -167,8 +179,12 @@ export const HomeView = () => {
       title: 'ডিজিটাল তাসবিহ',
       subtitle: 'লাইভ ডিজিটাল গণনাকারী, কাস্টম জিকির ও শব্দসহ গণনা',
       icon: RefreshCw,
-      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
-      iconBg: 'bg-gradient-to-tr from-sky-500 to-blue-500 text-white shadow-md shadow-sky-500/20',
+      topStripe: 'from-cyan-500 via-sky-500 to-blue-500',
+      borderHover: 'hover:border-cyan-500 group-hover:shadow-cyan-500/15',
+      iconBg: 'bg-gradient-to-tr from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/25',
+      badgeBg: 'bg-sky-50 text-sky-800 border-sky-200/80 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800',
+      titleHover: 'group-hover:text-sky-600 dark:group-hover:text-sky-400',
+      arrowBg: 'bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300',
       tab: 'tasbih' as const,
       badge: 'ডিজিটাল জিকির'
     },
@@ -177,8 +193,12 @@ export const HomeView = () => {
       title: 'নিত্যদিনের দো\'আ',
       subtitle: 'কুরআন ও হাদিসের বিশুদ্ধ দো\'আ ও মোনাজাতের সংগ্রহ',
       icon: Sparkles,
-      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
-      iconBg: 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/20',
+      topStripe: 'from-rose-500 via-pink-500 to-rose-400',
+      borderHover: 'hover:border-rose-500 group-hover:shadow-rose-500/15',
+      iconBg: 'bg-gradient-to-tr from-rose-500 to-pink-600 text-white shadow-md shadow-rose-500/25',
+      badgeBg: 'bg-rose-50 text-rose-800 border-rose-200/80 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800',
+      titleHover: 'group-hover:text-rose-600 dark:group-hover:text-rose-400',
+      arrowBg: 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300',
       tab: 'duas' as const,
       badge: 'প্রয়োজনীয় দো\'আ'
     },
@@ -187,8 +207,12 @@ export const HomeView = () => {
       title: 'সালাত শিক্ষা ও গাইড',
       subtitle: 'ধাপে ধাপে ছবি ও চিত্রসহ সঠিক উপায়ে নামাজ শিক্ষার গাইড',
       icon: BookOpen,
-      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
-      iconBg: 'bg-gradient-to-tr from-indigo-500 to-purple-500 text-white shadow-md shadow-indigo-500/20',
+      topStripe: 'from-blue-600 via-indigo-600 to-sky-500',
+      borderHover: 'hover:border-blue-500 group-hover:shadow-blue-500/15',
+      iconBg: 'bg-gradient-to-tr from-blue-600 to-sky-600 text-white shadow-md shadow-blue-600/25',
+      badgeBg: 'bg-blue-50 text-blue-800 border-blue-200/80 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800',
+      titleHover: 'group-hover:text-blue-600 dark:group-hover:text-blue-400',
+      arrowBg: 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300',
       tab: 'salah-guide' as const,
       badge: 'নামাজ গাইড'
     },
@@ -197,8 +221,12 @@ export const HomeView = () => {
       title: 'বুকমার্ক ও প্রিয় সূরা',
       subtitle: 'আপনার সংরক্ষিত গুরুত্বপূর্ণ আয়াত ও প্রিয় সূরাসমূহ',
       icon: Bookmark,
-      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
-      iconBg: 'bg-gradient-to-tr from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/20',
+      topStripe: 'from-red-600 via-rose-600 to-amber-500',
+      borderHover: 'hover:border-red-500 group-hover:shadow-red-500/15',
+      iconBg: 'bg-gradient-to-tr from-red-500 to-rose-600 text-white shadow-md shadow-red-500/25',
+      badgeBg: 'bg-red-50 text-red-800 border-red-200/80 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800',
+      titleHover: 'group-hover:text-red-600 dark:group-hover:text-red-400',
+      arrowBg: 'bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300',
       tab: 'bookmarks' as const,
       badge: `${toBengaliNumber(favorites.length)}টি প্রিয়`
     },
@@ -207,8 +235,12 @@ export const HomeView = () => {
       title: 'অ্যাপ সেটিংস ও থিম',
       subtitle: 'কারী নির্বাচন, অডিও কন্ট্রোল, ফন্ট সাইজ ও থিম কালার',
       icon: Settings,
-      color: 'bg-[var(--bg-surface)] border-[var(--border)] hover:border-[var(--primary)]',
-      iconBg: 'bg-gradient-to-tr from-slate-600 to-zinc-700 text-white shadow-md shadow-slate-500/20',
+      topStripe: 'from-slate-700 via-zinc-700 to-neutral-600',
+      borderHover: 'hover:border-slate-500 group-hover:shadow-slate-500/15',
+      iconBg: 'bg-gradient-to-tr from-slate-700 to-zinc-800 text-white shadow-md shadow-slate-700/25',
+      badgeBg: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700',
+      titleHover: 'group-hover:text-slate-700 dark:group-hover:text-slate-300',
+      arrowBg: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
       tab: 'settings' as const,
       badge: 'কনফিগারেশন'
     }
@@ -217,100 +249,197 @@ export const HomeView = () => {
   return (
     <div className="space-y-6 md:space-y-8 p-4 md:p-6 lg:p-8 max-w-5xl mx-auto font-bengali">
       
-      {/* 1. Light Modern Hero Banner */}
+      {/* 1. UNIQUE ROYAL ISLAMIC SANCTUARY HERO BANNER WITH REAL HOLY QURAN PHOTOGRAPHY */}
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[var(--bg-surface)] via-[var(--primary-soft)] to-[var(--bg-surface)] p-6 md:p-8 border border-[var(--border)] shadow-sm"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#06291d] via-[#0b3829] to-[#041d15] text-white border border-emerald-600/40 shadow-xl"
       >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--primary)] opacity-[0.04] rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[var(--accent)] opacity-[0.04] rounded-full blur-2xl pointer-events-none" />
+        {/* Top Gold-Emerald Gradient Trim */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-amber-400 via-yellow-300 to-emerald-400" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-xl">
-            <div className="flex items-center gap-2 text-xs md:text-sm font-semibold text-[var(--primary)] bg-[var(--bg-surface)]/80 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-[var(--border)] w-fit shadow-2xs">
-              <Sparkle className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
-              <span>পবিত্র কুরআনুল কারীম</span>
-              <span className="opacity-40">•</span>
-              <span>{currentTime}</span>
-            </div>
+        {/* Subtle Islamic Geometric Star Background Pattern */}
+        <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(#fef08a_1px,transparent_1px)] [background-size:20px_20px]" />
+        
+        {/* Ambient spiritual glow */}
+        <div className="absolute top-0 right-1/4 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-10 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
 
-            <h1 className="text-2xl md:text-3xl font-black text-[var(--text-main)] tracking-tight leading-snug">
-              আস-সালামু আলাইকুম, <br className="hidden sm:block"/>
-              <span className="text-[var(--primary)]">কুরআনের আলোয় রঙিন হোক জীবন</span>
-            </h1>
-
-            <p className="text-xs md:text-sm text-[var(--text-muted)] font-medium leading-relaxed">
-              সহজ পাঠযোগ্য বাংলা অনুবাদ, তাফসির ও বিশ্বখ্যাত কারীদের তিলাওয়াত শুনুন একস্থানে।
-            </p>
-
-            <div className="flex items-center gap-2 pt-1">
-              <button
-                onClick={() => setShowPrayerModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-[var(--text-main)] bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--primary)] shadow-2xs transition-all active:scale-95"
-              >
-                <Clock className="w-4 h-4 text-[var(--primary)]" />
-                <span>আজকের সালাতের সময়সূচি</span>
-              </button>
-
-              <button
-                onClick={() => setShowProgressModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-[var(--text-main)] bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--primary)] shadow-2xs transition-all active:scale-95"
-              >
-                <TrendingUp className="w-4 h-4 text-emerald-600" />
-                <span>তিলাওয়াত পরিসংখ্যান</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Next Prayer Compact Widget */}
-          {nextPrayer && (
-            <div className="flex-shrink-0 bg-[var(--bg-surface)] p-5 rounded-2xl border border-[var(--border)] shadow-sm min-w-[240px] space-y-3">
-              <div className="flex items-center justify-between text-xs font-bold text-[var(--text-muted)] border-b border-[var(--border)]/60 pb-2">
-                <span className="flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-[var(--primary)]" />
-                  {location?.city || 'ঢাকা'}, {location?.country || 'বাংলাদেশ'}
+        <div className="p-5 sm:p-7 md:p-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-center">
+            
+            {/* Left Column: Bismillah, Badges, Inspiring Title & Action Controls */}
+            <div className="lg:col-span-7 space-y-4 text-left">
+              {/* Bismillah Calligraphy & Real-time Info */}
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <span className="text-amber-300/90 font-arabic text-sm sm:text-base font-bold tracking-widest px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/25 shadow-2xs">
+                  بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
                 </span>
-                <span className="bg-[var(--primary-soft)] text-[var(--primary)] px-2 py-0.5 rounded-md font-semibold text-[10px]">
-                  ওয়াক্ত
-                </span>
-              </div>
 
-              <div>
-                <p className="text-[11px] font-semibold text-[var(--text-muted)]">পরবর্তী সালাত</p>
-                <div className="flex items-baseline justify-between mt-0.5">
-                  <h3 className="text-lg font-black text-[var(--primary)]">{nextPrayer.name}</h3>
-                  <p className="text-sm font-extrabold text-[var(--text-main)] font-sans">{nextPrayer.time}</p>
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-200 bg-emerald-900/60 px-3 py-1 rounded-full border border-emerald-500/30">
+                  <Clock className="w-3.5 h-3.5 text-amber-300" />
+                  <span className="font-sans">{currentTime}</span>
                 </div>
-                <p className="text-[11px] text-[var(--text-muted)] mt-1 font-medium">
-                  বাকি আছে: <span className="font-bold text-[var(--accent)]">{nextPrayer.remaining}</span>
-                </p>
               </div>
 
-              <div className="pt-1 flex items-center justify-between">
+              {/* Title with Royal Gold & Emerald Typography */}
+              <div className="space-y-1.5">
+                <p className="text-xs sm:text-sm font-bold text-emerald-300/90 flex items-center gap-1.5">
+                  <Sparkle className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                  <span>আস-সালামু আলাইকুম ওয়া রাহমাতুল্লাহ</span>
+                </p>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight leading-tight text-white">
+                  কুরআনের নূর ও হিদায়াতে <br className="hidden sm:inline" />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-emerald-300">
+                    আলোকিত হোক আপনার প্রতিটি মুহূর্ত
+                  </span>
+                </h1>
+              </div>
+
+              <p className="text-xs sm:text-sm text-emerald-100/80 font-medium leading-relaxed max-w-lg">
+                সহজ পাঠযোগ্য বাংলা অনুবাদ, নির্ভরযোগ্য তাফসির, সঠিক নামাজের সময়সূচি ও বিশ্বখ্যাত ২০+ কারীর সুললিত তিলাওয়াত শুনুন একস্থানে।
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2.5 pt-1">
                 <button
-                  onClick={playAzan}
-                  className={`w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
-                    isAzanPlaying 
-                      ? 'bg-rose-500 text-white shadow-md animate-pulse' 
-                      : 'bg-[var(--primary-soft)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white'
-                  }`}
+                  onClick={() => {
+                    if (lastRead) {
+                      setCurrentViewSurah(lastRead.surahNumber);
+                      setInitialTargetAyahIndex(lastRead.ayahIndex);
+                    } else {
+                      setCurrentViewSurah(1);
+                      setInitialTargetAyahIndex(0);
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-amber-300 via-yellow-300 to-amber-400 hover:from-amber-200 hover:to-yellow-300 shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
                 >
-                  {isAzanPlaying ? (
-                    <>
-                      <VolumeX className="w-4 h-4" />
-                      <span>আজান বন্ধ করুন</span>
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className="w-4 h-4" />
-                      <span>আজানের সুর শুনুন</span>
-                    </>
-                  )}
+                  <BookOpen className="w-4 h-4 text-emerald-950" />
+                  <span>{lastRead ? 'পড়া চালিয়ে যান' : 'কুরআন পড়া শুরু করুন'}</span>
+                </button>
+
+                <button
+                  onClick={() => setShowPrayerModal(true)}
+                  className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-emerald-100 bg-emerald-900/50 hover:bg-emerald-800/80 border border-emerald-500/40 shadow-2xs active:scale-95 transition-all"
+                >
+                  <Clock className="w-4 h-4 text-amber-300" />
+                  <span>সালাত সময়সূচি</span>
+                </button>
+
+                <button
+                  onClick={() => setShowProgressModal(true)}
+                  className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-emerald-100 bg-emerald-900/50 hover:bg-emerald-800/80 border border-emerald-500/40 shadow-2xs active:scale-95 transition-all"
+                >
+                  <TrendingUp className="w-4 h-4 text-emerald-300" />
+                  <span>পরিসংখ্যান</span>
                 </button>
               </div>
+
+              {/* Quick Knowledge Indicators */}
+              <div className="pt-2 flex flex-wrap items-center gap-3 text-[11px] text-emerald-200/70 font-semibold">
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                  <span>১১৪টি পূর্ণাঙ্গ সূরা</span>
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                  <span>৬২৩৬টি আয়াত ও তাফসির</span>
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                  <span>বিজ্ঞাপনমুক্ত অভিজ্ঞতা</span>
+                </span>
+              </div>
             </div>
-          )}
+
+            {/* Right Column: Authentic Holy Quran Artwork Frame & Next Prayer Tablet */}
+            <div className="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col gap-4">
+              
+              {/* Authentic Holy Quran Photograph Frame */}
+              <div className="relative group overflow-hidden rounded-2xl border-2 border-amber-400/40 shadow-2xl bg-emerald-950 flex-1 min-h-[170px] sm:min-h-[200px]">
+                <img 
+                  src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=800&q=80"
+                  alt="পবিত্র কুরআনুল কারীম"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
+                />
+                
+                {/* Vignette Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#041d15] via-[#041d15]/40 to-transparent" />
+                
+                {/* Image Overlay Header Tag */}
+                <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#041d15]/85 border border-amber-400/40 text-[11px] font-black text-amber-300 shadow-md">
+                    <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                    <span>পবিত্র কুরআনুল কারীম</span>
+                  </span>
+                  <span className="text-[10px] font-bold text-white/90 bg-emerald-900/80 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                    রেহাল ও তিলাওয়াত
+                  </span>
+                </div>
+
+                {/* Bottom Quote inside Image */}
+                <div className="absolute bottom-3 left-3 right-3">
+                  <p className="text-[11px] text-emerald-100 font-bold bg-[#041d15]/90 p-2 rounded-xl border border-emerald-600/30 line-clamp-1">
+                    “নিশ্চয়ই আল্লাহর স্মরণেই অন্তর প্রশান্তি পায়” — (সূরা আর-রাদ: ২৮)
+                  </p>
+                </div>
+              </div>
+
+              {/* Next Prayer Compact Widget - Royal Islamic Style */}
+              {nextPrayer && (
+                <div className="bg-[#052117]/95 p-4 rounded-2xl border border-emerald-500/40 shadow-md space-y-2.5 flex-1">
+                  <div className="flex items-center justify-between text-xs font-bold text-emerald-300 border-b border-emerald-800/80 pb-2">
+                    <span className="flex items-center gap-1.5 text-emerald-200">
+                      <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                      {location?.city || 'ঢাকা'}, {location?.country || 'বাংলাদেশ'}
+                    </span>
+                    <span className="bg-amber-400/15 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-md font-black text-[10px]">
+                      ওয়াক্ত ও সালাত
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-semibold text-emerald-300/80">পরবর্তী সালাত</p>
+                      <h3 className="text-xl font-black text-amber-300">{nextPrayer.name}</h3>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-base font-extrabold text-white font-sans">{nextPrayer.time}</p>
+                      <p className="text-[11px] text-emerald-300 font-medium">
+                        বাকি: <span className="font-bold text-amber-300">{nextPrayer.remaining}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={playAzan}
+                    className={`w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      isAzanPlaying 
+                        ? 'bg-rose-600 text-white shadow-md animate-pulse' 
+                        : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-sm'
+                    }`}
+                  >
+                    {isAzanPlaying ? (
+                      <>
+                        <VolumeX className="w-4 h-4 text-white" />
+                        <span>আজান বন্ধ করুন</span>
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="w-4 h-4 text-amber-300" />
+                        <span>আজানের সুর শুনুন</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+            </div>
+
+          </div>
         </div>
       </motion.div>
 
@@ -323,7 +452,7 @@ export const HomeView = () => {
             setCurrentViewSurah(lastRead.surahNumber);
             setInitialTargetAyahIndex(lastRead.ayahIndex);
           }}
-          className="group cursor-pointer p-4 md:p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)] hover:border-[var(--primary)] shadow-2xs hover:shadow-md transition-all flex items-center justify-between gap-4"
+          className="group cursor-pointer p-4 md:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500 shadow-2xs hover:shadow-md transition-all flex items-center justify-between gap-4"
         >
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/80 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
@@ -331,20 +460,20 @@ export const HomeView = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-100/60 px-2 py-0.5 rounded-md">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-100/70 px-2 py-0.5 rounded-md">
                   সর্বশেষ পঠিত
                 </span>
               </div>
-              <h4 className="text-base font-bold text-[var(--text-main)] group-hover:text-[var(--primary)] transition-colors mt-0.5">
+              <h4 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-amber-600 transition-colors mt-0.5">
                 {lastRead.surahName}
               </h4>
-              <p className="text-xs text-[var(--text-muted)] font-medium">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 আয়াত নম্বর {toBengaliNumber(lastRead.ayahIndex + 1)} থেকে পড়া শুরু করুন
               </p>
             </div>
           </div>
 
-          <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[var(--primary)] bg-[var(--primary-soft)] group-hover:bg-[var(--primary)] group-hover:text-white transition-all flex-shrink-0">
+          <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 group-hover:bg-amber-600 group-hover:text-white transition-all flex-shrink-0 border border-amber-200/60 dark:border-amber-800/60">
             <span>পড়া শুরু করুন</span>
             <ArrowRight className="w-4 h-4" />
           </button>
@@ -357,12 +486,9 @@ export const HomeView = () => {
         animate={{ opacity: 1, scale: 1 }}
         className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-zinc-900 to-teal-950 p-6 md:p-7 border border-emerald-500/30 text-white shadow-xl group"
       >
-        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/20 transition-all" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
-
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2.5 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold font-sans">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 text-xs font-bold font-sans">
               <Headphones className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
               <span>পবিত্র পরিবেশ ও ফোকাস মোড</span>
               <span className="opacity-40">•</span>
@@ -372,7 +498,7 @@ export const HomeView = () => {
             <h3 className="text-xl md:text-2xl font-black text-white leading-snug">
               ক্লিন তিলাওয়াত ও প্রশান্তিময় পরিবেশ
             </h3>
-            <p className="text-xs md:text-sm text-emerald-100/80 font-medium leading-relaxed">
+            <p className="text-xs md:text-sm text-emerald-100/90 font-medium leading-relaxed">
               বিজ্ঞাপন ও মনোযোগ বিভ্রান্তিমুক্ত তিলাওয়াত। আপনার পছন্দমতো ব্যাকগ্রাউন্ড প্রশান্তিময় শব্দ ও থিম বেছে নিন:
             </p>
 
@@ -388,7 +514,7 @@ export const HomeView = () => {
                 <button
                   key={idx}
                   onClick={() => setIsCleanMode(true)}
-                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-500/30 border border-white/15 hover:border-emerald-400 text-xs font-bold text-white transition-all active:scale-95 flex items-center gap-1.5 shadow-2xs"
+                  className="px-3 py-1.5 rounded-xl bg-emerald-900/50 hover:bg-emerald-800/80 border border-emerald-600/40 text-xs font-bold text-emerald-100 transition-all active:scale-95 flex items-center gap-1.5 shadow-2xs"
                 >
                   <mood.icon className="w-3.5 h-3.5 text-emerald-300" />
                   <span>{mood.label}</span>
@@ -409,70 +535,67 @@ export const HomeView = () => {
       </motion.div>
 
       {/* 4. Feature Quick Navigation Hub (ইসলামিক সেকশন ও সার্ভিসেস গ্রিড) */}
-      <div className="space-y-5">
+      {/* 3. Islamic Services & Feature Exhibition Cards - Solid White Background with Distinct Color Palettes */}
+      <div className="space-y-4 sm:space-y-5">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shadow-2xs">
                 <Compass className="w-4 h-4 animate-spin-slow" />
               </div>
-              <h2 className="text-xl font-black text-[var(--text-main)] font-bengali">
+              <h2 className="text-xl font-black text-slate-900 dark:text-white font-bengali">
                 ইসলামিক সেকশন ও সার্ভিসেস
               </h2>
             </div>
-            <p className="text-xs text-[var(--text-muted)] font-medium mt-1">
-              প্রয়োজনীয় ফিচারে সরাসরি প্রবেশ করতে নিচের সুন্দর কার্ডগুলোতে ট্যাপ করুন
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
+              প্রয়োজনীয় ফিচারে সরাসরি প্রবেশ করতে নিচের আকর্ষণীয় কার্ডগুলোতে ট্যাপ করুন
             </p>
           </div>
         </div>
 
-        {/* Symmetrical & Compact Box Grid Layout */}
+        {/* Compact Grid with Solid Pure White Cards, Rich Multi-Colors & Smooth Float Animation */}
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-4">
-          {featureCards.map((card, idx) => {
+          {featureCards.map((card) => {
             const IconComponent = card.icon;
             const isCleanMode = card.id === 'clean-mode';
 
             return (
               <motion.div
                 key={card.id}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.04 }}
-                whileHover={{ y: -5, scale: 1.02 }}
-                whileTap={{ scale: 0.96 }}
+                whileHover={{ y: -4, scale: 1.015 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => card.action ? card.action() : card.tab && setActiveTab(card.tab)}
-                className={`cursor-pointer p-4 sm:p-5 rounded-2xl sm:rounded-3xl ${card.color} border transition-all duration-300 flex flex-col justify-between group shadow-sm hover:shadow-xl relative overflow-hidden backdrop-blur-md min-h-[150px] sm:min-h-[170px] ${
-                  isCleanMode ? 'col-span-2 sm:col-span-2 md:col-span-1 border-emerald-500/60 shadow-emerald-500/15' : ''
+                className={`cursor-pointer rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 ${card.borderHover} transition-all duration-300 flex flex-col justify-between group shadow-sm hover:shadow-xl relative overflow-hidden min-h-[160px] sm:min-h-[180px] ${
+                  isCleanMode ? 'col-span-2 sm:col-span-2 md:col-span-1' : ''
                 }`}
               >
-                {/* Islamic Star Lattice Watermark Background Texture */}
-                <div className="absolute -bottom-8 -right-8 w-28 h-28 text-[var(--primary)] opacity-[0.06] pointer-events-none group-hover:scale-125 group-hover:rotate-45 transition-transform duration-700 ease-out flex items-center justify-center">
-                  <svg viewBox="0 0 100 100" fill="currentColor" className="w-full h-full">
-                    <polygon points="50,0 65,35 100,50 65,65 50,100 35,65 0,50 35,35" />
-                    <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" strokeWidth="3" />
-                  </svg>
-                </div>
+                {/* Top Vibrant Color Stripe */}
+                <div className={`h-1.5 w-full bg-gradient-to-r ${card.topStripe}`} />
 
-                {/* Header: Icon & Badge */}
-                <div className="flex items-center justify-between gap-2 relative z-10 mb-3">
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl ${card.iconBg} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform shrink-0`}>
-                    <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
+                <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 relative z-10">
+                  {/* Header: Icon & Badge */}
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl ${card.iconBg} flex items-center justify-center group-hover:scale-105 group-hover:rotate-2 transition-transform shrink-0`}>
+                      <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </div>
+
+                    <span className={`text-[10px] sm:text-[11px] font-black px-2.5 py-1 rounded-full ${card.badgeBg} font-bengali truncate shadow-2xs`}>
+                      {card.badge}
+                    </span>
                   </div>
 
-                  <span className="text-[10px] sm:text-[11px] font-black px-2.5 py-1 rounded-full bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary)] border-opacity-20 shadow-2xs font-bengali truncate">
-                    {card.badge}
-                  </span>
-                </div>
-
-                {/* Body: Title & Subtitle */}
-                <div className="relative z-10 mt-auto space-y-1">
-                  <h3 className="font-black text-sm sm:text-base text-[var(--text-main)] group-hover:text-[var(--primary)] flex items-center justify-between gap-1 transition-colors leading-snug">
-                    <span>{card.title}</span>
-                    <ChevronRight className="w-4 h-4 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[var(--primary)] shrink-0" />
-                  </h3>
-                  <p className="text-xs text-[var(--text-muted)] font-medium leading-relaxed line-clamp-2">
-                    {card.subtitle}
-                  </p>
+                  {/* Body: Title, Subtitle & Action Arrow */}
+                  <div className="mt-auto space-y-1.5">
+                    <h3 className={`font-black text-sm sm:text-base text-slate-900 dark:text-white ${card.titleHover} flex items-center justify-between gap-1.5 transition-colors leading-snug`}>
+                      <span className="truncate">{card.title}</span>
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center ${card.arrowBg} group-hover:scale-110 group-hover:translate-x-0.5 transition-all shrink-0`}>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed line-clamp-2">
+                      {card.subtitle}
+                    </p>
+                  </div>
                 </div>
               </motion.div>
             );

@@ -50,7 +50,10 @@ import {
   FileText,
   Image as ImageIcon,
   Loader2,
-  Star
+  Star,
+  Crown,
+  Rocket,
+  Gem
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -91,6 +94,94 @@ const SURAH_TOTAL_AYAHS_MAP: Record<number, number> = {
 const MADANI_SURAHS_SET = new Set([
   2, 3, 4, 5, 8, 9, 13, 22, 24, 33, 47, 48, 49, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 76, 98, 110
 ]);
+
+// Dynamic Streak Milestones Target Levels
+const STREAK_MILESTONES = [
+  { days: 7, title: 'সাপ্তাহিক রুকি', badge: '৭ দিনের টার্গেট', icon: Target, color: 'from-emerald-500 via-teal-500 to-emerald-600', border: 'border-emerald-500/40', bg: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' },
+  { days: 10, title: 'নিয়মিত অধ্যাবসায়ী', badge: '১০ দিনের টার্গেট', icon: Zap, color: 'from-amber-500 via-yellow-500 to-amber-600', border: 'border-amber-500/40', bg: 'bg-amber-500/15 text-amber-600 dark:text-amber-400' },
+  { days: 15, title: 'তারকা তেলাওয়াতকারী', badge: '১৫ দিনের টার্গেট', icon: Star, color: 'from-rose-500 via-pink-500 to-orange-500', border: 'border-rose-500/40', bg: 'bg-rose-500/15 text-rose-600 dark:text-rose-400' },
+  { days: 30, title: 'মাসিক আল-কুরআন স্টার', badge: '৩০ দিনের টার্গেট (১ মাস)', icon: Trophy, color: 'from-purple-600 via-indigo-500 to-violet-600', border: 'border-purple-500/40', bg: 'bg-purple-500/15 text-purple-600 dark:text-purple-400' },
+  { days: 50, title: 'হাফ-সেঞ্চুরি লেজেন্ড', badge: '৫০ দিনের টার্গেট', icon: Crown, color: 'from-cyan-500 via-sky-500 to-blue-600', border: 'border-cyan-500/40', bg: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400' },
+  { days: 80, title: 'অদম্য মাস্টার টাইটান', badge: '৮০ দিনের টার্গেট', icon: Rocket, color: 'from-orange-500 via-coral-500 to-red-600', border: 'border-orange-500/40', bg: 'bg-orange-500/15 text-orange-600 dark:text-orange-400' },
+  { days: 100, title: 'সেঞ্চুরি গ্র্যান্ডমাস্টার!', badge: '১০০ দিনের সেঞ্চুরি টার্গেট', icon: Gem, color: 'from-rose-500 via-fuchsia-500 to-purple-600', border: 'border-fuchsia-500/40', bg: 'bg-fuchsia-500/15 text-fuchsia-600 dark:text-fuchsia-400' },
+];
+
+const getStreakMilestoneInfo = (streakCount: number) => {
+  for (const m of STREAK_MILESTONES) {
+    if (streakCount < m.days) return m;
+  }
+  const nextTarget = Math.ceil((streakCount + 1) / 50) * 50;
+  return {
+    days: nextTarget,
+    title: `মেগা সেঞ্চুরি রাইডার (${nextTarget} দিন)`,
+    badge: `${nextTarget} দিনের টার্গেট`,
+    icon: Sparkles,
+    color: 'from-amber-400 via-emerald-400 to-teal-500',
+    border: 'border-amber-400/50',
+    bg: 'bg-amber-400/20 text-amber-500'
+  };
+};
+
+// ColorHunt Inspired Vibrant Multi-Color Palette for 7 Days Bar Chart
+const DAY_PALETTES = [
+  { 
+    gradient: 'from-rose-500 via-pink-500 to-rose-400', 
+    glow: 'shadow-rose-500/30', 
+    text: 'text-rose-600 dark:text-rose-400',
+    border: 'border-rose-500/40',
+    badgeBg: 'bg-rose-500/15',
+    name: 'শুক্রবার'
+  },
+  { 
+    gradient: 'from-purple-600 via-indigo-500 to-violet-400', 
+    glow: 'shadow-purple-500/30', 
+    text: 'text-purple-600 dark:text-purple-400',
+    border: 'border-purple-500/40',
+    badgeBg: 'bg-purple-500/15',
+    name: 'শনিবার'
+  },
+  { 
+    gradient: 'from-sky-500 via-cyan-500 to-blue-400', 
+    glow: 'shadow-sky-500/30', 
+    text: 'text-sky-600 dark:text-sky-400',
+    border: 'border-sky-500/40',
+    badgeBg: 'bg-sky-500/15',
+    name: 'রবিবার'
+  },
+  { 
+    gradient: 'from-emerald-500 via-teal-500 to-green-400', 
+    glow: 'shadow-emerald-500/30', 
+    text: 'text-emerald-600 dark:text-emerald-400',
+    border: 'border-emerald-500/40',
+    badgeBg: 'bg-emerald-500/15',
+    name: 'সোমবার'
+  },
+  { 
+    gradient: 'from-amber-500 via-orange-500 to-yellow-400', 
+    glow: 'shadow-amber-500/30', 
+    text: 'text-amber-600 dark:text-amber-400',
+    border: 'border-amber-500/40',
+    badgeBg: 'bg-amber-500/15',
+    name: 'মঙ্গলবার'
+  },
+  { 
+    gradient: 'from-orange-500 via-coral-500 to-rose-400', 
+    glow: 'shadow-orange-500/30', 
+    text: 'text-orange-600 dark:text-orange-400',
+    border: 'border-orange-500/40',
+    badgeBg: 'bg-orange-500/15',
+    name: 'বুধবার'
+  },
+  { 
+    gradient: 'from-fuchsia-600 via-pink-600 to-purple-500', 
+    glow: 'shadow-fuchsia-500/30', 
+    text: 'text-fuchsia-600 dark:text-fuchsia-400',
+    border: 'border-fuchsia-500/40',
+    badgeBg: 'bg-fuchsia-500/15',
+    name: 'বৃহস্পতিবার'
+  },
+];
+
 
 export const ProgressView = () => {
   const { 
@@ -542,14 +633,18 @@ export const ProgressView = () => {
       </div>
 
       {/* UNIQUE JOURNEY TRACKER CARD (কবে থেকে পড়া শুরু করা হয়েছে) */}
-      <div className="mb-8 p-6 sm:p-8 rounded-[2.5rem] bg-gradient-to-br from-emerald-950 via-teal-900 to-slate-900 text-white border-2 border-emerald-500/40 shadow-xl relative overflow-hidden font-bengali">
-        <div className="absolute -top-12 -right-12 w-48 h-48 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-teal-400/20 rounded-full blur-2xl pointer-events-none" />
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8 p-6 sm:p-8 rounded-[2.5rem] bg-gradient-to-br from-emerald-950 via-teal-950 to-slate-900 text-white border-2 border-emerald-500/40 shadow-2xl relative overflow-hidden font-bengali"
+      >
+        <div className="absolute -top-12 -right-12 w-56 h-56 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-teal-400/20 rounded-full blur-2xl pointer-events-none" />
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center space-x-2 bg-emerald-400/20 text-emerald-300 px-3.5 py-1 rounded-full text-xs font-extrabold border border-emerald-400/30">
-              <Calendar className="w-3.5 h-3.5 text-emerald-300" />
+            <div className="inline-flex items-center space-x-2 bg-emerald-400/20 text-emerald-300 px-4 py-1.5 rounded-full text-xs font-extrabold border border-emerald-400/30 backdrop-blur-md shadow-xs">
+              <Calendar className="w-4 h-4 text-emerald-300" />
               <span>কুরআন তেলাওয়াত যাত্রা ট্র্যাকার</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
@@ -562,29 +657,29 @@ export const ProgressView = () => {
           </div>
 
           {/* Metrics Grid inside Card */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 bg-white/10 backdrop-blur-md p-3.5 sm:p-4 rounded-3xl border border-white/15">
-            <div className="p-3 rounded-2xl bg-black/30 border border-white/10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 bg-white/10 backdrop-blur-md p-3.5 sm:p-4 rounded-3xl border border-white/15 shadow-inner">
+            <div className="p-3 rounded-2xl bg-black/40 border border-white/10">
               <span className="text-[10px] text-emerald-200/80 font-bold block">পড়া শুরু</span>
               <span className="text-xs sm:text-sm font-black text-white mt-0.5 block leading-snug">
                 {formatBnDate(journeyStartDate)}
               </span>
             </div>
 
-            <div className="p-3 rounded-2xl bg-black/30 border border-white/10">
+            <div className="p-3 rounded-2xl bg-black/40 border border-white/10">
               <span className="text-[10px] text-emerald-200/80 font-bold block">আজকের তারিখ</span>
               <span className="text-xs sm:text-sm font-black text-amber-300 mt-0.5 block leading-snug">
                 {formatBnDate(todayDateStr)}
               </span>
             </div>
 
-            <div className="p-3 rounded-2xl bg-black/30 border border-white/10">
+            <div className="p-3 rounded-2xl bg-black/40 border border-white/10">
               <span className="text-[10px] text-emerald-200/80 font-bold block">অতিক্রান্ত দিন</span>
               <span className="text-xs sm:text-sm font-black text-emerald-300 mt-0.5 block leading-snug">
                 {toBnNumber(elapsedDays)} দিন
               </span>
             </div>
 
-            <div className="p-3 rounded-2xl bg-black/30 border border-white/10">
+            <div className="p-3 rounded-2xl bg-black/40 border border-white/10">
               <span className="text-[10px] text-emerald-200/80 font-bold block">মোট তেলাওয়াত</span>
               <span className="text-xs sm:text-sm font-black text-teal-300 mt-0.5 block leading-snug">
                 {toBnNumber(totalHours)}ঘ {toBnNumber(totalRemainingMins)}মি
@@ -602,137 +697,200 @@ export const ProgressView = () => {
 
           <button
             onClick={() => setShowLifetimeReportModal(true)}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all cursor-pointer shadow-lg shadow-amber-400/20 active:scale-95 flex items-center justify-center space-x-2 shrink-0"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs transition-all cursor-pointer shadow-lg shadow-amber-400/25 active:scale-95 flex items-center justify-center space-x-2 shrink-0 border border-amber-300/40"
           >
             <FileText className="w-4 h-4 text-slate-950" />
             <span>সারা জীবনের সকল তথ্য ও রিপোর্ট প্রিন্ট/শেয়ার করুন</span>
             <ArrowUpRight className="w-4 h-4" />
           </button>
         </div>
-      </div>
+      </motion.div>
 
-      {/* 2. Khatam & Streak Performance Dashboard */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        
-        {/* Streak & Consistency Card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-2 p-6 rounded-[2.5rem] bg-gradient-to-r from-emerald-600/15 via-teal-500/20 to-emerald-950/15 border-2 border-emerald-500/30 shadow-lg relative overflow-hidden backdrop-blur-md flex flex-col justify-between"
-        >
-          <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/15 rounded-bl-full blur-2xl pointer-events-none" />
-          
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10 mb-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-amber-500 via-orange-500 to-red-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/30 relative group">
-                <Flame className="w-8 h-8 fill-white animate-bounce" />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
-              </div>
-              <div>
-                <div className="flex items-center space-x-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-800 dark:text-emerald-300 font-sans">
-                    ধারাবাহিক স্ট্রিক
-                  </p>
-                  <span className="text-[9px] font-black bg-amber-500/20 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30 font-bengali">
-                    একটিভ ট্র্যাকার
-                  </span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-[var(--text-main)] mt-0.5 font-bengali">
-                  {activeDaysCount > 0 ? `${toBnNumber(activeDaysCount)} দিন একাদিক্রমে অব্যাহত!` : 'আজকের তেলাওয়াত শুরু করুন!'}
-                </h2>
-                <p className="text-xs text-[var(--text-muted)] mt-1 font-bengali">
-                  প্রতিদিন হোম বা সার্চ থেকে যেকোনো সূরা চালু করলেই স্ট্রিক যুক্ত হয়।
-                </p>
-              </div>
+      {/* UNIQUE EXHIBITION SHOWCASE CARD (প্রদর্শনী কার্ড - Solid Elegant Display) */}
+      <div 
+        className="mb-8 p-5 sm:p-6 rounded-[2.2rem] bg-gradient-to-r from-purple-900/15 via-indigo-900/20 to-pink-900/15 border border-purple-500/30 shadow-lg relative overflow-hidden backdrop-blur-md font-bengali"
+      >
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-purple-500/15 rounded-full blur-xl pointer-events-none" />
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-purple-500/30">
+              <Sparkles className="w-6 h-6 fill-white animate-spin" style={{ animationDuration: '8s' }} />
             </div>
-
-            <div className="bg-[var(--bg-surface)]/80 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-[var(--border)] text-center shrink-0 w-full sm:w-auto">
-              <p className="text-[10px] font-bold text-[var(--text-muted)] font-bengali">সাপ্তাহিক টার্গেট</p>
-              <p className="text-sm font-black text-[var(--primary)] mt-0.5 font-bengali">
-                {toBnNumber(activeDaysCount)}/৭ দিন অর্জিত
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 dark:text-purple-300 bg-purple-500/15 px-2.5 py-0.5 rounded-full border border-purple-500/25">
+                  বিশেষ প্রদর্শনী কার্ড (Live Motion Display)
+                </span>
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-[var(--text-main)] mt-0.5">
+                কুরআন তেলাওয়াত ডিজিটাল অ্যানালিসিস কেন্দ্র
+              </h3>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                আপনার দৈনন্দিন রুটিন, ধারাবাহিকতার স্ট্রিক ও চার্ট রিয়েল-টাইমে সুন্দর ইন্টারঅ্যাক্টিভ ভিজ্যুয়ালে প্রদর্শিত হচ্ছে
               </p>
             </div>
           </div>
 
-          {/* Weekly Mini Streak Dots */}
-          <div className="grid grid-cols-7 gap-2 pt-4 border-t border-emerald-500/20 relative z-10">
-            {weeklyProgress.map((dayItem, idx) => {
-              const hasAct = (dayItem.seconds || 0) > 0 || (dayItem.ayahs || 0) > 0;
-              return (
-                <div key={dayItem.date} className="flex flex-col items-center">
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs transition-all ${
-                    hasAct 
-                      ? 'bg-gradient-to-tr from-emerald-500 to-teal-400 text-white shadow-md shadow-emerald-500/30' 
-                      : 'bg-[var(--bg-surface)] text-[var(--text-muted)] border border-[var(--border)]'
-                  }`}>
-                    {hasAct ? <CheckCircle2 className="w-4 h-4" /> : toBnNumber(idx + 1)}
+          <div className="flex items-center space-x-2 shrink-0">
+            <span className="text-xs font-black text-purple-600 dark:text-purple-300 bg-purple-500/10 px-3.5 py-1.5 rounded-2xl border border-purple-500/20">
+              লাইভ আপডেট সক্রিয় ⚡
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Khatam & Dynamic Streak Performance Dashboard */}
+      {(() => {
+        const currentMilestone = getStreakMilestoneInfo(activeDaysCount);
+        const MilestoneIcon = currentMilestone.icon;
+        const milestoneTargetDays = currentMilestone.days;
+        const streakTargetPercent = Math.min(100, Math.round((activeDaysCount / milestoneTargetDays) * 100));
+
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            
+            {/* Streak & Dynamic Target Card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`lg:col-span-2 p-6 rounded-[2.5rem] bg-gradient-to-r from-emerald-600/15 via-teal-500/20 to-emerald-950/15 border-2 ${currentMilestone.border} shadow-xl relative overflow-hidden backdrop-blur-md flex flex-col justify-between`}
+            >
+              <div className="absolute top-0 right-0 w-56 h-56 bg-emerald-500/15 rounded-bl-full blur-2xl pointer-events-none" />
+              
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10 mb-6">
+                <div className="flex items-center space-x-4">
+                  <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr ${currentMilestone.color} text-white flex items-center justify-center shrink-0 shadow-lg relative group`}>
+                    <MilestoneIcon className="w-8 h-8 fill-white animate-bounce" />
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
                   </div>
-                  <span className="text-[9px] font-bold text-[var(--text-muted)] font-bengali mt-1">
-                    {getDayOfWeekNameBn(dayItem.date)}
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-800 dark:text-emerald-300 font-sans">
+                        ধারাবাহিক স্ট্রিক
+                      </p>
+                      <span className={`text-[9px] font-black ${currentMilestone.bg} px-2.5 py-0.5 rounded-full border border-emerald-500/30 font-bengali`}>
+                        {currentMilestone.title}
+                      </span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-black text-[var(--text-main)] mt-0.5 font-bengali">
+                      {activeDaysCount > 0 ? `${toBnNumber(activeDaysCount)} দিন একাদিক্রমে অব্যাহত!` : 'আজকের তেলাওয়াত শুরু করুন!'}
+                    </h2>
+                    <p className="text-xs text-[var(--text-muted)] mt-1 font-bengali">
+                      প্রতিদিন হোম বা সার্চ থেকে যেকোনো সূরা চালু করলেই স্ট্রিক অর্জিত হয়।
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-[var(--bg-surface)]/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-[var(--border)] text-center shrink-0 w-full sm:w-auto shadow-xs">
+                  <p className="text-[10px] font-bold text-[var(--text-muted)] font-bengali">{currentMilestone.badge}</p>
+                  <p className="text-sm font-black text-[var(--primary)] mt-0.5 font-bengali">
+                    {toBnNumber(activeDaysCount)}/{toBnNumber(milestoneTargetDays)} দিন অর্জিত
+                  </p>
+                </div>
+              </div>
+
+              {/* Dynamic Milestone Target Progress Bar */}
+              <div className="mb-4 relative z-10 bg-[var(--bg-surface)]/60 p-3.5 rounded-2xl border border-[var(--border)]">
+                <div className="flex items-center justify-between text-xs font-bold font-bengali mb-1.5">
+                  <span className="text-[var(--text-main)] flex items-center gap-1">
+                    <MilestoneIcon className="w-3.5 h-3.5 text-amber-500" />
+                    <span>পরবর্তী টার্গেট অগ্রগতি: {currentMilestone.badge}</span>
+                  </span>
+                  <span className="text-[var(--primary)] font-black">{toBnNumber(streakTargetPercent)}%</span>
+                </div>
+                <div className="w-full h-3 rounded-full bg-[var(--bg-main)] overflow-hidden border border-[var(--border)] p-0.5">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${streakTargetPercent}%` }}
+                    transition={{ duration: 1 }}
+                    className={`h-full rounded-full bg-gradient-to-r ${currentMilestone.color} shadow-xs`}
+                  />
+                </div>
+              </div>
+
+              {/* Weekly Mini Streak Dots with Multi-Color Palettes */}
+              <div className="grid grid-cols-7 gap-2 pt-4 border-t border-emerald-500/20 relative z-10">
+                {weeklyProgress.map((dayItem, idx) => {
+                  const hasAct = (dayItem.seconds || 0) > 0 || (dayItem.ayahs || 0) > 0;
+                  const palette = DAY_PALETTES[idx % 7];
+
+                  return (
+                    <div key={dayItem.date} className="flex flex-col items-center">
+                      <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center font-bold text-xs transition-all ${
+                        hasAct 
+                          ? `bg-gradient-to-tr ${palette.gradient} text-white shadow-md ${palette.glow}` 
+                          : 'bg-[var(--bg-surface)] text-[var(--text-muted)] border border-[var(--border)]'
+                      }`}>
+                        {hasAct ? <CheckCircle2 className="w-4 h-4" /> : toBnNumber(idx + 1)}
+                      </div>
+                      <span className={`text-[9px] font-bold mt-1 font-bengali ${hasAct ? palette.text : 'text-[var(--text-muted)]'}`}>
+                        {getDayOfWeekNameBn(dayItem.date)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+
+            {/* Total Quran Khatam Progress Ring Card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="p-6 rounded-[2.5rem] bg-[var(--bg-surface)] border border-[var(--border)] shadow-sm relative overflow-hidden flex flex-col justify-between items-center text-center"
+            >
+              <div className="w-full flex items-center justify-between mb-2">
+                <span className="text-xs font-black text-[var(--text-main)] font-bengali flex items-center gap-1.5">
+                  <Trophy className="w-4 h-4 text-amber-500" />
+                  <span>খতম অগ্রগতি</span>
+                </span>
+                <span className="text-[10px] font-bold text-[var(--primary)] bg-[var(--primary-soft)] px-2.5 py-0.5 rounded-full font-bengali">
+                  ৬,২৩৬ আয়াত
+                </span>
+              </div>
+
+              {/* SVG Circular Ring */}
+              <div className="relative w-36 h-36 flex items-center justify-center my-2">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    className="stroke-[var(--border)]"
+                    strokeWidth="8"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    className="stroke-[var(--primary)] transition-all duration-1000"
+                    strokeWidth="8"
+                    strokeDasharray="251.2"
+                    strokeDashoffset={251.2 - (251.2 * quranCompletionPercent) / 100}
+                    strokeLinecap="round"
+                    fill="transparent"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <BookOpen className="w-5 h-5 text-[var(--primary)] mb-0.5" />
+                  <span className="text-base font-black font-bengali text-[var(--text-main)]">
+                    {toBnNumber(quranCompletionPercent)}%
+                  </span>
+                  <span className="text-[9px] font-bold text-[var(--text-muted)] font-bengali">
+                    কুরআন সম্পূর্ণ
                   </span>
                 </div>
-              );
-            })}
+              </div>
+
+              <p className="text-[11px] font-bold text-[var(--text-muted)] font-bengali">
+                মোট {toBnNumber(sumOfAllReadAyahs)} টি আয়াত পঠিত হয়েছে
+              </p>
+            </motion.div>
+
           </div>
-        </motion.div>
-
-        {/* Total Quran Khatam Progress Ring Card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="p-6 rounded-[2.5rem] bg-[var(--bg-surface)] border border-[var(--border)] shadow-sm relative overflow-hidden flex flex-col justify-between items-center text-center"
-        >
-          <div className="w-full flex items-center justify-between mb-2">
-            <span className="text-xs font-black text-[var(--text-main)] font-bengali flex items-center gap-1.5">
-              <Trophy className="w-4 h-4 text-amber-500" />
-              <span>খতম অগ্রগতি</span>
-            </span>
-            <span className="text-[10px] font-bold text-[var(--primary)] bg-[var(--primary-soft)] px-2.5 py-0.5 rounded-full font-bengali">
-              ৬,২৩৬ আয়াত
-            </span>
-          </div>
-
-          {/* SVG Circular Ring */}
-          <div className="relative w-36 h-36 flex items-center justify-center my-2">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                className="stroke-[var(--border)]"
-                strokeWidth="8"
-                fill="transparent"
-              />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                className="stroke-[var(--primary)] transition-all duration-1000"
-                strokeWidth="8"
-                strokeDasharray="251.2"
-                strokeDashoffset={251.2 - (251.2 * quranCompletionPercent) / 100}
-                strokeLinecap="round"
-                fill="transparent"
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <BookOpen className="w-5 h-5 text-[var(--primary)] mb-0.5" />
-              <span className="text-base font-black font-bengali text-[var(--text-main)]">
-                {toBnNumber(quranCompletionPercent)}%
-              </span>
-              <span className="text-[9px] font-bold text-[var(--text-muted)] font-bengali">
-                কুরআন সম্পূর্ণ
-              </span>
-            </div>
-          </div>
-
-          <p className="text-[11px] font-bold text-[var(--text-muted)] font-bengali">
-            মোট {toBnNumber(sumOfAllReadAyahs)} টি আয়াত পঠিত হয়েছে
-          </p>
-        </motion.div>
-
-      </div>
+        );
+      })()}
 
       {/* 3. 4 Key Analytics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -834,18 +992,18 @@ export const ProgressView = () => {
 
       </div>
 
-      {/* 4. GRAPH DRAFT 1: Smooth Recharts Area Wave Chart (ডাইনামিক ওয়েভ ও ট্রেন্ড গ্রাফ) */}
+      {/* 4. GRAPH DRAFT 1: Multi-Color Smooth Recharts Area Wave Chart (ডাইনামিক ওয়েভ ও ট্রেন্ড গ্রাফ) */}
       <div className="mb-8 p-6 rounded-[2.5rem] bg-[var(--bg-surface)] border border-[var(--border)] shadow-sm relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <div className="flex items-center space-x-2 text-[var(--primary)]">
-              <Activity className="w-5 h-5 text-emerald-500 animate-pulse" />
+              <Activity className="w-5 h-5 text-amber-500 animate-pulse" />
               <h3 className="font-black text-base text-[var(--text-main)] font-bengali">
-                স্মুথ ওয়েভ ট্রেন্ড এ্যানালিটিক্স (Interactive Smooth Area Graph)
+                স্মুথ ওয়েভ ট্রেন্ড এ্যানালিটিক্স (Interactive Multi-Color Area Wave Graph)
               </h3>
             </div>
             <p className="text-xs text-[var(--text-muted)] mt-0.5 font-bengali">
-              প্রতিদিনের সক্রিয় পড়ার সময় ও আয়াতের স্মুথ ফ্লো চার্ট
+              প্রতিদিনের সক্রিয় পড়ার সময় (গোল্ডেন/অ্যাম্বার) ও পঠিত আয়াতের (সায়ান/ইনডিগো) পৃথক কালার ওয়েভ চার্ট
             </p>
           </div>
 
@@ -853,26 +1011,26 @@ export const ProgressView = () => {
           <div className="bg-[var(--bg-main)] p-1 rounded-2xl border border-[var(--border)] flex items-center space-x-1 font-bengali text-xs">
             <button
               onClick={() => setAreaMetric('minutes')}
-              className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer flex items-center space-x-1 ${
+              className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${
                 areaMetric === 'minutes' 
-                  ? 'bg-emerald-500 text-white shadow-xs' 
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/20' 
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
               <Clock className="w-3.5 h-3.5" />
-              <span>সময় (মিনিট)</span>
+              <span>সময় (গোল্ডেন ওয়েভ)</span>
             </button>
 
             <button
               onClick={() => setAreaMetric('ayahs')}
-              className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer flex items-center space-x-1 ${
+              className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${
                 areaMetric === 'ayahs' 
-                  ? 'bg-emerald-500 text-white shadow-xs' 
+                  ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-md shadow-cyan-500/20' 
                   : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
               }`}
             >
               <BookOpen className="w-3.5 h-3.5" />
-              <span>পঠিত আয়াত</span>
+              <span>আয়াত (সায়ান ওয়েভ)</span>
             </button>
           </div>
         </div>
@@ -882,9 +1040,13 @@ export const ProgressView = () => {
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={waveChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
-                <linearGradient id="emeraldWave" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                <linearGradient id="timeWaveGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.5} />
+                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
+                </linearGradient>
+                <linearGradient id="ayahWaveGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.5} />
+                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.5} />
@@ -895,11 +1057,11 @@ export const ProgressView = () => {
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
-                      <div className="bg-[var(--bg-surface)] border border-emerald-500/30 p-3 rounded-2xl shadow-xl text-xs font-bengali">
+                      <div className="bg-[var(--bg-surface)] border border-[var(--border)] p-3 rounded-2xl shadow-xl text-xs font-bengali">
                         <p className="font-extrabold text-[var(--text-main)] mb-1">
                           {data.name} ({formatBnDate(data.rawDate)})
                         </p>
-                        <p className="text-emerald-600 dark:text-emerald-400 font-black">
+                        <p className={`${areaMetric === 'minutes' ? 'text-amber-500' : 'text-cyan-500'} font-black`}>
                           {areaMetric === 'minutes' ? `${toBnNumber(data.minutes)} মিনিট শ্রবণ/পাঠ` : `${toBnNumber(data.ayahs)} টি আয়াত পঠিত`}
                         </p>
                       </div>
@@ -911,16 +1073,17 @@ export const ProgressView = () => {
               <Area
                 type="monotone"
                 dataKey={areaMetric}
-                stroke="#10b981"
+                stroke={areaMetric === 'minutes' ? '#f59e0b' : '#06b6d4'}
                 strokeWidth={3}
                 fillOpacity={1}
-                fill="url(#emeraldWave)"
-                activeDot={{ r: 7, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }}
+                fill={areaMetric === 'minutes' ? 'url(#timeWaveGrad)' : 'url(#ayahWaveGrad)'}
+                activeDot={{ r: 7, fill: areaMetric === 'minutes' ? '#f59e0b' : '#06b6d4', stroke: '#fff', strokeWidth: 2 }}
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
+
 
       {/* 5. Interactive Weekly Bar Chart Analysis & Day Selection */}
       <div className="mb-8 p-6 rounded-[2.5rem] bg-[var(--bg-surface)] border border-[var(--border)] shadow-sm relative overflow-hidden">
@@ -953,6 +1116,7 @@ export const ProgressView = () => {
               const hasActivity = secs > 0 || ayahs > 0;
               
               const heightPercent = hasActivity ? Math.min(100, Math.max(22, (secs / 300) * 100)) : 10;
+              const palette = DAY_PALETTES[idx % 7];
 
               return (
                 <div key={dayItem.date} className="flex flex-col items-center h-full justify-end group">
@@ -960,34 +1124,34 @@ export const ProgressView = () => {
                     onClick={() => setSelectedDayIdx(idx)}
                     className="w-full flex flex-col items-center cursor-pointer transition-all focus:outline-none"
                   >
-                    <div className="w-full max-w-[42px] bg-[var(--bg-main)]/80 rounded-2xl p-1.5 h-36 flex flex-col justify-end items-center relative overflow-hidden border border-[var(--border)] group-hover:border-[var(--primary)]/60 transition-all">
+                    <div className={`w-full max-w-[42px] bg-[var(--bg-main)]/80 rounded-2xl p-1.5 h-36 flex flex-col justify-end items-center relative overflow-hidden border ${isSelected ? palette.border : 'border-[var(--border)]'} group-hover:border-[var(--primary)]/60 transition-all`}>
                       
-                      {/* Active Fill Bar */}
+                      {/* Active Fill Bar with Unique Day Palette */}
                       <motion.div 
                         initial={{ height: '0%' }}
                         animate={{ height: `${heightPercent}%` }}
                         transition={{ duration: 0.7, delay: idx * 0.06 }}
                         className={`w-full rounded-xl transition-all ${
                           isSelected 
-                            ? 'bg-gradient-to-t from-emerald-600 via-teal-500 to-emerald-400 shadow-md shadow-emerald-500/30' 
+                            ? `bg-gradient-to-t ${palette.gradient} shadow-lg ${palette.glow}` 
                             : hasActivity 
-                              ? 'bg-[var(--primary)] opacity-75 group-hover:opacity-100' 
+                              ? `bg-gradient-to-t ${palette.gradient} opacity-80 group-hover:opacity-100` 
                               : 'bg-[var(--border)] opacity-30'
                         }`}
                       />
 
                       {hasActivity && (
-                        <div className={`absolute top-2 w-2 h-2 rounded-full ${isSelected ? 'bg-emerald-400 animate-ping' : 'bg-[var(--primary)]'}`} />
+                        <div className={`absolute top-2 w-2 h-2 rounded-full ${isSelected ? 'bg-white animate-ping' : 'bg-emerald-400'}`} />
                       )}
                     </div>
 
                     <span className={`text-xs font-bold mt-2 font-bengali transition-all ${
-                      isSelected ? 'text-[var(--primary)] font-black scale-110' : 'text-[var(--text-muted)]'
+                      isSelected ? `${palette.text} font-black scale-110` : 'text-[var(--text-muted)]'
                     }`}>
                       {getDayOfWeekNameBn(dayItem.date)}
                     </span>
 
-                    <span className="text-[9px] font-bold text-[var(--text-muted)] font-bengali">
+                    <span className={`text-[9px] font-bold font-bengali ${isSelected ? palette.text : 'text-[var(--text-muted)]'}`}>
                       {secs > 0 ? `${toBnNumber(secs)} সে` : '০মি'}
                     </span>
                   </button>
