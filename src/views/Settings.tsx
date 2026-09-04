@@ -1,8 +1,10 @@
 import { useAppStore } from '../Store';
 import { QARIS } from '../types';
 import { motion } from 'motion/react';
-import { Palette, Headphones, BookOpen, Settings2, MoveDown, Download, Bell, Plus, X, Clock, ZoomIn, Lock, Unlock } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Palette, Headphones, BookOpen, Settings2, MoveDown, Download, Bell, Plus, X, Clock, ZoomIn, Lock, Unlock, Smartphone, CheckCircle2, HelpCircle } from 'lucide-react';
+import { useState } from 'react';
+import { usePWAInstall } from '../hooks/usePWAInstall';
+import { PWAInstallModal } from '../components/PWAInstallModal';
 
 export const SettingsView = () => {
   const { 
@@ -16,23 +18,19 @@ export const SettingsView = () => {
     globalZoom, setGlobalZoom,
     zoomLocked, setZoomLocked
   } = useAppStore();
-  const [canInstall, setCanInstall] = useState(!!(window as any).deferredPrompt);
+  const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [newReminder, setNewReminder] = useState("08:00");
 
-  useEffect(() => {
-    const handler = () => setCanInstall(true);
-    window.addEventListener('pwa-installable', handler);
-    return () => window.removeEventListener('pwa-installable', handler);
-  }, []);
-
   const handleInstall = async () => {
-    const promptEvent = (window as any).deferredPrompt;
-    if (!promptEvent) return;
-    promptEvent.prompt();
-    const { outcome } = await promptEvent.userChoice;
-    console.log(`User response to the install prompt: ${outcome}`);
-    (window as any).deferredPrompt = null;
-    setCanInstall(false);
+    if (isInstallable) {
+      const success = await install();
+      if (!success && isIOS) {
+        setIsModalOpen(true);
+      }
+    } else {
+      setIsModalOpen(true);
+    }
   };
 
   return (
@@ -51,28 +49,52 @@ export const SettingsView = () => {
         <p className="text-[var(--text-muted)] text-sm font-bold mt-2 bg-[var(--bg-main)] px-4 py-1.5 rounded-full inline-block border border-[var(--border)] border-opacity-50">অ্যাপের নিজস্ব কন্ট্রোল</p>
       </motion.div>
 
-      {/* PWA Install Button */}
-      {canInstall && (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-emerald-500 rounded-[2rem] shadow-lg shadow-emerald-500/20 overflow-hidden mb-6 p-6 flex items-center justify-between group cursor-pointer active:scale-95 transition-transform"
-          onClick={handleInstall}
-        >
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 text-white flex items-center justify-center shadow-inner">
-              <Download className="w-6 h-6" />
-            </div>
-            <div>
-              <h4 className="font-bold text-white text-lg">অ্যাপটি ইন্সটল করুন</h4>
-              <p className="text-white text-xs opacity-90 font-semibold tracking-wide">সরাসরি ফোন থেকে ব্যবহার করতে এখানে ক্লিক করুন</p>
-            </div>
+      {/* PWA Install Section */}
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 rounded-[2rem] shadow-lg shadow-emerald-600/20 overflow-hidden mb-6 p-5 sm:p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4"
+      >
+        <div className="flex items-center space-x-4 w-full sm:w-auto">
+          <div className="w-13 h-13 rounded-2xl bg-white/20 text-white flex items-center justify-center shadow-inner shrink-0">
+            {isInstalled ? <CheckCircle2 className="w-7 h-7 text-emerald-200" /> : <Smartphone className="w-7 h-7" />}
           </div>
-          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white">
-            <Download className="w-5 h-5 animate-bounce" />
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="font-bold text-white text-lg">
+                {isInstalled ? 'আল-কুরআন অ্যাপ ইনস্টল সম্পন্ন' : 'ওয়েবসাইট থেকে অ্যাপ ইনস্টল করুন'}
+              </h4>
+              <span className="px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-extrabold uppercase tracking-wide">
+                PWA
+              </span>
+            </div>
+            <p className="text-white/85 text-xs font-medium tracking-wide mt-0.5">
+              {isInstalled 
+                ? 'অ্যাপটি সরাসরি আপনার ডিভাইসে অফলাইন সুবিধা সহ সক্রিয় রয়েছে।' 
+                : 'হোম স্ক্রিনে আইকন বানিয়ে কোনো ব্রাউজার বার ছাড়া ফুলস্ক্রিন অ্যাপ মোডে পড়ুন।'}
+            </p>
           </div>
-        </motion.div>
-      )}
+        </div>
+
+        <div className="w-full sm:w-auto flex items-center gap-2 justify-end">
+          {isInstalled ? (
+            <div className="px-4 py-2 bg-white/20 rounded-xl text-xs font-bold text-white flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+              <span>ইনস্টল করা আছে</span>
+            </div>
+          ) : (
+            <button
+              onClick={handleInstall}
+              className="w-full sm:w-auto px-5 py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Download className="w-4 h-4 text-emerald-700" />
+              <span>{isIOS ? 'ইনস্টল নিয়মাবলী' : 'এখনই ইনস্টল করুন'}</span>
+            </button>
+          )}
+        </div>
+      </motion.div>
+
+      <PWAInstallModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
       <div className="space-y-6 mt-6">
         {/* Appearance */}

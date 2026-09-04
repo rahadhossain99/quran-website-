@@ -166,16 +166,38 @@ const updateMediaSessionMetadata = (surah: SurahData, ayahIndex: number, qariId:
   });
 };
 
+export const parseHashRoute = (): { tab: Tab; surah: number | null } => {
+  if (typeof window === 'undefined') return { tab: 'home', surah: null };
+  const rawHash = window.location.hash.replace(/^#\/?/, '').trim();
+  
+  if (rawHash.startsWith('surah/')) {
+    const num = parseInt(rawHash.replace('surah/', ''), 10);
+    if (!isNaN(num) && num >= 1 && num <= 114) {
+      return { tab: 'home', surah: num };
+    }
+  }
+
+  const validTabs: Tab[] = ['home', 'bookmarks', 'tasbih', 'duas', 'settings', 'salah-tracker', 'salah-guide', 'progress'];
+  if (validTabs.includes(rawHash as Tab)) {
+    return { tab: rawHash as Tab, surah: null };
+  }
+
+  return { tab: 'home', surah: null };
+};
+
 const AppContext = createContext<AppState | null>(null);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const initialRoute = parseHashRoute();
   const [theme, setThemeState] = useState<AppTheme>(() => {
     const saved = localStorage.getItem('quran_theme');
     const validThemes: AppTheme[] = ['light', 'dark', 'emerald', 'luxury', 'ocean', 'rose', 'sunset', 'midnight'];
-    if (saved && validThemes.includes(saved as AppTheme)) return saved as AppTheme;
-    return 'emerald'; // New beautiful default
+    if (saved && validThemes.includes(saved as AppTheme) && saved !== 'emerald') return saved as AppTheme;
+    // Default to the warm luxury parchment theme matching user's requested style
+    localStorage.setItem('quran_theme', 'luxury');
+    return 'luxury';
   });
-  const [activeTab, setActiveTab] = useState<Tab>('home');
+  const [activeTab, setActiveTab] = useState<Tab>(initialRoute.tab);
   const [favorites, setFavorites] = useState<number[]>(() => JSON.parse(localStorage.getItem('quran_favs') || '[]'));
   const [qari, setQariState] = useState<string>(() => localStorage.getItem('quran_qari') || 'ar.alafasy');
   
@@ -186,7 +208,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [repeatMode, setRepeatModeState] = useState<'none'|'ayah'|'surah'>(() => (localStorage.getItem('quran_repeat') as 'none'|'ayah'|'surah') || 'none');
   const [lastRead, setLastReadState] = useState<LastRead | null>(() => JSON.parse(localStorage.getItem('quran_lastread') || 'null'));
 
-  const [currentViewSurah, setCurrentViewSurah] = useState<number | null>(null);
+  const [currentViewSurah, setCurrentViewSurah] = useState<number | null>(initialRoute.surah);
   const [initialTargetAyahIndex, setInitialTargetAyahIndex] = useState<number | null>(null);
   const [isCleanMode, setIsCleanMode] = useState<boolean>(false);
 
@@ -259,57 +281,51 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const isPoppingStateRef = useRef(false);
 
-  // Initialize browser history state for home screen on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.history) {
-      if (window.history.state === null) {
-        window.history.replaceState({ tab: 'home', surah: null }, '');
-      }
-    }
-  }, []);
-
-  // Sync state changes to browser history
+  // Sync activeTab and currentViewSurah to browser URL Hash
   useEffect(() => {
     if (isPoppingStateRef.current) return;
-    if (typeof window === 'undefined' || !window.history) return;
+    if (typeof window === 'undefined') return;
 
-    const currentHistState = window.history.state;
-    const tabMatch = currentHistState && currentHistState.tab === activeTab;
-    const surahMatch = currentHistState && currentHistState.surah === currentViewSurah;
+    let targetHash = '#/home';
+    if (currentViewSurah !== null) {
+      targetHash = `#/surah/${currentViewSurah}`;
+    } else if (activeTab) {
+      targetHash = `#/${activeTab}`;
+    }
 
-    if (!tabMatch || !surahMatch) {
-      window.history.pushState({ tab: activeTab, surah: currentViewSurah }, '');
+    if (window.location.hash !== targetHash) {
+      // Use window.location.hash to cleanly reflect page URL
+      window.location.hash = targetHash;
     }
   }, [activeTab, currentViewSurah]);
 
-  // Handle popstate event (system back button clicks)
+  // Listen to hashchange and popstate events (browser back/forward, manual link entry)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const handlePopState = (e: PopStateEvent) => {
-      const state = e.state;
-      if (state) {
-        isPoppingStateRef.current = true;
-        if (state.tab) {
-          setActiveTab(state.tab);
-        }
-        setCurrentViewSurah(state.surah !== undefined ? state.surah : null);
-        setTimeout(() => {
-          isPoppingStateRef.current = false;
-        }, 80); // Slight delay for smooth transitions
-      } else {
-        // Fallback to home if no pop state
-        isPoppingStateRef.current = true;
-        setActiveTab('home');
-        setCurrentViewSurah(null);
-        setTimeout(() => {
-          isPoppingStateRef.current = false;
-        }, 80);
-      }
+    const handleRouteChange = () => {
+      const route = parseHashRoute();
+      isPoppingStateRef.current = true;
+      setActiveTab(route.tab);
+      setCurrentViewSurah(route.surah);
+      setTimeout(() => {
+        isPoppingStateRef.current = false;
+      }, 70);
     };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handleRouteChange);
+    window.addEventListener('popstate', handleRouteChange);
+
+    // Initial check: if no hash exists, set default hash
+    if (!window.location.hash || window.location.hash === '#') {
+      const defaultHash = initialRoute.surah !== null ? `#/surah/${initialRoute.surah}` : `#/${initialRoute.tab}`;
+      window.location.hash = defaultHash;
+    }
+
+    return () => {
+      window.removeEventListener('hashchange', handleRouteChange);
+      window.removeEventListener('popstate', handleRouteChange);
+    };
   }, []);
 
   // Enforce Screen Zoom Lock / Stability
@@ -762,7 +778,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    const isDarkTheme = ['dark', 'luxury', 'midnight'].includes(theme);
+    const isDarkTheme = ['dark', 'midnight'].includes(theme);
     if (isDarkTheme) {
       document.documentElement.className = `${theme} dark`;
     } else {

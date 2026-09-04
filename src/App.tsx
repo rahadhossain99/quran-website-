@@ -15,6 +15,7 @@ import { SalahGuideView } from './views/SalahGuide';
 import { ProgressView } from './views/ProgressView';
 import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Menu, X } from 'lucide-react';
+import { PWAInstallBanner } from './components/PWAInstallBanner';
 
 const AppContent = () => {
   const { currentViewSurah, activeTab, isCleanMode, globalZoom, setCurrentViewSurah, setActiveTab } = useAppStore();
@@ -75,27 +76,24 @@ const AppContent = () => {
               onClick={() => {
                 if (currentViewSurah !== null) setCurrentViewSurah(null);
                 setActiveTab('home');
-                setIsMobileMenuOpen(true);
               }}
               className="flex items-center space-x-2.5 cursor-pointer group"
-              title="কুরআন মেনুবার স্লাইড খুলুন"
+              title="হোম পেজে ফিরে যান"
             >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[var(--primary)] to-[var(--accent)] p-0.5 shadow-sm active:scale-95 transition-transform">
-                <div className="w-full h-full bg-[var(--bg-surface)] rounded-[10px] flex items-center justify-center">
-                  <BookOpen className="w-4.5 h-4.5 text-[var(--primary)] animate-pulse" />
-                </div>
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 p-0.5 shadow-xs flex items-center justify-center text-amber-700 dark:text-amber-400">
+                <BookOpen className="w-5 h-5 text-amber-700 dark:text-amber-400" />
               </div>
               <div>
-                <span className="font-extrabold text-sm text-[var(--text-main)] font-sans tracking-tight block leading-tight">আল-কুরআনুল কারিম</span>
-                <span className="text-[9px] text-[var(--primary)] font-extrabold uppercase tracking-wider block leading-none font-sans">মেনু স্লাইড বার</span>
+                <span className="font-extrabold text-base text-[var(--text-main)] font-bengali tracking-tight block leading-tight">আল-কুরআনুল কারীম</span>
+                <span className="text-[11px] text-[var(--text-muted)] font-semibold block leading-none font-bengali mt-0.5">নূর ও হেদায়েতের চিরন্তন আলো</span>
               </div>
             </div>
 
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary)] border-opacity-20 text-xs font-bold flex items-center gap-1.5 font-bengali active:scale-95 transition-all cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 text-[var(--text-main)] border border-[var(--border)] text-xs font-bold flex items-center gap-1.5 font-bengali shadow-2xs hover:bg-[var(--bg-main)] active:scale-95 transition-all cursor-pointer"
             >
-              <Menu className="w-4 h-4" />
+              <Menu className="w-4 h-4 text-[var(--text-muted)]" />
               <span>মেনুবার</span>
             </button>
           </div>

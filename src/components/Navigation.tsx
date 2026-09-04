@@ -7,13 +7,13 @@ export const Navigation = () => {
   if (currentViewSurah !== null) return null;
 
   const navItems = [
-    { id: 'home', icon: Home, label: 'হোম', action: () => setActiveTab('home') },
-    { id: 'progress', icon: TrendingUp, label: 'অগ্রগতি', action: () => setActiveTab('progress') },
-    { id: 'salah-tracker', icon: CalendarCheck, label: 'সালাত ট্র্যাকার', action: () => setActiveTab('salah-tracker') },
-    { id: 'clean-mode', icon: Headphones, label: 'ক্লিন মোড', action: () => setIsCleanMode(true), isSpecial: true },
-    { id: 'duas', icon: Sparkles, label: 'দোয়া', action: () => setActiveTab('duas') },
-    { id: 'bookmarks', icon: Bookmark, label: 'বুকমার্ক', action: () => setActiveTab('bookmarks') },
-    { id: 'settings', icon: Settings, label: 'সেটিংস', action: () => setActiveTab('settings') },
+    { id: 'home', icon: Home, label: 'হোম', action: () => setActiveTab('home'), href: '#/home' },
+    { id: 'progress', icon: TrendingUp, label: 'অগ্রগতি', action: () => setActiveTab('progress'), href: '#/progress' },
+    { id: 'salah-tracker', icon: CalendarCheck, label: 'সালাত ট্র্যাকার', action: () => setActiveTab('salah-tracker'), href: '#/salah-tracker' },
+    { id: 'clean-mode', icon: Headphones, label: 'ক্লিন মোড', action: () => setIsCleanMode(true), isSpecial: true, href: '#/clean-mode' },
+    { id: 'duas', icon: Sparkles, label: 'দোয়া', action: () => setActiveTab('duas'), href: '#/duas' },
+    { id: 'bookmarks', icon: Bookmark, label: 'বুকমার্ক', action: () => setActiveTab('bookmarks'), href: '#/bookmarks' },
+    { id: 'settings', icon: Settings, label: 'সেটিংস', action: () => setActiveTab('settings'), href: '#/settings' },
   ];
 
   return (
@@ -22,12 +22,16 @@ export const Navigation = () => {
         {navItems.map((item) => {
           const isActive = activeTab === item.id;
           return (
-            <button
+            <a
               key={item.id}
-              onClick={item.action}
-              className={`flex flex-col items-center min-w-[52px] flex-1 justify-center transition-all ${
+              href={item.href}
+              onClick={(e) => {
+                e.preventDefault();
+                item.action();
+              }}
+              className={`flex flex-col items-center min-w-[52px] flex-1 justify-center transition-all cursor-pointer ${
                 item.isSpecial
-                  ? 'text-emerald-600 font-extrabold'
+                  ? 'text-amber-700 dark:text-amber-400 font-extrabold'
                   : isActive 
                     ? 'text-[var(--primary)] font-bold' 
                     : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
@@ -36,7 +40,7 @@ export const Navigation = () => {
               <div
                 className={`w-10 h-8 rounded-full flex items-center justify-center mb-1 transition-all duration-300 ${
                   item.isSpecial
-                    ? 'bg-gradient-to-tr from-emerald-500 to-teal-400 text-white shadow-md shadow-emerald-500/30 scale-105'
+                    ? 'bg-gradient-to-tr from-amber-600 to-amber-500 text-white shadow-md shadow-amber-600/30 scale-105'
                     : isActive 
                       ? 'bg-[var(--primary-soft)] scale-[1.05] shadow-xs' 
                       : 'bg-transparent'
@@ -47,7 +51,7 @@ export const Navigation = () => {
               <span className="text-[9px] font-extrabold tracking-tight font-bengali text-center leading-none truncate w-full px-0.5">
                 {item.label}
               </span>
-            </button>
+            </a>
           );
         })}
       </div>

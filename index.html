@@ -3,36 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Al-Quran</title>
+    <title>আল-কুরআনুল কারীম</title>
+    <meta name="description" content="পবিত্র কুরআনুল কারীম তিলাওয়াত, বাংলা অনুবাদ, তাফসির ও নামাজের সময়সূচি" />
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" type="image/svg+xml" href="./quran-icon.svg" />
     <link rel="shortcut icon" href="./quran-icon.svg" />
-    <meta name="theme-color" content="#059669" />
+    <meta name="theme-color" content="#fbf8f3" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Quran" />
-    <link rel="apple-touch-icon" href="./icon-512.png" />
+    <meta name="apple-mobile-web-app-title" content="আল-কুরআন" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      let deferredPrompt;
+      window.deferredPrompt = null;
       window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent the mini-infobar from appearing on mobile
         e.preventDefault();
-        // Stash the event so it can be triggered later.
-        deferredPrompt = e;
-        // Optionally, update UI notify the user they can install the PWA
-        console.log('beforeinstallprompt event fired');
-        window.dispatchEvent(new CustomEvent('pwa-installable'));
+        window.deferredPrompt = e;
+        window.dispatchEvent(new CustomEvent('pwa-installable', { detail: e }));
+      });
+      window.addEventListener('appinstalled', () => {
+        window.deferredPrompt = null;
+        window.dispatchEvent(new CustomEvent('pwa-installed'));
       });
 
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('Service worker registered'))
-            .catch(err => console.log('Service worker registration failed:', err));
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        });
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data && event.data.type === 'VERSION_UPDATED') {
+            window.location.reload();
+          }
         });
       }
     </script>

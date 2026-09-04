@@ -19,15 +19,15 @@
 
 @layer base {
   :root {
-    --bg-main: #f8fafc;
+    --bg-main: #fbf8f3;
     --bg-surface: #ffffff;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --border: #e2e8f0;
-    --primary: #059669; /* Royal Islamic Emerald */
-    --primary-hover: #047857;
-    --primary-soft: #ecfdf5;
-    --accent: #d97706;
+    --text-main: #1c1917;
+    --text-muted: #615344;
+    --border: #ebdccf;
+    --primary: #a6480e; /* Quran Terracotta & Amber */
+    --primary-hover: #8f3e0c;
+    --primary-soft: #fbf4ec;
+    --accent: #b45309;
     --accent-soft: #fef3c7;
     
     --arabic-size: 38px;
@@ -40,36 +40,36 @@
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --border: #1f2937;
-    --primary: #10b981; /* Emerald Dark */
-    --primary-hover: #059669;
-    --primary-soft: #064e3b;
+    --primary: #d97706;
+    --primary-hover: #b45309;
+    --primary-soft: #451a03;
     --accent: #fbbf24;
     --accent-soft: #451a03;
   }
   
   .emerald {
-    --bg-main: #f8fafc;
+    --bg-main: #fbf8f3;
     --bg-surface: #ffffff;
-    --text-main: #0f172a;
-    --text-muted: #475569;
-    --border: #e2e8f0;
-    --primary: #059669; /* Islamic Emerald */
-    --primary-hover: #047857;
-    --primary-soft: #ecfdf5;
-    --accent: #d97706;
+    --text-main: #1c1917;
+    --text-muted: #615344;
+    --border: #ebdccf;
+    --primary: #a6480e;
+    --primary-hover: #8f3e0c;
+    --primary-soft: #fbf4ec;
+    --accent: #b45309;
     --accent-soft: #fef3c7;
   }
 
   .luxury {
-    --bg-main: #faf8f5;
+    --bg-main: #fbf8f3;
     --bg-surface: #ffffff;
-    --text-main: #0f172a;
-    --text-muted: #475569;
-    --border: #e2e8f0;
-    --primary: #d97706; /* Royal Gold Manuscript */
-    --primary-hover: #b45309;
-    --primary-soft: #fffbeb;
-    --accent: #f59e0b;
+    --text-main: #1c1917;
+    --text-muted: #615344;
+    --border: #ebdccf;
+    --primary: #a6480e; /* Royal Gold & Quran Leather Manuscript */
+    --primary-hover: #8f3e0c;
+    --primary-soft: #fbf4ec;
+    --accent: #b45309;
     --accent-soft: #fef3c7;
   }
 

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { PWAInstallBanner } from './PWAInstallBanner';
 
 type Tab = 'home' | 'bookmarks' | 'tasbih' | 'duas' | 'settings' | 'salah-tracker' | 'salah-guide' | 'progress';
 type AppTheme = 'light' | 'dark' | 'emerald' | 'luxury' | 'ocean' | 'rose' | 'sunset' | 'midnight';
@@ -216,11 +217,15 @@ export const Sidebar = ({
           {navItems.map((item) => {
             const isActive = activeTab === item.id && currentViewSurah === null;
             return (
-              <button
+              <a
                 key={item.id}
-                onClick={() => handleTabClick(item.id)}
+                href={`#/${item.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleTabClick(item.id);
+                }}
                 title={isCollapsedEffective ? `${item.label} - ${item.desc}` : undefined}
-                className={`w-full flex items-center rounded-2xl transition-all duration-300 relative group font-bengali text-left ${
+                className={`w-full flex items-center rounded-2xl transition-all duration-300 relative group font-bengali text-left cursor-pointer ${
                   isCollapsedEffective ? 'p-3 justify-center' : 'px-3.5 py-3'
                 } ${
                   isActive 
@@ -246,14 +251,20 @@ export const Sidebar = ({
                     <p className="text-[9px] text-[var(--text-muted)] mt-0.5 tracking-normal font-medium leading-none font-sans opacity-70 group-hover:opacity-100 transition-all truncate">{item.desc}</p>
                   </div>
                 )}
-              </button>
+              </a>
             );
           })}
         </div>
       </div>
 
-      {/* Footer Settings & Theme Fast Changer */}
-      <div className="flex flex-col space-y-3 pt-4 border-t border-[var(--border)] relative z-10 w-full">
+      {/* PWA App Install & Footer Settings */}
+      <div className="flex flex-col space-y-3 pt-3 border-t border-[var(--border)] relative z-10 w-full">
+        {!isCollapsedEffective && (
+          <div className="w-full">
+            <PWAInstallBanner variant="button" className="w-full justify-center py-2.5" />
+          </div>
+        )}
+
         {!isCollapsedEffective ? (
           <div>
             <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2 font-sans flex items-center">

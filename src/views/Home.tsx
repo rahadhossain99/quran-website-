@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useAppStore } from '../Store';
 import { SurahInfo } from '../types';
 import { fetchAllSurahs } from '../api';
@@ -6,7 +6,7 @@ import { SurahCard } from '../components/SurahCard';
 import { getBanglaSurahData } from '../utils/banglaSurahNames';
 import { 
   Search, Sparkles, BookOpen, MapPin, Clock, Volume2, VolumeX, 
-  TrendingUp, RefreshCw, Heart, Calendar, Bell, BellOff, 
+  TrendingUp, RefreshCw, Heart, Calendar, Bell, BellOff, Play,
   ArrowRight, Compass, Bookmark, Settings, CheckCircle2, ChevronRight,
   Sun, Moon, Shield, Sparkle, Headphones, CloudRain, Wind, Disc, Zap, Waves
 } from 'lucide-react';
@@ -72,6 +72,36 @@ export const HomeView = () => {
   const [showPrayerModal, setShowPrayerModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
+  const [isVerseAudioPlaying, setIsVerseAudioPlaying] = useState(false);
+  const verseAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (verseAudioRef.current) {
+        verseAudioRef.current.pause();
+        verseAudioRef.current = null;
+      }
+    };
+  }, []);
+
+  const toggleVerseAudio = () => {
+    if (!verseAudioRef.current) {
+      // Surah 13 (Ar-Rad) Ayah 28 universal audio (1735) by Sheikh Mishary Rashid Alafasy
+      verseAudioRef.current = new Audio('https://cdn.islamic.network/quran/audio/128/ar.alafasy/1735.mp3');
+      verseAudioRef.current.onended = () => setIsVerseAudioPlaying(false);
+      verseAudioRef.current.onerror = () => setIsVerseAudioPlaying(false);
+    }
+
+    if (isVerseAudioPlaying) {
+      verseAudioRef.current.pause();
+      setIsVerseAudioPlaying(false);
+    } else {
+      verseAudioRef.current.currentTime = 0;
+      verseAudioRef.current.play()
+        .then(() => setIsVerseAudioPlaying(true))
+        .catch(() => setIsVerseAudioPlaying(false));
+    }
+  };
 
   // Daily random Ayah
   const dailyAyah = useMemo(() => {
@@ -249,196 +279,152 @@ export const HomeView = () => {
   return (
     <div className="space-y-6 md:space-y-8 p-4 md:p-6 lg:p-8 max-w-5xl mx-auto font-bengali">
       
-      {/* 1. UNIQUE ROYAL ISLAMIC SANCTUARY HERO BANNER WITH REAL HOLY QURAN PHOTOGRAPHY */}
+      {/* 1. ELEGANT ISLAMIC SANCTUARY HERO SECTION MATCHING SCREENSHOT EXACTLY */}
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#06291d] via-[#0b3829] to-[#041d15] text-white border border-emerald-600/40 shadow-xl"
+        className="rounded-3xl bg-[#fdfbf7] dark:bg-slate-900/95 border border-[#ecdccf] dark:border-slate-800 shadow-xs p-5 sm:p-7 md:p-8 relative overflow-hidden"
       >
-        {/* Top Gold-Emerald Gradient Trim */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-amber-400 via-yellow-300 to-emerald-400" />
+        {/* Top Badges Row: Bismillah & Live Clock */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <span className="font-arabic text-sm sm:text-base font-bold text-[#8d5b28] dark:text-amber-400 bg-[#f4ece1] dark:bg-slate-800/90 border border-[#e4d6c4] dark:border-slate-700/80 px-4 py-1.5 rounded-full shadow-2xs tracking-wider">
+            بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+          </span>
 
-        {/* Subtle Islamic Geometric Star Background Pattern */}
-        <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(#fef08a_1px,transparent_1px)] [background-size:20px_20px]" />
-        
-        {/* Ambient spiritual glow */}
-        <div className="absolute top-0 right-1/4 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-10 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#5c4a37] dark:text-slate-300 bg-[#f4ece1] dark:bg-slate-800/90 border border-[#e4d6c4] dark:border-slate-700/80 px-3.5 py-1.5 rounded-full shadow-2xs font-sans">
+            <Clock className="w-3.5 h-3.5 text-[#b04f14] dark:text-amber-400" />
+            <span>{currentTime}</span>
+          </div>
+        </div>
 
-        <div className="p-5 sm:p-7 md:p-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-center">
-            
-            {/* Left Column: Bismillah, Badges, Inspiring Title & Action Controls */}
-            <div className="lg:col-span-7 space-y-4 text-left">
-              {/* Bismillah Calligraphy & Real-time Info */}
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <span className="text-amber-300/90 font-arabic text-sm sm:text-base font-bold tracking-widest px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/25 shadow-2xs">
-                  بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
-                </span>
+        {/* Greeting & Headline */}
+        <div className="mt-5 space-y-2 text-left">
+          <p className="text-xs sm:text-sm font-bold text-[#b45309] dark:text-amber-400 tracking-wide">
+            আস-সালামু আলাইকুম ওয়া রাহমাতুল্লাহ
+          </p>
 
-                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-200 bg-emerald-900/60 px-3 py-1 rounded-full border border-emerald-500/30">
-                  <Clock className="w-3.5 h-3.5 text-amber-300" />
-                  <span className="font-sans">{currentTime}</span>
-                </div>
-              </div>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#1e1913] dark:text-white leading-[1.25] tracking-tight">
+            কুরআনের নূর ও হিদায়াতে{' '}
+            <span className="text-[#a6480e] dark:text-amber-400 underline decoration-wavy decoration-[#e4ad6d] underline-offset-4">
+              আলোকিত হোক
+            </span>{' '}
+            আপনার প্রতিটি মুহূর্ত
+          </h1>
 
-              {/* Title with Royal Gold & Emerald Typography */}
-              <div className="space-y-1.5">
-                <p className="text-xs sm:text-sm font-bold text-emerald-300/90 flex items-center gap-1.5">
-                  <Sparkle className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                  <span>আস-সালামু আলাইকুম ওয়া রাহমাতুল্লাহ</span>
+          <p className="text-xs sm:text-sm text-[#615344] dark:text-slate-400 font-medium leading-relaxed max-w-2xl pt-1">
+            সহজ পাঠযোগ্য বাংলা অনুবাদ, নির্ভরযোগ্য তাফসির, সঠিক নামাজের সময়সূচি ও বিশ্বখ্যাত ২০+ ক্বারীর সুললিত তিলাওয়াত শুনুন একস্থানে।
+          </p>
+        </div>
+
+        {/* 3 Action Buttons */}
+        <div className="flex flex-wrap items-center gap-3 pt-5">
+          {/* Button 1: পড়া চালিয়ে যান */}
+          <button
+            onClick={() => {
+              if (lastRead) {
+                setCurrentViewSurah(lastRead.surahNumber);
+                setInitialTargetAyahIndex(lastRead.ayahIndex);
+              } else {
+                setCurrentViewSurah(1);
+                setInitialTargetAyahIndex(0);
+              }
+            }}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-xs sm:text-sm font-extrabold text-white bg-[#a6480e] hover:bg-[#8f3e0c] active:scale-95 shadow-sm transition-all cursor-pointer"
+          >
+            <BookOpen className="w-4 h-4 text-amber-100" />
+            <span>{lastRead ? 'পড়া চালিয়ে যান' : 'কুরআন পড়া শুরু করুন'}</span>
+          </button>
+
+          {/* Button 2: সালাত সময়সূচি (Direct Navigation to Salah Tracker) */}
+          <button
+            onClick={() => setActiveTab('salah-tracker')}
+            className="inline-flex items-center gap-2 px-4 sm:px-5 py-3 rounded-2xl text-xs sm:text-sm font-extrabold text-[#2c251c] dark:text-slate-100 bg-white dark:bg-slate-800 hover:bg-[#faf6f0] dark:hover:bg-slate-750 border border-[#e2d7c8] dark:border-slate-700 shadow-2xs active:scale-95 transition-all cursor-pointer"
+          >
+            <Calendar className="w-4 h-4 text-[#a6480e] dark:text-amber-400" />
+            <span>সালাত সময়সূচি</span>
+          </button>
+
+          {/* Button 3: পরিসংখ্যান (Direct Navigation to Progress) */}
+          <button
+            onClick={() => setActiveTab('progress')}
+            className="inline-flex items-center gap-2 px-4 sm:px-5 py-3 rounded-2xl text-xs sm:text-sm font-extrabold text-[#2c251c] dark:text-slate-100 bg-white dark:bg-slate-800 hover:bg-[#faf6f0] dark:hover:bg-slate-750 border border-[#e2d7c8] dark:border-slate-700 shadow-2xs active:scale-95 transition-all cursor-pointer"
+          >
+            <TrendingUp className="w-4 h-4 text-[#a6480e] dark:text-amber-400" />
+            <span>পরিসংখ্যান</span>
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px w-full bg-[#ebdccf] dark:bg-slate-800 my-5" />
+
+        {/* 3 Green Checklist Highlights */}
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm font-bold text-[#4c3f30] dark:text-slate-300">
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-100 dark:fill-emerald-950 shrink-0" />
+            <span>১১৪টি পূর্ণাঙ্গ সূরা</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-100 dark:fill-emerald-950 shrink-0" />
+            <span>৬২৩৬টি আয়াত ও তাফসির</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 fill-emerald-100 dark:fill-emerald-950 shrink-0" />
+            <span>বিজ্ঞাপনমুক্ত অভিজ্ঞতা</span>
+          </div>
+        </div>
+
+        {/* Holy Quran Artwork Section with Two Badges and Quran Photo Frame */}
+        <div className="mt-6 space-y-3">
+          {/* Top Tag Badges */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f4ede3] dark:bg-slate-800 text-[11px] sm:text-xs font-extrabold text-[#784f29] dark:text-amber-400 border border-[#e4d7c6] dark:border-slate-700">
+              <Bookmark className="w-3.5 h-3.5 text-[#a6480e] dark:text-amber-400" fill="currentColor" />
+              <span>পবিত্র কুরআনুল কারীম</span>
+            </span>
+
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f4ede3] dark:bg-slate-800 text-[11px] sm:text-xs font-extrabold text-[#784f29] dark:text-amber-400 border border-[#e4d7c6] dark:border-slate-700">
+              <Headphones className="w-3.5 h-3.5 text-[#a6480e] dark:text-amber-400" />
+              <span>রেহাল ও তিলাওয়াত</span>
+            </span>
+          </div>
+
+          {/* Photograph Container */}
+          <div className="relative rounded-3xl overflow-hidden shadow-md border border-[#e6d8c8] dark:border-slate-800 group">
+            <img 
+              src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=1200&q=80"
+              alt="পবিত্র কুরআনুল কারীম"
+              referrerPolicy="no-referrer"
+              className="w-full h-52 sm:h-64 md:h-72 object-cover object-center transform group-hover:scale-102 transition-transform duration-700"
+            />
+
+            {/* Bottom In-Image Floating Card */}
+            <div className="absolute bottom-3 left-3 right-3 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xs p-3.5 sm:p-4 rounded-2xl shadow-lg border border-white/60 dark:border-slate-700/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+              <div>
+                <p className="text-xs sm:text-sm md:text-base font-black text-slate-900 dark:text-white">
+                  “নিশ্চয়ই আল্লাহর স্মরণেই অন্তর প্রশান্তি পায়”
                 </p>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight leading-tight text-white">
-                  কুরআনের নূর ও হিদায়াতে <br className="hidden sm:inline" />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-emerald-300">
-                    আলোকিত হোক আপনার প্রতিটি মুহূর্ত
-                  </span>
-                </h1>
+                <p className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 mt-0.5">
+                  — (সূরা আর-রাদ: ২৮)
+                </p>
               </div>
 
-              <p className="text-xs sm:text-sm text-emerald-100/80 font-medium leading-relaxed max-w-lg">
-                সহজ পাঠযোগ্য বাংলা অনুবাদ, নির্ভরযোগ্য তাফসির, সঠিক নামাজের সময়সূচি ও বিশ্বখ্যাত ২০+ কারীর সুললিত তিলাওয়াত শুনুন একস্থানে।
-              </p>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-1">
-                <button
-                  onClick={() => {
-                    if (lastRead) {
-                      setCurrentViewSurah(lastRead.surahNumber);
-                      setInitialTargetAyahIndex(lastRead.ayahIndex);
-                    } else {
-                      setCurrentViewSurah(1);
-                      setInitialTargetAyahIndex(0);
-                    }
-                  }}
-                  className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-amber-300 via-yellow-300 to-amber-400 hover:from-amber-200 hover:to-yellow-300 shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
-                >
-                  <BookOpen className="w-4 h-4 text-emerald-950" />
-                  <span>{lastRead ? 'পড়া চালিয়ে যান' : 'কুরআন পড়া শুরু করুন'}</span>
-                </button>
-
-                <button
-                  onClick={() => setShowPrayerModal(true)}
-                  className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-emerald-100 bg-emerald-900/50 hover:bg-emerald-800/80 border border-emerald-500/40 shadow-2xs active:scale-95 transition-all"
-                >
-                  <Clock className="w-4 h-4 text-amber-300" />
-                  <span>সালাত সময়সূচি</span>
-                </button>
-
-                <button
-                  onClick={() => setShowProgressModal(true)}
-                  className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-emerald-100 bg-emerald-900/50 hover:bg-emerald-800/80 border border-emerald-500/40 shadow-2xs active:scale-95 transition-all"
-                >
-                  <TrendingUp className="w-4 h-4 text-emerald-300" />
-                  <span>পরিসংখ্যান</span>
-                </button>
-              </div>
-
-              {/* Quick Knowledge Indicators */}
-              <div className="pt-2 flex flex-wrap items-center gap-3 text-[11px] text-emerald-200/70 font-semibold">
-                <span className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>১১৪টি পূর্ণাঙ্গ সূরা</span>
-                </span>
-                <span>•</span>
-                <span className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>৬২৩৬টি আয়াত ও তাফসির</span>
-                </span>
-                <span>•</span>
-                <span className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>বিজ্ঞাপনমুক্ত অভিজ্ঞতা</span>
-                </span>
-              </div>
+              <button
+                onClick={toggleVerseAudio}
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-[#a6480e] dark:text-amber-400 hover:text-[#883a09] active:scale-95 transition-all cursor-pointer self-end sm:self-auto px-3 py-1.5 rounded-xl hover:bg-amber-50 dark:hover:bg-slate-800"
+              >
+                {isVerseAudioPlaying ? (
+                  <>
+                    <VolumeX className="w-4 h-4 text-rose-600 animate-pulse" />
+                    <span className="text-rose-600">অডিও থামান</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 fill-current text-[#a6480e] dark:text-amber-400" />
+                    <span>অডিও শুনুন</span>
+                  </>
+                )}
+              </button>
             </div>
-
-            {/* Right Column: Authentic Holy Quran Artwork Frame & Next Prayer Tablet */}
-            <div className="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col gap-4">
-              
-              {/* Authentic Holy Quran Photograph Frame */}
-              <div className="relative group overflow-hidden rounded-2xl border-2 border-amber-400/40 shadow-2xl bg-emerald-950 flex-1 min-h-[170px] sm:min-h-[200px]">
-                <img 
-                  src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=800&q=80"
-                  alt="পবিত্র কুরআনুল কারীম"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
-                />
-                
-                {/* Vignette Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#041d15] via-[#041d15]/40 to-transparent" />
-                
-                {/* Image Overlay Header Tag */}
-                <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#041d15]/85 border border-amber-400/40 text-[11px] font-black text-amber-300 shadow-md">
-                    <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-                    <span>পবিত্র কুরআনুল কারীম</span>
-                  </span>
-                  <span className="text-[10px] font-bold text-white/90 bg-emerald-900/80 px-2 py-0.5 rounded-md border border-emerald-500/30">
-                    রেহাল ও তিলাওয়াত
-                  </span>
-                </div>
-
-                {/* Bottom Quote inside Image */}
-                <div className="absolute bottom-3 left-3 right-3">
-                  <p className="text-[11px] text-emerald-100 font-bold bg-[#041d15]/90 p-2 rounded-xl border border-emerald-600/30 line-clamp-1">
-                    “নিশ্চয়ই আল্লাহর স্মরণেই অন্তর প্রশান্তি পায়” — (সূরা আর-রাদ: ২৮)
-                  </p>
-                </div>
-              </div>
-
-              {/* Next Prayer Compact Widget - Royal Islamic Style */}
-              {nextPrayer && (
-                <div className="bg-[#052117]/95 p-4 rounded-2xl border border-emerald-500/40 shadow-md space-y-2.5 flex-1">
-                  <div className="flex items-center justify-between text-xs font-bold text-emerald-300 border-b border-emerald-800/80 pb-2">
-                    <span className="flex items-center gap-1.5 text-emerald-200">
-                      <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                      {location?.city || 'ঢাকা'}, {location?.country || 'বাংলাদেশ'}
-                    </span>
-                    <span className="bg-amber-400/15 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-md font-black text-[10px]">
-                      ওয়াক্ত ও সালাত
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[11px] font-semibold text-emerald-300/80">পরবর্তী সালাত</p>
-                      <h3 className="text-xl font-black text-amber-300">{nextPrayer.name}</h3>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-base font-extrabold text-white font-sans">{nextPrayer.time}</p>
-                      <p className="text-[11px] text-emerald-300 font-medium">
-                        বাকি: <span className="font-bold text-amber-300">{nextPrayer.remaining}</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={playAzan}
-                    className={`w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      isAzanPlaying 
-                        ? 'bg-rose-600 text-white shadow-md animate-pulse' 
-                        : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-sm'
-                    }`}
-                  >
-                    {isAzanPlaying ? (
-                      <>
-                        <VolumeX className="w-4 h-4 text-white" />
-                        <span>আজান বন্ধ করুন</span>
-                      </>
-                    ) : (
-                      <>
-                        <Volume2 className="w-4 h-4 text-amber-300" />
-                        <span>আজানের সুর শুনুন</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-
-            </div>
-
           </div>
         </div>
       </motion.div>
