@@ -196,17 +196,6 @@ export const CleanModeView = () => {
 
   const changeQariInCleanMode = async (newQari: string) => {
     setQari(newQari);
-    if (playingSurah) {
-      try {
-        setLoadingDetailsId(playingSurah.number);
-        const details = await fetchSurahDetails(playingSurah.number, newQari);
-        playAyah(details, playingAyahIndex);
-      } catch (err) {
-        console.error('Failed to reload surah for new Qari', err);
-      } finally {
-        setLoadingDetailsId(null);
-      }
-    }
   };
 
   const activeAyahObj = useMemo(() => {
@@ -450,7 +439,11 @@ export const CleanModeView = () => {
                 <div className="grid grid-cols-1 gap-1.5 font-sans">
                   {[
                     { id: 'ar.alafasy', name: 'মিশারি আল-আফাসি' },
+                    { id: 'special.bangla_translation', name: 'বাংলা অনুবাদসহ অডিও' },
+                    { id: 'ar.abdurrahmaansudais', name: 'আব্দুর রহমান আস-সুদাইস' },
                     { id: 'ar.abdulbasitmurattal', name: 'আব্দুল বাসেত' },
+                    { id: 'ar.husary', name: 'খলিল আল-হুসারি' },
+                    { id: 'ar.saadalghamidi', name: 'সাদ আল-গামদি' },
                     { id: 'ar.mahermuaiqly', name: 'মাহের আল-মুআইকিলী' },
                     { id: 'ar.minshawi', name: 'সিদ্দিক আল-মিনশাবি' }
                   ].map((qOption) => {

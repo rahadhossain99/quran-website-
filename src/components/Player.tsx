@@ -1,13 +1,15 @@
 import { useAppStore } from '../Store';
 import { motion, AnimatePresence, PanInfo, useMotionValue } from 'motion/react';
-import { Play, Pause, ChevronUp, ChevronDown, Repeat, SkipForward, SkipBack, Share2, List, X } from 'lucide-react';
+import { Play, Pause, ChevronUp, ChevronDown, Repeat, SkipForward, SkipBack, Share2, List, X, Headphones, Check } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { ShareModal } from './ShareModal';
+import { QARIS } from '../types';
 
 export const Player = () => {
-  const { playingSurah, playingAyahIndex, isPlaying, togglePlay, stopPlayback, nextAyah, prevAyah, seekAyah, audioProgress, currentViewSurah, setCurrentViewSurah, repeatMode, setRepeatMode, arabicFontSize, bengaliFontSize } = useAppStore();
+  const { playingSurah, playingAyahIndex, isPlaying, togglePlay, stopPlayback, nextAyah, prevAyah, seekAyah, audioProgress, currentViewSurah, setCurrentViewSurah, repeatMode, setRepeatMode, arabicFontSize, bengaliFontSize, qari, setQari } = useAppStore();
   const [expanded, setExpanded] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showQariModal, setShowQariModal] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isDraggingBubble, setIsDraggingBubble] = useState(false);
   const [isOverDismiss, setIsOverDismiss] = useState(false);
@@ -200,14 +202,16 @@ export const Player = () => {
                     <motion.div animate={{ height: [6, 14, 6] }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-0.5 bg-white rounded-full"></motion.div>
                   </div>
                 ) : (
-                  <span className="font-bold text-sm">{currentAyah.numberInSurah}</span>
+                  <span className="font-bold text-sm">{qari === 'special.bangla_translation' ? 'বাং' : currentAyah.numberInSurah}</span>
                 )}
               </div>
               <div className="flex-1 px-4 truncate">
                 <div className="flex items-center space-x-2 truncate">
                   <h4 className="font-bold text-sm font-sans text-[var(--text-main)] truncate">{playingSurah.englishName}</h4>
                   <span className="w-1 h-1 bg-[var(--text-muted)] rounded-full opacity-30" />
-                  <p className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-tight">Ayah {currentAyah.numberInSurah}</p>
+                  <p className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-tight">
+                    {qari === 'special.bangla_translation' ? 'বাংলা অনুবাদসহ তেলাওয়াত' : `Ayah ${currentAyah.numberInSurah}`}
+                  </p>
                 </div>
                 <div className="mt-1 h-1 w-full bg-[var(--bg-main)] rounded-full overflow-hidden">
                    <motion.div 
@@ -246,9 +250,18 @@ export const Player = () => {
               <button onClick={handleCloseExpanded} className="w-10 h-10 rounded-full bg-[var(--bg-main)] flex items-center justify-center border border-[var(--border)] transition-all active:scale-95">
                 <ChevronDown className="w-6 h-6 text-[var(--text-main)]" />
               </button>
-              <div className="text-center">
+              <div className="text-center flex flex-col items-center">
                 <span className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-wider">Now Playing</span>
                 <h3 className="text-lg font-bold font-sans tracking-tight">{playingSurah.englishName}</h3>
+                <button
+                  onClick={() => setShowQariModal(true)}
+                  className="mt-1 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--primary-soft)] text-[var(--primary)] text-xs font-bold hover:scale-105 active:scale-95 transition-all shadow-sm"
+                  title="ক্বারী পরিবর্তন করুন"
+                >
+                  <Headphones className="w-3.5 h-3.5" />
+                  <span className="max-w-[160px] truncate">{QARIS.find(q => q.id === qari)?.name.split(' (')[0] || 'তেলাওয়াতকারী'}</span>
+                  <ChevronDown className="w-3 h-3 opacity-60" />
+                </button>
               </div>
               <button onClick={handleShare} className="w-10 h-10 rounded-full bg-[var(--bg-main)] flex items-center justify-center border border-[var(--border)] transition-all active:scale-95">
                 <Share2 className="w-5 h-5 text-[var(--text-main)]" />
@@ -334,6 +347,113 @@ export const Player = () => {
         surahName={playingSurah.englishName} 
         ayahNumber={currentAyah.numberInSurah} 
       />
+
+      {/* Live Reciter Switcher Bottom Sheet Card */}
+      <AnimatePresence>
+        {showQariModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-[75] bg-black/60 backdrop-blur-sm flex flex-col justify-end p-0"
+            onClick={() => setShowQariModal(false)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 350 }}
+              className="bg-[var(--bg-surface)] w-full max-w-lg sm:max-w-xl mx-auto rounded-t-[32px] rounded-b-none border-t border-x border-[var(--border)] max-h-[84vh] sm:max-h-[80vh] flex flex-col overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.35)] relative select-none pb-6 sm:pb-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Drag Handle Notch */}
+              <div 
+                onClick={() => setShowQariModal(false)}
+                className="pt-3 pb-1.5 flex justify-center cursor-pointer active:opacity-60"
+              >
+                <div className="w-12 h-1.5 rounded-full bg-[var(--text-muted)]/30 hover:bg-[var(--text-muted)]/50 transition-colors" />
+              </div>
+
+              {/* Header */}
+              <div className="px-6 py-3.5 border-b border-[var(--border)] flex items-center justify-between bg-[var(--bg-main)]/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center shadow-inner flex-shrink-0">
+                    <Headphones className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[var(--text-main)] text-base font-sans tracking-tight">ক্বারী ও অডিও নির্বাচন</h4>
+                    <p className="text-xs text-[var(--text-muted)]">পছন্দের কণ্ঠে বা বাংলা অনুবাদসহ তিলাওয়াত শুনুন</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowQariModal(false)}
+                  className="w-9 h-9 rounded-full bg-[var(--bg-main)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors active:scale-90"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Reciter items */}
+              <div className="p-4 space-y-2 overflow-y-auto custom-scrollbar flex-1 overscroll-contain">
+                {QARIS.map((q) => {
+                  const isSelected = qari === q.id;
+                  const isBangla = q.id === 'special.bangla_translation';
+                  const [bnName, enName] = q.name.split(' (');
+                  const cleanEnName = enName ? enName.replace(')', '') : '';
+                  return (
+                    <button
+                      key={q.id}
+                      onClick={() => {
+                        setQari(q.id);
+                        setShowQariModal(false);
+                      }}
+                      className={`w-full p-3 sm:p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all active:scale-[0.98] ${
+                        isSelected 
+                          ? 'bg-[var(--primary-soft)] border-[var(--primary)] text-[var(--primary)] font-bold shadow-sm ring-1 ring-[var(--primary)]/30' 
+                          : isBangla
+                          ? 'bg-gradient-to-r from-[var(--primary-soft)]/50 to-[var(--bg-main)] border-[var(--primary)]/30 text-[var(--text-main)] hover:border-[var(--primary)]'
+                          : 'bg-[var(--bg-main)]/70 border-transparent text-[var(--text-main)] hover:border-[var(--border)] hover:bg-[var(--bg-main)]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+                          isSelected 
+                            ? 'bg-[var(--primary)] text-white shadow-md' 
+                            : isBangla 
+                            ? 'bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary)]/30' 
+                            : 'bg-[var(--bg-surface)] text-[var(--text-muted)] border border-[var(--border)]'
+                        }`}>
+                          <Headphones className="w-5 h-5" />
+                        </div>
+                        <div className="truncate">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold block truncate">{bnName}</span>
+                            {isBangla && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--primary)] text-white flex-shrink-0">
+                                অডিও অনুবাদ
+                              </span>
+                            )}
+                          </div>
+                          {cleanEnName && (
+                            <span className="text-xs text-[var(--text-muted)] block truncate opacity-80 mt-0.5">{cleanEnName}</span>
+                          )}
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <div className="w-6 h-6 rounded-full bg-[var(--primary)] text-white flex items-center justify-center shadow flex-shrink-0 ml-2">
+                          <Check className="w-4 h-4 stroke-[3]" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

@@ -22,11 +22,13 @@ export interface SurahData {
   englishNameTranslation: string;
   revelationType: string;
   numberOfAyahs: number;
+  banglaAudioUrl?: string | null;
   ayahs: Ayah[];
 }
 
 export const QARIS = [
   { id: 'ar.alafasy', name: 'মিশারি আল-আফাসি (Mishary Alafasy)' },
+  { id: 'special.bangla_translation', name: 'বাংলা অডিও অনুবাদ (Mishary + Bangla Translation)' },
   { id: 'ar.abdurrahmaansudais', name: 'আব্দুর রহমান আস-সুদাইস (Sudais)' },
   { id: 'ar.abdulbasitmurattal', name: 'আব্দুল বাসিত আব্দুল সামাদ (AbdulBaset)' },
   { id: 'ar.husary', name: 'খলিল আল-হুসারি (Al-Husary)' },

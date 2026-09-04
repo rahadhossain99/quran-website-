@@ -9,7 +9,7 @@ import { ShareModal } from '../components/ShareModal';
 export const ReaderView = () => {
   const { 
     currentViewSurah, setCurrentViewSurah, qari, favorites, toggleFavorite, 
-    playingSurah, playingAyahIndex, isPlaying, playAyah, togglePlay, autoScrollAyah,
+    playingSurah, playingAyahIndex, isPlaying, playAyah, playWholeSurah, togglePlay, autoScrollAyah,
     arabicFontSize, bengaliFontSize, initialTargetAyahIndex, setInitialTargetAyahIndex,
     setArabicFontSize, setBengaliFontSize
   } = useAppStore();
@@ -46,7 +46,10 @@ export const ReaderView = () => {
   // 1. Fetch Surah details when Surah or Qari changes
   useEffect(() => {
     if (currentViewSurah) {
-      setLoading(true);
+      // Only show full-screen loader if opening a new surah; when switching reciters for current surah, keep UI intact to avoid jitter/jumping
+      if (!data || data.number !== currentViewSurah) {
+        setLoading(true);
+      }
       fetchSurahDetails(currentViewSurah, qari).then(res => {
         setData(res);
         setLoading(false);
@@ -121,7 +124,7 @@ export const ReaderView = () => {
     if (playingSurah?.number === data.number) {
       togglePlay();
     } else {
-      playAyah(data, 0);
+      playWholeSurah(data);
     }
   };
 
@@ -190,7 +193,7 @@ export const ReaderView = () => {
                  className="w-full bg-white text-[var(--primary)] hover:scale-[1.02] active:scale-95 py-4 rounded-2xl font-bold text-lg flex items-center justify-center transition-all shadow-[0_10px_30px_rgba(0,0,0,0.15)] relative z-10 gap-3"
                >
                  {isCurrentSurahPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
-                 <span>{isCurrentSurahPlaying ? 'তেলাওয়াত পজ করুন' : 'সম্পূর্ণ তেলাওয়াত শুরু করুন'}</span>
+                 <span>{isCurrentSurahPlaying ? 'তেলাওয়াত পজ করুন' : (qari === 'special.bangla_translation' ? 'বাংলা অনুবাদসহ সম্পূর্ণ তিলাওয়াত শুনুন' : 'সম্পূর্ণ তেলাওয়াত শুরু করুন')}</span>
                </button>
             </motion.div>
 

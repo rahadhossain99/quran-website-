@@ -5,6 +5,7 @@ import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { getBanglaSurahData } from './utils/banglaSurahNames';
 import { getDhakaStandardPrayerTimes, calculatePrayerTimes, toBengaliDigits } from './utils/prayerTimes';
+import { fetchSurahDetails } from './api';
 
 export interface SalahLog {
   fajr: boolean;
@@ -108,7 +109,8 @@ interface AppState {
   playingAyahIndex: number;
   isPlaying: boolean;
   audioProgress: number; // 0 to 1
-  playAyah: (surah: SurahData, index: number) => void;
+  playAyah: (surah: SurahData, index: number, isWholeSurah?: boolean) => void;
+  playWholeSurah: (surah: SurahData) => void;
   togglePlay: () => void;
   stopPlayback: () => void;
   nextAyah: () => void;
@@ -278,7 +280,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   });
   const [activeTab, setActiveTab] = useState<Tab>(initialRoute.tab);
   const [favorites, setFavorites] = useState<number[]>(() => JSON.parse(localStorage.getItem('quran_favs') || '[]'));
-  const [qari, setQariState] = useState<string>(() => localStorage.getItem('quran_qari') || 'ar.alafasy');
+  const [qari, setQariState] = useState<string>(() => {
+    const saved = localStorage.getItem('quran_qari');
+    if (saved && !QARIS.some(q => q.id === saved)) {
+      localStorage.setItem('quran_qari', 'ar.alafasy');
+      return 'ar.alafasy';
+    }
+    return saved || 'ar.alafasy';
+  });
   
   const [autoScrollAyah, setAutoScrollAyahState] = useState<boolean>(() => localStorage.getItem('quran_autoscroll') !== 'false');
   const [arabicFontSize, setArabicFontSizeState] = useState<number>(() => Number(localStorage.getItem('quran_arabic_size')) || 32);
@@ -538,6 +547,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const isTransitioningRef = useRef(false);
 
   const audioRef = useRef<HTMLAudioElement>(null);
+  const playPromiseRef = useRef<Promise<void> | null>(null);
+  const activeUrlRef = useRef<string>('');
 
   // Save progress
   useEffect(() => {
@@ -666,10 +677,116 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     syncToFirebase({ theme: t });
   };
 
-  const setQari = (q: string) => {
+  const isSameAudioUrl = (a: string, b: string) => {
+    if (!a || !b) return false;
+    try {
+      const urlA = new URL(a, window.location.origin).href;
+      const urlB = new URL(b, window.location.origin).href;
+      return urlA === urlB;
+    } catch (e) {
+      const clean = (s: string) => s.trim().replace(/^https?:/i, '');
+      return clean(a) === clean(b);
+    }
+  };
+
+  const safePlay = async () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.src) return;
+
+    if (playPromiseRef.current) {
+      try {
+        await playPromiseRef.current;
+      } catch (e) {}
+    }
+
+    try {
+      const p = audio.play();
+      if (p !== undefined) {
+        playPromiseRef.current = p;
+        await p;
+      }
+    } catch (err: any) {
+      if (err?.name !== 'AbortError') {
+        console.warn('Audio playback error:', err);
+      }
+    } finally {
+      playPromiseRef.current = null;
+    }
+  };
+
+  const changeAudioTrack = async (url: string, shouldPlay: boolean) => {
+    const audio = audioRef.current;
+    if (!audio || !url) return;
+
+    if (activeUrlRef.current === url && isSameAudioUrl(audio.src, url)) {
+      if (shouldPlay) {
+        if (audio.paused || audio.ended) {
+          await safePlay();
+        }
+      } else {
+        if (!audio.paused) {
+          audio.pause();
+        }
+      }
+      return;
+    }
+
+    if (playPromiseRef.current) {
+      try {
+        await playPromiseRef.current;
+      } catch (e) {}
+    }
+
+    try {
+      isTransitioningRef.current = true;
+      audio.pause();
+      activeUrlRef.current = url;
+      audio.src = url;
+      audio.playbackRate = 1;
+
+      if (shouldPlay) {
+        await safePlay();
+      }
+    } catch (err: any) {
+      if (err?.name !== 'AbortError') {
+        console.warn('Audio switch error:', err);
+      }
+    } finally {
+      setTimeout(() => {
+        isTransitioningRef.current = false;
+      }, 300);
+    }
+  };
+
+  const setQari = async (q: string) => {
     setQariState(q);
     localStorage.setItem('quran_qari', q);
     syncToFirebase({ qari: q });
+
+    // Live seamless switch: if a surah is currently active, transition audio immediately without stopping or restarting
+    if (playingSurah && playingAyahIndex >= 0) {
+      try {
+        const surahNum = playingSurah.number;
+        const currentIdx = playingAyahIndex;
+        const wasPlaying = isPlaying;
+
+        const updatedSurah = await fetchSurahDetails(surahNum, q);
+        setPlayingSurah(updatedSurah);
+
+        let newUrl = updatedSurah.ayahs[currentIdx]?.audioUrl;
+        if (q === 'special.bangla_translation' && activeUrlRef.current === playingSurah.banglaAudioUrl && updatedSurah.banglaAudioUrl) {
+          newUrl = updatedSurah.banglaAudioUrl;
+        }
+        if (newUrl) {
+          await changeAudioTrack(newUrl, wasPlaying);
+        }
+        try {
+          updateMediaSessionMetadata(updatedSurah, currentIdx, q);
+        } catch (e) {}
+      } catch (err) {
+        console.error('Failed to seamlessly switch reciter live:', err);
+      }
+    }
   };
 
   const setAutoScrollAyah = (v: boolean) => {
@@ -784,6 +901,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const playAzan = () => {
     if (!azanAudioRef.current) {
         azanAudioRef.current = new Audio('https://www.islamcan.com/audio/adhan/azan12.mp3');
+        azanAudioRef.current.onended = () => setIsAzanPlaying(false);
+        azanAudioRef.current.onerror = () => setIsAzanPlaying(false);
     }
     if (isAzanPlaying) {
         azanAudioRef.current.pause();
@@ -940,50 +1059,53 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         // Force replay of the same ayah
         if (audioRef.current) {
           audioRef.current.currentTime = 0;
-          audioRef.current.play().catch(e => console.log('Replay error', e));
+          safePlay();
         }
         return;
       }
-      
+
+      // If playing full-surah Bangla translation audio
+      if (qari === 'special.bangla_translation' && activeUrlRef.current === playingSurah.banglaAudioUrl) {
+        if (currentRepeatMode === 'surah') {
+          if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+            safePlay();
+          }
+        } else {
+          setIsPlaying(false);
+          setPlayingAyahIndex(-1);
+          activeUrlRef.current = '';
+        }
+        return;
+      }
+
       if (playingAyahIndex < playingSurah.ayahs.length - 1) {
         const nextIndex = playingAyahIndex + 1;
-        isTransitioningRef.current = true;
-        // Instantly assign the next source and play to bypass mobile background suspension delays
-        if (audioRef.current) {
-           audioRef.current.src = playingSurah.ayahs[nextIndex].audioUrl;
-           audioRef.current.play().catch(e => console.log('Background transition error', e));
+        setPlayingAyahIndex(nextIndex);
+        setIsPlaying(true);
+        const url = playingSurah.ayahs[nextIndex]?.audioUrl;
+        if (url) {
+          changeAudioTrack(url, true);
         }
-        // Update Media Session instantly for robust background transitions
         try {
           updateMediaSessionMetadata(playingSurah, nextIndex, qari);
         } catch (e) {}
-        // Update state to reflect changes
-        setPlayingAyahIndex(nextIndex);
-        setIsPlaying(true);
-        setTimeout(() => {
-          isTransitioningRef.current = false;
-        }, 300);
       } else {
         if (currentRepeatMode === 'surah') {
-           const nextIndex = 0;
-           isTransitioningRef.current = true;
-           // Instantly replay surah from start
-           if (audioRef.current) {
-               audioRef.current.src = playingSurah.ayahs[nextIndex].audioUrl;
-               audioRef.current.play().catch(() => {});
-           }
-           // Update Media Session instantly for robust background transitions
-           try {
-             updateMediaSessionMetadata(playingSurah, nextIndex, qari);
-           } catch (e) {}
-           setPlayingAyahIndex(nextIndex);
-           setIsPlaying(true);
-           setTimeout(() => {
-             isTransitioningRef.current = false;
-           }, 300);
+          const nextIndex = 0;
+          setPlayingAyahIndex(nextIndex);
+          setIsPlaying(true);
+          const url = playingSurah.ayahs[nextIndex]?.audioUrl;
+          if (url) {
+            changeAudioTrack(url, true);
+          }
+          try {
+            updateMediaSessionMetadata(playingSurah, nextIndex, qari);
+          } catch (e) {}
         } else {
-           setIsPlaying(false);
-           setPlayingAyahIndex(-1);
+          setIsPlaying(false);
+          setPlayingAyahIndex(-1);
+          activeUrlRef.current = '';
         }
       }
     };
@@ -1010,17 +1132,17 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
     };
-  }, [playingSurah, playingAyahIndex]);
+  }, [playingSurah, playingAyahIndex, qari]);
 
   // Pre-fetch surrounding ayahs to browser's cache for instantaneous gapless transitions
   useEffect(() => {
     if (playingSurah && playingAyahIndex >= 0) {
-      // Preload next 3 ayahs for seamless experience
-      for (let i = 1; i <= 3; i++) {
+      // Preload next 2 ayahs for seamless experience
+      for (let i = 1; i <= 2; i++) {
         const prefetchIndex = playingAyahIndex + i;
         if (prefetchIndex < playingSurah.ayahs.length) {
-          const url = playingSurah.ayahs[prefetchIndex].audioUrl;
-          if (url) {
+          const url = playingSurah.ayahs[prefetchIndex]?.audioUrl;
+          if (url && typeof url === 'string') {
             const aud = new Audio();
             aud.src = url;
             aud.preload = 'auto';
@@ -1029,17 +1151,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
       // Also preload previous ayah just in case user clicks back
       if (playingAyahIndex > 0) {
-        const prevUrl = playingSurah.ayahs[playingAyahIndex - 1].audioUrl;
-        if (prevUrl) {
+        const prevUrl = playingSurah.ayahs[playingAyahIndex - 1]?.audioUrl;
+        if (prevUrl && typeof prevUrl === 'string') {
           const aud = new Audio();
           aud.src = prevUrl;
           aud.preload = 'auto';
         }
       }
     }
-  }, [playingSurah, playingAyahIndex]);
-
-  // Removed MediaSession interaction
+  }, [playingSurah, playingAyahIndex, qari]);
 
   const clearPlayingNotification = async () => {
     if ('serviceWorker' in navigator) {
@@ -1051,64 +1171,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const isSameAudioUrl = (a: string, b: string) => {
-    if (!a || !b) return false;
-    try {
-      // Create canonical absolute URLs for bulletproof comparison
-      const urlA = new URL(a, window.location.origin).href;
-      const urlB = new URL(b, window.location.origin).href;
-      return urlA === urlB;
-    } catch (e) {
-      // Fallback to simple clean string comparison if URL parsing fails
-      const clean = (s: string) => s.trim().replace(/^https?:/i, '');
-      return clean(a) === clean(b);
-    }
-  };
-
   useEffect(() => {
-    const audio = audioRef.current;
-    if (playingSurah && playingAyahIndex >= 0 && audio) {
+    if (playingSurah && playingAyahIndex >= 0) {
       const currentAyahObj = playingSurah.ayahs[playingAyahIndex];
-      
-      const setupAndPlay = async () => {
-        // Only update src if it's actually different to prevent flickering/session reset
-        if (!isSameAudioUrl(audio.src, currentAyahObj.audioUrl)) {
-          try {
-            isTransitioningRef.current = true;
-            audio.pause();
-            audio.src = currentAyahObj.audioUrl;
-            audio.load(); // Explicit load to ensure state is ready
-            audio.playbackRate = 1;
-            setTimeout(() => {
-              isTransitioningRef.current = false;
-            }, 300);
-          } catch (e) {}
-        }
-        
-        if (isPlaying) {
-          try {
-            // Check if audio is already playing to avoid redundant play() calls
-            if (audio.paused || audio.ended) {
-              const playPromise = audio.play();
-              if (playPromise !== undefined) {
-                await playPromise;
-              }
-            }
-          } catch (e) {
-            if (e instanceof Error && e.name !== 'AbortError') {
-              console.log('Audio playback failed', e);
-            }
-          }
-        } else {
-          try {
-            if (!audio.paused) {
-              audio.pause();
-            }
-          } catch (e) {}
-        }
-      };
-
-      setupAndPlay();
+      if (currentAyahObj?.audioUrl) {
+        changeAudioTrack(currentAyahObj.audioUrl, isPlaying);
+      }
       
       setLastRead({
         surahNumber: playingSurah.number,
@@ -1132,25 +1200,45 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
       }
     }
-  }, [playingSurah, playingAyahIndex, isPlaying, qari]);
+  }, [playingSurah, playingAyahIndex, isPlaying]);
 
-  const playAyah = (surah: SurahData, index: number) => {
+  const playAyah = (surah: SurahData, index: number, isWholeSurah: boolean = false) => {
     setPlayingSurah(surah);
     setPlayingAyahIndex(index);
     setIsPlaying(true);
     recordSurahProgress(surah.number, index, 0);
     if (isAzanPlaying) playAzan(); // Stop Azan if starting Quran
+    let url = surah.ayahs[index]?.audioUrl;
+    if (qari === 'special.bangla_translation' && isWholeSurah && surah.banglaAudioUrl) {
+      url = surah.banglaAudioUrl;
+    }
+    if (url) {
+      changeAudioTrack(url, true);
+    }
+  };
+
+  const playWholeSurah = (surah: SurahData) => {
+    playAyah(surah, 0, true);
   };
 
   const togglePlay = () => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
     if (isPlaying) {
-      audioRef.current.pause();
+      audio.pause();
+      setIsPlaying(false);
     } else {
-      if (playingSurah && playingAyahIndex === -1) {
-        setPlayingAyahIndex(0);
-      } else {
-        audioRef.current.play();
+      if (playingSurah) {
+        const idx = playingAyahIndex === -1 ? 0 : playingAyahIndex;
+        setPlayingAyahIndex(idx);
+        setIsPlaying(true);
+        let url = playingSurah.ayahs[idx]?.audioUrl;
+        if (qari === 'special.bangla_translation' && idx === 0 && playingSurah.banglaAudioUrl) {
+          url = playingSurah.banglaAudioUrl;
+        }
+        if (url) {
+          changeAudioTrack(url, true);
+        }
       }
     }
   };
@@ -1160,8 +1248,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setPlayingSurah(null);
     setPlayingAyahIndex(-1);
     setAudioProgress(0);
+    activeUrlRef.current = '';
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current.removeAttribute('src');
     }
     clearPlayingNotification().catch(() => {});
   };
@@ -1169,56 +1259,44 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const nextAyah = () => {
     if (playingSurah && playingAyahIndex < playingSurah.ayahs.length - 1) {
       const nextIndex = playingAyahIndex + 1;
-      isTransitioningRef.current = true;
-      if (audioRef.current) {
-        audioRef.current.src = playingSurah.ayahs[nextIndex].audioUrl;
-        audioRef.current.play().catch(() => {});
+      setPlayingAyahIndex(nextIndex);
+      setIsPlaying(true);
+      const url = playingSurah.ayahs[nextIndex]?.audioUrl;
+      if (url) {
+        changeAudioTrack(url, true);
       }
       try {
         updateMediaSessionMetadata(playingSurah, nextIndex, qari);
       } catch (e) {}
-      setPlayingAyahIndex(nextIndex);
-      setIsPlaying(true);
-      setTimeout(() => {
-        isTransitioningRef.current = false;
-      }, 300);
     }
   };
 
   const prevAyah = () => {
     if (playingSurah && playingAyahIndex > 0) {
       const prevIndex = playingAyahIndex - 1;
-      isTransitioningRef.current = true;
-      if (audioRef.current) {
-        audioRef.current.src = playingSurah.ayahs[prevIndex].audioUrl;
-        audioRef.current.play().catch(() => {});
+      setPlayingAyahIndex(prevIndex);
+      setIsPlaying(true);
+      const url = playingSurah.ayahs[prevIndex]?.audioUrl;
+      if (url) {
+        changeAudioTrack(url, true);
       }
       try {
         updateMediaSessionMetadata(playingSurah, prevIndex, qari);
       } catch (e) {}
-      setPlayingAyahIndex(prevIndex);
-      setIsPlaying(true);
-      setTimeout(() => {
-        isTransitioningRef.current = false;
-      }, 300);
     }
   };
 
   const seekAyah = (index: number) => {
     if (playingSurah && index >= 0 && index < playingSurah.ayahs.length) {
-      isTransitioningRef.current = true;
-      if (audioRef.current) {
-        audioRef.current.src = playingSurah.ayahs[index].audioUrl;
-        audioRef.current.play().catch(() => {});
+      setPlayingAyahIndex(index);
+      setIsPlaying(true);
+      const url = playingSurah.ayahs[index]?.audioUrl;
+      if (url) {
+        changeAudioTrack(url, true);
       }
       try {
         updateMediaSessionMetadata(playingSurah, index, qari);
       } catch (e) {}
-      setPlayingAyahIndex(index);
-      setIsPlaying(true);
-      setTimeout(() => {
-        isTransitioningRef.current = false;
-      }, 300);
     }
   };
 
@@ -1253,7 +1331,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         prayerTimes, nextPrayer, location, playAzan, isAzanPlaying,
 
         playingSurah, playingAyahIndex, isPlaying, audioProgress,
-        playAyah, togglePlay, stopPlayback, nextAyah, prevAyah, seekAyah, audioRef,
+        playAyah, playWholeSurah, togglePlay, stopPlayback, nextAyah, prevAyah, seekAyah, audioRef,
         firebaseAuthError,
         globalZoom, setGlobalZoom,
         zoomLocked, setZoomLocked,
@@ -1262,7 +1340,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       {children}
-      <audio ref={audioRef} className="hidden" preload="auto" playsInline />
+      <audio 
+        ref={audioRef} 
+        className="hidden" 
+        preload="none" 
+        playsInline 
+        onError={(e) => {
+          e.stopPropagation();
+        }} 
+      />
     </AppContext.Provider>
   );
 };
