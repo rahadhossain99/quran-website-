@@ -13,9 +13,12 @@ import {
   ArrowUp,
   Music,
   Sliders,
+  BookOpen,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ShareModal } from "../components/ShareModal";
+import { AyahDetailModal } from "../components/AyahDetailModal";
+import { Ayah } from "../types";
 
 export const ReaderView = () => {
   const {
@@ -48,6 +51,7 @@ export const ReaderView = () => {
     bengali: string;
     number: number;
   } | null>(null);
+  const [selectedTafsirAyah, setSelectedTafsirAyah] = useState<Ayah | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showFontSettings, setShowFontSettings] = useState(false);
 
@@ -145,11 +149,7 @@ export const ReaderView = () => {
   ]);
 
   const handleBack = () => {
-    if (window.history.state && window.history.state.surah !== null) {
-      window.history.back();
-    } else {
-      setCurrentViewSurah(null);
-    }
+    setCurrentViewSurah(null);
   };
 
   const isCurrentSurahPlaying =
@@ -510,7 +510,15 @@ export const ReaderView = () => {
                         )}
                       </div>
 
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1.5">
+                        <button
+                          onClick={() => setSelectedTafsirAyah(ayah)}
+                          className="px-3 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold bg-[var(--bg-main)] text-[var(--text-muted)] hover:text-[var(--primary)] border border-[var(--border)] hover:border-[var(--primary)]/40 transition-all cursor-pointer active:scale-95"
+                          title="আয়াতের বিস্তারিত বাংলা তাফসির দেখুন"
+                        >
+                          <BookOpen className="w-3.5 h-3.5 text-amber-500" />
+                          <span>তাফসির</span>
+                        </button>
                         <button
                           onClick={() =>
                             setShareAyah({
@@ -573,7 +581,9 @@ export const ReaderView = () => {
                         : ""
                     }`}>
                       <p
-                        className="font-bold text-[var(--text-main)] font-bengali min-h-full"
+                        onClick={() => setSelectedTafsirAyah(ayah)}
+                        className="font-bold text-[var(--text-main)] font-bengali min-h-full cursor-pointer hover:text-[var(--primary)] transition-colors"
+                        title="ক্লিক করে ড. আবু বকর যাকারিয়ার তাফসির পড়ুন"
                         style={{
                           fontSize: `${bengaliFontSize}px`,
                           lineHeight: "1.8",
@@ -661,6 +671,42 @@ export const ReaderView = () => {
           bengaliText={shareAyah.bengali}
           surahName={`সূরা ${data.name} (${data.englishName})`}
           ayahNumber={shareAyah.number}
+        />
+      )}
+
+      {selectedTafsirAyah && data && (
+        <AyahDetailModal
+          isOpen={Boolean(selectedTafsirAyah)}
+          onClose={() => setSelectedTafsirAyah(null)}
+          surahNumber={data.number}
+          surahName={`সূরা ${data.name} (${data.englishName})`}
+          ayahNumber={selectedTafsirAyah.numberInSurah}
+          arabicText={selectedTafsirAyah.arabicText}
+          bengaliText={selectedTafsirAyah.bengaliText}
+          transliterationText={selectedTafsirAyah.transliterationText}
+          audioUrl={selectedTafsirAyah.audioUrl}
+          isPlaying={
+            playingSurah?.number === data.number &&
+            playingAyahIndex === selectedTafsirAyah.numberInSurah - 1 &&
+            isPlaying
+          }
+          onTogglePlay={() => {
+            const idx = selectedTafsirAyah.numberInSurah - 1;
+            if (playingSurah?.number === data.number && playingAyahIndex === idx && isPlaying) {
+              togglePlay();
+            } else {
+              playAyah(data, idx);
+            }
+          }}
+          onOpenShare={() => {
+            const ayahToShare = selectedTafsirAyah;
+            setSelectedTafsirAyah(null);
+            setShareAyah({
+              arabic: ayahToShare.arabicText,
+              bengali: ayahToShare.bengaliText,
+              number: ayahToShare.numberInSurah,
+            });
+          }}
         />
       )}
     </div>

@@ -18,7 +18,7 @@ export interface SalahLog {
 }
 
 type AppTheme = 'light' | 'dark' | 'emerald' | 'luxury' | 'ocean' | 'rose' | 'sunset' | 'midnight';
-type Tab = 'home' | 'bookmarks' | 'tasbih' | 'duas' | 'settings' | 'salah-tracker' | 'salah-guide' | 'progress';
+export type Tab = 'home' | 'hadith' | 'zakat' | 'bookmarks' | 'tasbih' | 'duas' | 'settings' | 'salah-tracker' | 'salah-guide' | 'progress';
 
 interface LastRead {
   surahNumber: number;
@@ -127,6 +127,8 @@ interface AppState {
   toggleSalahLog: (dateStr: string, prayerId: keyof SalahLog) => void;
   isSidebarCollapsed: boolean;
   setIsSidebarCollapsed: (v: boolean | ((prev: boolean) => boolean)) => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
 }
 
 const toBengaliNumber = (num: number) => {
@@ -170,8 +172,8 @@ const updateMediaSessionMetadata = (surah: SurahData, ayahIndex: number, qariId:
   });
 };
 
-export const parseRoute = (): { tab: Tab; surah: number | null } => {
-  if (typeof window === 'undefined') return { tab: 'home', surah: null };
+export const parseRoute = (): { tab: Tab; surah: number | null; isClean: boolean } => {
+  if (typeof window === 'undefined') return { tab: 'home', surah: null, isClean: false };
 
   // Support clean slash pathname first, with fallback to hash for backward compatibility
   let cleanPath = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
@@ -182,19 +184,23 @@ export const parseRoute = (): { tab: Tab; surah: number | null } => {
     if (hashClean) cleanPath = hashClean;
   }
 
+  if (cleanPath === 'clean' || cleanPath === 'clean-mode') {
+    return { tab: 'home', surah: null, isClean: true };
+  }
+
   if (cleanPath.startsWith('surah/')) {
     const num = parseInt(cleanPath.replace('surah/', ''), 10);
     if (!isNaN(num) && num >= 1 && num <= 114) {
-      return { tab: 'home', surah: num };
+      return { tab: 'home', surah: num, isClean: false };
     }
   }
 
-  const validTabs: Tab[] = ['home', 'bookmarks', 'tasbih', 'duas', 'settings', 'salah-tracker', 'salah-guide', 'progress'];
+  const validTabs: Tab[] = ['home', 'hadith', 'zakat', 'bookmarks', 'tasbih', 'duas', 'settings', 'salah-tracker', 'salah-guide', 'progress'];
   if (validTabs.includes(cleanPath as Tab)) {
-    return { tab: cleanPath as Tab, surah: null };
+    return { tab: cleanPath as Tab, surah: null, isClean: false };
   }
 
-  return { tab: 'home', surah: null };
+  return { tab: 'home', surah: null, isClean: false };
 };
 
 // Backward-compatible alias
@@ -299,7 +305,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [currentViewSurah, setCurrentViewSurah] = useState<number | null>(initialRoute.surah);
   const [initialTargetAyahIndex, setInitialTargetAyahIndex] = useState<number | null>(null);
-  const [isCleanMode, setIsCleanMode] = useState<boolean>(false);
+  const [isCleanMode, setIsCleanMode] = useState<boolean>(initialRoute.isClean);
 
   const [reminders, setReminders] = useState<string[]>(() => {
     const saved = localStorage.getItem('quran_reminders');
@@ -332,6 +338,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
     return false;
   });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   const handleSetIsSidebarCollapsed = (v: boolean | ((prev: boolean) => boolean)) => {
     setIsSidebarCollapsed(prev => {
@@ -370,13 +377,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const isPoppingStateRef = useRef(false);
 
-  // Sync activeTab and currentViewSurah to browser URL using clean slashes (e.g. /home, /surah/1, /salah-tracker)
+  // Sync activeTab, currentViewSurah, and isCleanMode to browser URL using clean slashes (e.g. /home, /surah/1, /clean, /hadith, /zakat)
   useEffect(() => {
     if (isPoppingStateRef.current) return;
     if (typeof window === 'undefined') return;
 
     let targetPath = '/home';
-    if (currentViewSurah !== null) {
+    if (isCleanMode) {
+      targetPath = '/clean';
+    } else if (currentViewSurah !== null) {
       targetPath = `/surah/${currentViewSurah}`;
     } else if (activeTab) {
       targetPath = `/${activeTab}`;
@@ -385,11 +394,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const currentPath = window.location.pathname;
     // If the browser currently has a hash (from old cache/link), clean it up
     if (window.location.hash) {
-      window.history.replaceState({ tab: activeTab, surah: currentViewSurah }, '', targetPath);
+      window.history.replaceState({ tab: activeTab, surah: currentViewSurah, isClean: isCleanMode }, '', targetPath);
     } else if (currentPath !== targetPath && currentPath !== targetPath + '/') {
-      window.history.pushState({ tab: activeTab, surah: currentViewSurah }, '', targetPath);
+      window.history.pushState({ tab: activeTab, surah: currentViewSurah, isClean: isCleanMode }, '', targetPath);
     }
-  }, [activeTab, currentViewSurah]);
+  }, [activeTab, currentViewSurah, isCleanMode]);
 
   // Listen to popstate and hashchange events (browser back/forward, manual link entry)
   useEffect(() => {
@@ -398,6 +407,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const handleRouteChange = () => {
       const route = parseRoute();
       isPoppingStateRef.current = true;
+      setIsCleanMode(route.isClean);
       setActiveTab(route.tab);
       setCurrentViewSurah(route.surah);
       setTimeout(() => {
@@ -411,8 +421,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // Initial check: clean up any hash if present
     if (window.location.hash) {
       const route = parseRoute();
-      const cleanPath = route.surah !== null ? `/surah/${route.surah}` : `/${route.tab}`;
-      window.history.replaceState({ tab: route.tab, surah: route.surah }, '', cleanPath);
+      const cleanPath = route.isClean ? '/clean' : route.surah !== null ? `/surah/${route.surah}` : `/${route.tab}`;
+      window.history.replaceState({ tab: route.tab, surah: route.surah, isClean: route.isClean }, '', cleanPath);
     }
 
     return () => {
@@ -1427,6 +1437,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         zoomLocked, setZoomLocked,
         salahLogs, toggleSalahLog,
         isSidebarCollapsed, setIsSidebarCollapsed: handleSetIsSidebarCollapsed,
+        isMobileMenuOpen, setIsMobileMenuOpen,
       }}
     >
       {children}

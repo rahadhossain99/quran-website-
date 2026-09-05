@@ -13,13 +13,14 @@ import { CleanModeView } from './views/CleanMode';
 import { SalahTrackerView } from './views/SalahTracker';
 import { SalahGuideView } from './views/SalahGuide';
 import { ProgressView } from './views/ProgressView';
+import { HadithView } from './views/HadithView';
+import { ZakatView } from './views/ZakatView';
 import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Menu, X } from 'lucide-react';
 import { PWAInstallBanner } from './components/PWAInstallBanner';
 
 const AppContent = () => {
-  const { currentViewSurah, activeTab, isCleanMode, globalZoom, setCurrentViewSurah, setActiveTab } = useAppStore();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { currentViewSurah, activeTab, isCleanMode, globalZoom, setCurrentViewSurah, setActiveTab, isMobileMenuOpen, setIsMobileMenuOpen } = useAppStore();
 
   const zoomStyle = {
     zoom: `${globalZoom}%`
@@ -118,6 +119,8 @@ const AppContent = () => {
                   className="w-full h-full"
                 >
                   {activeTab === 'home' && <HomeView />}
+                  {activeTab === 'hadith' && <HadithView />}
+                  {activeTab === 'zakat' && <ZakatView />}
                   {activeTab === 'duas' && <DuasView />}
                   {activeTab === 'bookmarks' && <BookmarksView />}
                   {activeTab === 'settings' && <SettingsView />}

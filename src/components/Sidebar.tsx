@@ -2,13 +2,13 @@ import { useAppStore } from '../Store';
 import { 
   Home, Bookmark, Settings, CircleDashed, Sparkles, Clock, Palette, 
   BookOpen, Volume2, MapPin, CalendarCheck, Headphones, Sparkle,
-  PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight, TrendingUp
+  PanelLeftClose, PanelLeftOpen, ChevronLeft, ChevronRight, TrendingUp, Calculator
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { PWAInstallBanner } from './PWAInstallBanner';
 
-type Tab = 'home' | 'bookmarks' | 'tasbih' | 'duas' | 'settings' | 'salah-tracker' | 'salah-guide' | 'progress';
+type Tab = 'home' | 'hadith' | 'zakat' | 'bookmarks' | 'tasbih' | 'duas' | 'settings' | 'salah-tracker' | 'salah-guide' | 'progress';
 type AppTheme = 'light' | 'dark' | 'emerald' | 'luxury' | 'ocean' | 'rose' | 'sunset' | 'midnight';
 
 export const Sidebar = ({ 
@@ -44,6 +44,8 @@ export const Sidebar = ({
 
   const navItems = [
     { id: 'home', icon: Home, label: 'হোম', desc: 'আজকের কন্ট্রোল ও সূরা' },
+    { id: 'hadith', icon: BookOpen, label: 'হাদিস সংকলন', desc: 'বুখারী ও মুসলিমসহ সহীহ হাদিস' },
+    { id: 'zakat', icon: Calculator, label: 'যাকাত ক্যালকুলেটর', desc: 'স্বর্ণ ও রুপার নিসাব হিসাব' },
     { id: 'progress', icon: TrendingUp, label: 'অগ্রগতি', desc: 'তেলাওয়াত ও পড়ার পারফর্ম্যান্স' },
     { id: 'salah-tracker', icon: CalendarCheck, label: 'সালাত ট্র্যাকার', desc: 'দৈনিক নামাজ জিপিএস ট্র্যাকিং ও গ্রাফ' },
     { id: 'salah-guide', icon: BookOpen, label: 'সালাত শিক্ষা', desc: 'সালাতের নিয়ম ও প্রয়োজনীয় দোয়া' },

@@ -1,3 +1,5 @@
+export type Tab = 'home' | 'hadith' | 'zakat' | 'bookmarks' | 'tasbih' | 'duas' | 'settings' | 'salah-tracker' | 'salah-guide' | 'progress';
+
 export interface SurahInfo {
   number: number;
   name: string;

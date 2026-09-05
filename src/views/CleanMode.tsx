@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShareModal } from '../components/ShareModal';
+import { AyahDetailModal } from '../components/AyahDetailModal';
 
 type CleanTheme = 'emerald' | 'midnight' | 'royal' | 'ocean';
 type AmbientSound = 'off' | 'rain' | 'breeze' | 'peace';
@@ -52,6 +53,7 @@ export const CleanModeView = () => {
 
   // Share Card Modal State
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [tafsirModalOpen, setTafsirModalOpen] = useState(false);
 
   // Mobile responsiveness tab selection: 'playlist' or 'player'
   const [mobileActiveTab, setMobileActiveTab] = useState<'playlist' | 'player'>(
@@ -852,17 +854,27 @@ export const CleanModeView = () => {
                     />
                   </div>
 
-                  <button
-                    onClick={() => toggleFavorite(playingSurah.number)}
-                    className={`p-1 px-2.5 rounded-full border text-[10px] font-bengali flex items-center space-x-1 transition-all ${
-                      favorites.includes(playingSurah.number)
-                        ? 'bg-rose-500/20 border-rose-500/40 text-rose-300'
-                        : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    <Bookmark className={`w-3 h-3 ${favorites.includes(playingSurah.number) ? 'fill-current' : ''}`} />
-                    <span>বুকমার্ক</span>
-                  </button>
+                  <div className="flex items-center space-x-1.5">
+                    <button
+                      onClick={() => setTafsirModalOpen(true)}
+                      className="p-1 px-2.5 rounded-full border text-[10px] font-bengali flex items-center space-x-1 bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white hover:border-amber-500/40 transition-all cursor-pointer"
+                      title="আয়াতের বিস্তারিত বাংলা তাফসির"
+                    >
+                      <BookOpen className="w-3 h-3 text-amber-400" />
+                      <span>তাফসির</span>
+                    </button>
+                    <button
+                      onClick={() => toggleFavorite(playingSurah.number)}
+                      className={`p-1 px-2.5 rounded-full border text-[10px] font-bengali flex items-center space-x-1 transition-all ${
+                        favorites.includes(playingSurah.number)
+                          ? 'bg-rose-500/20 border-rose-500/40 text-rose-300'
+                          : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      <Bookmark className={`w-3 h-3 ${favorites.includes(playingSurah.number) ? 'fill-current' : ''}`} />
+                      <span>বুকমার্ক</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Clean Player Controls Bar */}
@@ -1053,6 +1065,27 @@ export const CleanModeView = () => {
           bengaliText={activeAyahObj.bengaliText}
           surahName={`সূরা ${playingSurah.name} (${playingSurah.englishName})`}
           ayahNumber={playingAyahIndex + 1}
+        />
+      )}
+
+      {/* Tafsir Modal Triggered from Clean Mode */}
+      {activeAyahObj && playingSurah && (
+        <AyahDetailModal
+          isOpen={tafsirModalOpen}
+          onClose={() => setTafsirModalOpen(false)}
+          surahNumber={playingSurah.number}
+          surahName={`সূরা ${playingSurah.name} (${playingSurah.englishName})`}
+          ayahNumber={playingAyahIndex + 1}
+          arabicText={activeAyahObj.arabicText}
+          bengaliText={activeAyahObj.bengaliText}
+          transliterationText={activeAyahObj.transliterationText}
+          audioUrl={activeAyahObj.audioUrl}
+          isPlaying={isPlaying}
+          onTogglePlay={togglePlay}
+          onOpenShare={() => {
+            setTafsirModalOpen(false);
+            setShareModalOpen(true);
+          }}
         />
       )}
 
